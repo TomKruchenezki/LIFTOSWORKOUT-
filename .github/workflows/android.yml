@@ -32,6 +32,20 @@ jobs:
           set -o pipefail
           ./gradlew --console=plain :app:assembleDebug 2>&1 | tee assemble.log
 
+      - name: Assemble release APK (R8-minified)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain :app:assembleRelease 2>&1 | tee release.log
+
+      - name: Upload release APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liftos-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
@@ -56,7 +70,7 @@ jobs:
         if: failure()
         run: |
           echo "=============== FAILURE SUMMARY ==============="
-          for f in test.log assemble.log; do
+          for f in test.log assemble.log release.log; do
             [ -f "$f" ] || continue
             echo "----- $f -----"
             grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-300 | head -n 45

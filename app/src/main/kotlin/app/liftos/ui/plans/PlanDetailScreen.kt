@@ -125,7 +125,7 @@ fun PlanDetailScreen(
                     IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, contentDescription = "עוד") }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         if (!isActive && !plan.isTemplate) DropdownMenuItem(text = { Text("הפוך לתוכנית פעילה") }, onClick = { menu = false; vm.activate() })
-                        DropdownMenuItem(text = { Text("שכפל תוכנית") }, onClick = { menu = false; vm.duplicatePlan(onBack) })
+                        DropdownMenuItem(text = { Text("שכפל תוכנית") }, onClick = { menu = false; vm.duplicatePlan { onBack() } })
                         if (!plan.isTemplate) DropdownMenuItem(text = { Text("שמור כתבנית") }, onClick = { menu = false; vm.saveAsTemplate() })
                         DropdownMenuItem(text = { Text("מחק תוכנית", color = MaterialTheme.colorScheme.error) }, onClick = { menu = false; confirmDelete = true })
                     }

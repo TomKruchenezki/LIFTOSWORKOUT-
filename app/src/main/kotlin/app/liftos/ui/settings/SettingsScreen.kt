@@ -158,9 +158,9 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (!granted && Build.VERSION.SDK_INT >= 33) {
-                        SoftButton("אפשר התראות", Modifier.weight(1f), onClick = { notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS) })
+                        SoftButton("אפשר התראות", modifier = Modifier.weight(1f), onClick = { notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS) })
                     }
-                    SoftButton("הגדרות המערכת", Modifier.weight(1f), onClick = {
+                    SoftButton("הגדרות המערכת", modifier = Modifier.weight(1f), onClick = {
                         context.startActivity(
                             Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                                 .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -197,7 +197,7 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
                 })
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SoftButton("אימונים ל-CSV", Modifier.weight(1f), onClick = {
+                    SoftButton("אימונים ל-CSV", modifier = Modifier.weight(1f), onClick = {
                         scope.launch {
                             val all = container.workouts.observeHistory()
                             val details = mutableListOf<app.liftos.domain.model.WorkoutDetail>()
@@ -205,7 +205,7 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
                             ShareHelper.shareFile(context, "liftos-workouts-${LocalDate.now()}.csv", "text/csv", CsvExporter.sessions(details), utf8Bom = true)
                         }
                     })
-                    SoftButton("מדידות ל-CSV", Modifier.weight(1f), onClick = {
+                    SoftButton("מדידות ל-CSV", modifier = Modifier.weight(1f), onClick = {
                         scope.launch {
                             ShareHelper.shareFile(context, "liftos-measurements-${LocalDate.now()}.csv", "text/csv", CsvExporter.measurements(container.measurements.observeAllOnce()), utf8Bom = true)
                         }

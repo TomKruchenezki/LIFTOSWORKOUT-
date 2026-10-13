@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import app.liftos.data.TimeSource
+import app.liftos.domain.model.AppSettings
 import app.liftos.data.ZoneSource
 import app.liftos.data.db.AppDatabase
 import app.liftos.data.prefs.DevicePrefs
@@ -57,10 +58,10 @@ class AppContainer(
     }
 
     @Volatile
-    private var latestSettings: app.liftos.domain.model.AppSettings = app.liftos.domain.model.AppSettings()
+    private var latestSettings: AppSettings = AppSettings()
 
     /** Last known settings (kept fresh by [start]); lets non-suspend code read a preference. */
-    fun settingsSnapshot(): app.liftos.domain.model.AppSettings = latestSettings
+    fun settingsSnapshot(): AppSettings = latestSettings
 
     private val _ready = MutableStateFlow(false)
 

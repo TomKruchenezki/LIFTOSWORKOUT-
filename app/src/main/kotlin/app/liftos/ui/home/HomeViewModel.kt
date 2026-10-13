@@ -100,7 +100,7 @@ class HomeViewModel(private val c: AppContainer) : ViewModel() {
         val all = b[3] as List<BodyMeasurement>
 
         val next = plan?.let { NextWorkoutResolver.resolve(it.workouts.map { w -> w.workout }, refs, cnt.first) }
-        val nextDetail = next?.workout?.let { nw -> plan.workouts.firstOrNull { it.workout.id == nw.id } }
+        val nextDetail = next?.workout?.let { nw -> plan?.workouts?.firstOrNull { it.workout.id == nw.id } }
         HomeState(
             loading = false,
             settings = settings,
@@ -110,7 +110,7 @@ class HomeViewModel(private val c: AppContainer) : ViewModel() {
             nextExerciseCount = nextDetail?.exercises?.size ?: 0,
             nextSetCount = nextDetail?.exercises?.sumOf { it.targetSets } ?: 0,
             weekCount = cnt.second,
-            weekTarget = if (settings.weeklyGoalWorkouts > 0) settings.weeklyGoalWorkouts else (plan?.plan?.targetPerWeek(plan.workouts.size) ?: 0),
+            weekTarget = if (settings.weeklyGoalWorkouts > 0) settings.weeklyGoalWorkouts else (plan?.let { it.plan.targetPerWeek(it.workouts.size) } ?: 0),
             monthCount = cnt.third,
             latestWeight = latest,
             weightChange7 = BodyTrends.weightChange(all, 7),

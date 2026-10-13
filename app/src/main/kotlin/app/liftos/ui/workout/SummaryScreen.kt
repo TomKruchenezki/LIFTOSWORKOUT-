@@ -206,11 +206,11 @@ fun SummaryScreen(
                         })
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SoftButton("העתק סיכום", Modifier.weight(1f), icon = Icons.Rounded.ContentCopy, onClick = {
+                            SoftButton("העתק סיכום", modifier = Modifier.weight(1f), icon = Icons.Rounded.ContentCopy, onClick = {
                                 ShareHelper.copy(context, "סיכום אימון", TextReport.workout(detail, state.previous))
                                 scope.launch { snackbar.showSnackbar("הסיכום הועתק ללוח") }
                             })
-                            SoftButton("שתף", Modifier.weight(1f), icon = Icons.Rounded.Share, onClick = {
+                            SoftButton("שתף", modifier = Modifier.weight(1f), icon = Icons.Rounded.Share, onClick = {
                                 scope.launch {
                                     val body = if (attachBody) vm.bodySnapshot() else null
                                     ShareHelper.shareText(context, "דוח אימון", TextReport.aiReport(detail, state.previous, body))
@@ -219,11 +219,11 @@ fun SummaryScreen(
                         }
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SoftButton("ייצא JSON", Modifier.weight(1f), onClick = {
+                            SoftButton("ייצא JSON", modifier = Modifier.weight(1f), onClick = {
                                 val json = SessionJson.encode(SessionExportFile(exportedAt = System.currentTimeMillis(), workout = detail, previous = state.previous))
                                 ShareHelper.shareFile(context, "liftos-workout-${session.localDate}.json", "application/json", json)
                             })
-                            SoftButton("ייצא CSV", Modifier.weight(1f), onClick = {
+                            SoftButton("ייצא CSV", modifier = Modifier.weight(1f), onClick = {
                                 ShareHelper.shareFile(context, "liftos-workout-${session.localDate}.csv", "text/csv", CsvExporter.sessions(listOf(detail)), utf8Bom = true)
                             })
                         }
