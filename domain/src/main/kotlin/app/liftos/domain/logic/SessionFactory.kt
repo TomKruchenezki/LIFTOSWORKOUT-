@@ -78,7 +78,41 @@ object SessionFactory {
         return WorkoutDetail(session, emptyList())
     }
 
-    private fun buildExercise(
+    /**
+     * Creates a session exercise that is not part of any plan (added during a workout, or swapped in).
+     * [targetSets] working rows are pre-filled from [previous] when available.
+     */
+    fun adHocExercise(
+        sessionId: String,
+        orderIndex: Int,
+        exercise: Exercise,
+        targetSets: Int,
+        restSeconds: Int,
+        previous: PreviousPerformance?,
+        idGen: IdGenerator = IdGenerator.Random,
+    ): ExerciseWithSets {
+        val (min, max) = defaultRepRange(exercise)
+        val planned = PlannedExercise(
+            id = "",
+            plannedWorkoutId = "",
+            exerciseId = exercise.id,
+            orderIndex = orderIndex,
+            targetSets = targetSets,
+            repsMin = min,
+            repsMax = max,
+            restSeconds = restSeconds,
+        )
+        return buildExercise(sessionId, orderIndex, planned, exercise, previous, idGen)
+    }
+
+    /** Sensible starting rep ranges for exercises added on the fly. */
+    fun defaultRepRange(exercise: Exercise): Pair<Int, Int> = when {
+        exercise.trackingType == TrackingType.DURATION -> 30 to 60
+        exercise.type == app.liftos.domain.model.ExerciseType.COMPOUND -> 6 to 10
+        else -> 10 to 15
+    }
+
+    fun buildExercise(
         sessionId: String,
         index: Int,
         p: PlannedExercise,
@@ -111,7 +145,7 @@ object SessionFactory {
         return ExerciseWithSets(se, buildSets(se, p, prev, idGen))
     }
 
-    internal fun buildSets(
+    fun buildSets(
         se: SessionExercise,
         p: PlannedExercise,
         prev: PreviousPerformance?,
