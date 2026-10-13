@@ -15,7 +15,7 @@ import androidx.compose.ui.test.onRoot
 const val PHONE_QUALIFIERS = "w411dp-h891dp-xxhdpi"
 
 /** A readable dump of the visible texts / content descriptions, printed when a wait times out. */
-fun ComposeContentTestRule.screenDump(maxLines: Int = 70): String {
+fun ComposeContentTestRule.screenDump(maxLines: Int = 60): String {
     val lines = mutableListOf<String>()
     fun walk(node: SemanticsNode, depth: Int) {
         val text = node.config.getOrNull(SemanticsProperties.Text)?.joinToString(" | ") { it.text }
@@ -31,7 +31,7 @@ fun ComposeContentTestRule.screenDump(maxLines: Int = 70): String {
     }
     return try {
         walk(onRoot(useUnmergedTree = false).fetchSemanticsNode(), 0)
-        lines.joinToString("\n").ifBlank { "(no text on screen)" }
+        lines.joinToString(" ⏎ ").ifBlank { "(no text on screen)" }
     } catch (e: Throwable) {
         "(could not dump the screen: ${e.message})"
     }
@@ -41,7 +41,7 @@ fun ComposeContentTestRule.waitUntilOrDump(what: String, timeoutMs: Long = 10_00
     try {
         waitUntil(timeoutMs, condition)
     } catch (e: ComposeTimeoutException) {
-        throw AssertionError("Timed out waiting for: $what\n--- screen ---\n${screenDump()}", e)
+        throw AssertionError("Timed out waiting for: $what | SCREEN: ${screenDump()}", e)
     }
 }
 

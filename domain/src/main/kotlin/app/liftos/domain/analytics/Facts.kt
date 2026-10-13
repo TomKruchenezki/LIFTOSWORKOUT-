@@ -2,6 +2,8 @@ package app.liftos.domain.analytics
 
 import app.liftos.domain.logic.OneRepMax
 import app.liftos.domain.logic.TimeUtils
+import app.liftos.domain.model.Equipment
+import app.liftos.domain.model.ExerciseType
 import app.liftos.domain.model.MuscleGroup
 import app.liftos.domain.model.SetType
 import app.liftos.domain.model.Side
@@ -46,6 +48,13 @@ data class SetFact(
     val rpe: Double? = null,
     val isFailure: Boolean = false,
     val completedAt: Long? = null,
+    /** Plan targets snapshotted into the workout (used by the progression engine). */
+    val plannedSets: Int = 0,
+    val targetRepsMin: Int? = null,
+    val targetRepsMax: Int? = null,
+    /** From the exercise library; null when the exercise was deleted from it. */
+    val equipment: Equipment? = null,
+    val exerciseType: ExerciseType? = null,
 ) {
     val key: String get() = ExerciseKey.of(exerciseId, exerciseNameEn, exerciseName)
     val date: LocalDate get() = TimeUtils.parseDate(localDate) ?: LocalDate.EPOCH
