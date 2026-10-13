@@ -26,6 +26,9 @@ dependencies {
 
 tasks.test {
     useJUnit()
+    // The tests validate the real exercise library shipped in the app's assets, so it is a task input:
+    // editing the JSON must re-run the tests (and never reuse a cached result).
+    inputs.dir("../app/src/main/assets/library").withPropertyName("exerciseLibrary")
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = false

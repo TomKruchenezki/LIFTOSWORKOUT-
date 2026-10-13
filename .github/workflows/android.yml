@@ -89,12 +89,12 @@ jobs:
 
       # Kept last on purpose: the end of the log is what gets read first.
       - name: Failure summary
-        if: failure()
+        if: always()
         run: |
           echo "=============== FAILURE SUMMARY ==============="
           for f in test.log ui.log assemble.log release.log; do
             [ -f "$f" ] || continue
-            echo "----- $f -----"
+            echo "----- $f ($(grep -c . "$f") lines) -----"
             grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-300 | head -n 45
           done
           echo "=============== END SUMMARY ==============="
