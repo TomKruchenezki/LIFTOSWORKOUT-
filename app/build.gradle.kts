@@ -1,3 +1,4 @@
+import java.time.Duration
 import java.util.Properties
 
 plugins {
@@ -117,7 +118,7 @@ tasks.withType<Test>().configureEach {
         filter { excludeTestsMatching("app.liftos.ui.*") }
     }
     // Fail loudly instead of hanging CI, and print enough detail to diagnose a failing test from the log alone.
-    timeout.set(java.time.Duration.ofMinutes(10))
+    timeout.set(Duration.ofMinutes(10))
     testLogging {
         events("failed", "skipped")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
