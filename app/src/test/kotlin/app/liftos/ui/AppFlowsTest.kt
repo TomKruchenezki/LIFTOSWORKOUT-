@@ -2,7 +2,9 @@ package app.liftos.ui
 
 import android.Manifest
 import android.app.Application
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -26,11 +28,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /** Longer user journeys through the real UI: they catch crashes in screens that only open from inside the app. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = PHONE_QUALIFIERS)
 class AppFlowsTest {
     @get:Rule
     val compose = createComposeRule()
@@ -47,12 +51,10 @@ class AppFlowsTest {
         }
     }
 
-    private fun waitForText(text: String, substring: Boolean = false, timeoutMs: Long = 10_000) {
-        compose.waitUntil(timeoutMs) { compose.onAllNodesWithText(text, substring = substring).fetchSemanticsNodes().isNotEmpty() }
-    }
+    private fun waitForText(text: String, substring: Boolean = false, timeoutMs: Long = 10_000) =
+        compose.waitForText(text, substring, timeoutMs)
 
-    private fun gone(text: String, substring: Boolean = false) =
-        compose.onAllNodesWithText(text, substring = substring).fetchSemanticsNodes().isEmpty()
+    private fun gone(text: String, substring: Boolean = false) = !compose.containsText(text, substring)
 
     @Test
     fun plan_screens_open_down_to_the_exercise_editor() {
@@ -74,7 +76,7 @@ class AppFlowsTest {
         waitForText("מספר סטים")
         waitForText("זמן מנוחה (שניות)")
         compose.onNodeWithText("שמור").performClick()
-        compose.waitUntil(5_000) { gone("מספר סטים") }
+        compose.waitUntilOrDump("editor sheet closes", 5_000) { gone("מספר סטים") }
     }
 
     @Test
@@ -86,9 +88,9 @@ class AppFlowsTest {
         val fields = compose.onAllNodes(hasSetTextAction())
         fields[0].performTextInput("60")
         fields[1].performTextInput("8")
-        compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("סמן כבוצע").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntilOrDump("complete-set button", 5_000) { compose.onAllNodesWithContentDescription("סמן כבוצע").fetchSemanticsNodes().isNotEmpty() }
         compose.onAllNodesWithContentDescription("סמן כבוצע")[0].performClick()
-        compose.waitUntil(5_000) {
+        compose.waitUntilOrDump("set saved as completed", 5_000) {
             runBlocking { app.container.workouts.observeActive().first() }
                 ?.let { runBlocking { app.container.workouts.getDetail(it.id) }!!.exercises[0].sets[0].isCompleted } == true
         }
@@ -113,7 +115,7 @@ class AppFlowsTest {
         waitForText("התחל אימון")
         compose.onNodeWithText("יומן").performClick()
         waitForText("יומן אימונים")
-        compose.waitUntil(10_000) { !gone("נפח", substring = true) }
+        compose.waitUntilOrDump("volume shown in the journal") { !gone("נפח", substring = true) }
     }
 
     @Test
@@ -123,7 +125,7 @@ class AppFlowsTest {
         waitForText("104 תרגילים")
         compose.onNode(hasSetTextAction()).performTextInput("פלאנק")
         waitForText("(מסונן)", substring = true)
-        compose.onAllNodesWithText("פלאנק")[0].performClick()
+        compose.onAllNodes(hasText("פלאנק") and hasClickAction())[0].performClick()
         waitForText("אופן ביצוע")
         waitForText("חפש הדגמה ביוטיוב")
         waitForText("זהו קישור לחיפוש ביוטיוב, לא סרטון מאומת", substring = true)
@@ -140,7 +142,7 @@ class AppFlowsTest {
         waitForText("אפשר למלא רק את מה שמדדת הפעם.")
         compose.onNodeWithText("משקל").performTextInput("82.5")
         compose.onNodeWithText("שמור מדידה").performClick()
-        compose.waitUntil(10_000) {
+        compose.waitUntilOrDump("measurement saved") {
             runBlocking { app.container.measurements.observeAllOnce() }.any { it.weightKg == 82.5 }
         }
         waitForText("כל המדידות")

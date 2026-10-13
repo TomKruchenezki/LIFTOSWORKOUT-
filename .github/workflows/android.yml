@@ -32,6 +32,8 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
+          # Keep the non-UI results: the UI run below rewrites app/build/test-results.
+          mkdir -p unit-results && cp -r app/build/test-results/. unit-results/ 2>/dev/null || true
           ./gradlew --console=plain :app:testDebugUnitTest -PuiTests --tests 'app.liftos.ui.*' 2>&1 | tee ui.log
 
       - name: Assemble debug APK
@@ -69,6 +71,7 @@ jobs:
             domain/build/reports/tests
             app/build/reports/tests
             app/build/test-results
+            unit-results
             domain/build/test-results
           if-no-files-found: ignore
 
@@ -77,14 +80,34 @@ jobs:
         run: |
           python3 - <<'PY'
           import glob, re
-          for module in ("domain", "app"):
+          sources = {
+              "domain": "domain/build/test-results",
+              "app-unit": "unit-results",
+              "app-ui": "app/build/test-results",
+          }
+          for module, root in sources.items():
               tests = fails = errs = skips = 0
-              for f in glob.glob(f"{module}/build/test-results/**/*.xml", recursive=True):
+              for f in glob.glob(f"{root}/**/*.xml", recursive=True):
                   m = re.search(r'tests="(\d+)" skipped="(\d+)" failures="(\d+)" errors="(\d+)"', open(f, encoding="utf-8").read())
                   if m:
                       t, sk, fa, er = map(int, m.groups())
                       tests += t; skips += sk; fails += fa; errs += er
               print(f"TEST TOTALS {module}: tests={tests} failures={fails} errors={errs} skipped={skips}")
+          PY
+
+      - name: Room schema SQL (reference for migration tests)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, glob
+          for f in sorted(glob.glob("app/schemas/*/*.json")):
+              db = json.load(open(f, encoding="utf-8"))["database"]
+              print("SCHEMA", f, "version", db["version"], "hash", db["identityHash"])
+              for e in db["entities"]:
+                  t = e["tableName"]
+                  print("SQL", e["createSql"].replace("${TABLE_NAME}", t))
+                  for i in e.get("indices", []):
+                      print("SQL", i["createSql"].replace("${TABLE_NAME}", t))
           PY
 
       # Kept last on purpose: the end of the log is what gets read first.
@@ -95,6 +118,6 @@ jobs:
           for f in test.log ui.log assemble.log release.log; do
             [ -f "$f" ] || continue
             echo "----- $f ($(grep -c . "$f") lines) -----"
-            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-300 | head -n 45
+            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed|\.kt:[0-9]+\)|Timed out|--- screen ---|text=\[|desc=\[|editable=\[" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-300 | head -n 110
           done
           echo "=============== END SUMMARY ==============="

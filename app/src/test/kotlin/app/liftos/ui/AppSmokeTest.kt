@@ -27,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
@@ -35,6 +36,7 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = PHONE_QUALIFIERS)
 class AppSmokeTest {
     @get:Rule
     val compose = createComposeRule()
@@ -51,9 +53,8 @@ class AppSmokeTest {
         }
     }
 
-    private fun waitForText(text: String, substring: Boolean = false, timeoutMs: Long = 10_000) {
-        compose.waitUntil(timeoutMs) { compose.onAllNodesWithText(text, substring = substring).fetchSemanticsNodes().isNotEmpty() }
-    }
+    private fun waitForText(text: String, substring: Boolean = false, timeoutMs: Long = 10_000) =
+        compose.waitForText(text, substring, timeoutMs)
 
     private fun waitForDescription(text: String, timeoutMs: Long = 10_000) {
         compose.waitUntil(timeoutMs) { compose.onAllNodesWithContentDescription(text).fetchSemanticsNodes().isNotEmpty() }
