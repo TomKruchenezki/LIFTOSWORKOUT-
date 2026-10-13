@@ -125,7 +125,7 @@ object SessionFactory {
             id = seId,
             sessionId = sessionId,
             exerciseId = ex.id,
-            plannedExerciseId = p.id,
+            plannedExerciseId = p.id.ifBlank { null },
             nameHe = ex.nameHe,
             nameEn = ex.nameEn,
             primaryMuscle = ex.primaryMuscle,

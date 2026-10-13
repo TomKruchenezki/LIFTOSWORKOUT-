@@ -1,0 +1,129 @@
+package app.liftos.ui
+
+import android.Manifest
+import android.app.Application
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
+import app.liftos.LiftOsApp
+import app.liftos.domain.model.AppSettings
+import app.liftos.ui.nav.LiftOsRoot
+import app.liftos.ui.theme.LiftOsTheme
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.GraphicsMode
+
+/**
+ * Renders the real app (theme, navigation, Room, seeded default plan) on the JVM and drives the main
+ * screens like a user would. This is what "the main screens work" means in CI.
+ */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class AppSmokeTest {
+    @get:Rule
+    val compose = createComposeRule()
+
+    private lateinit var app: LiftOsApp
+
+    @Before
+    fun setUp() {
+        app = ApplicationProvider.getApplicationContext<Application>() as LiftOsApp
+        shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        runBlocking { app.container.seeder.seedIfNeeded() }
+        compose.setContent {
+            LiftOsTheme(AppSettings().themeMode) { LiftOsRoot(app.container, AppSettings()) }
+        }
+    }
+
+    private fun waitForText(text: String, substring: Boolean = false, timeoutMs: Long = 10_000) {
+        compose.waitUntil(timeoutMs) { compose.onAllNodesWithText(text, substring = substring).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    private fun waitForDescription(text: String, timeoutMs: Long = 10_000) {
+        compose.waitUntil(timeoutMs) { compose.onAllNodesWithContentDescription(text).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test
+    fun home_shows_the_next_workout_with_a_start_button() {
+        waitForText("התחל אימון")
+        compose.onNodeWithText("התחל אימון").assertIsDisplayed()
+        // The default plan's workouts are Upper A / Lower A / Upper B / Lower B - one of them is "next".
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithText("Upper", substring = true).fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithText("Lower", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("אימונים השבוע").assertIsDisplayed()
+        compose.onNodeWithText("עוד לא תועד משקל").assertIsDisplayed()
+    }
+
+    @Test
+    fun bottom_tabs_open_their_screens() {
+        waitForText("התחל אימון")
+
+        compose.onNodeWithText("תוכניות").performClick()
+        waitForText("4 ימים בשבוע", substring = true)
+
+        compose.onNodeWithText("תרגילים").performClick()
+        waitForText("ספריית תרגילים")
+        waitForText("104 תרגילים")
+
+        compose.onNodeWithText("יומן").performClick()
+        waitForText("עוד אין אימונים ביומן")
+
+        compose.onNodeWithText("גוף").performClick()
+        waitForText("עוד אין מדידות")
+    }
+
+    @Test
+    fun library_search_filters_the_list() {
+        waitForText("התחל אימון")
+        compose.onNodeWithText("תרגילים").performClick()
+        waitForText("104 תרגילים")
+        compose.onNode(hasSetTextAction()).performTextInput("סקוואט")
+        waitForText("(מסונן)", substring = true)
+        waitForText("סקוואט עם מוט על הגב")
+    }
+
+    @Test
+    fun a_workout_can_be_started_and_a_set_logged_which_starts_the_rest_timer() {
+        waitForText("התחל אימון")
+        compose.onNodeWithText("התחל אימון").performClick()
+
+        // Workout screen: finish button, add-set buttons and the numeric fields are there.
+        waitForText("סיים")
+        waitForText("הוסף סט")
+        compose.onAllNodesWithText("הוסף סט")[0].assertIsDisplayed()
+
+        // Fields in the first set row: weight, reps, effort (in that order).
+        val fields = compose.onAllNodes(hasSetTextAction())
+        fields[0].performTextInput("60")
+        fields[1].performTextInput("8")
+
+        waitForDescription("סמן כבוצע")
+        compose.onAllNodesWithContentDescription("סמן כבוצע")[0].performClick()
+
+        // Completing a working set starts the rest bar (it offers +15 / +30).
+        waitForText("15", substring = true)
+        compose.onNodeWithContentDescription("דלג על המנוחה").assertIsDisplayed()
+    }
+
+    @Test
+    fun settings_open_from_home() {
+        waitForText("התחל אימון")
+        compose.onNodeWithContentDescription("הגדרות").performClick()
+        waitForText("גיבוי וייצוא נתונים")
+        compose.onNodeWithText("שמור גיבוי מלא לקובץ (JSON)").assertIsDisplayed()
+    }
+}

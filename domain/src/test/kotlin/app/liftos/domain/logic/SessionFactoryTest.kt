@@ -143,6 +143,19 @@ class SessionFactoryTest {
     }
 
     @Test
+    fun `an exercise added on the fly has no link to a planned exercise`() {
+        val hammer = library.getValue("hammer-curl")
+        val prev = PreviousPerformance("hammer-curl", "2026-10-04", "Upper B", listOf(set("p1", weight = 14.0, reps = 12)))
+        val built = SessionFactory.adHocExercise("s1", 4, hammer, targetSets = 3, restSeconds = 90, previous = prev, idGen = SeqIds("a"))
+        assertNull(built.exercise.plannedExerciseId)
+        assertEquals(4, built.exercise.orderIndex)
+        assertEquals(3, built.sets.size)
+        assertTrue(built.sets.all { it.weightKg == 14.0 && it.reps == 12 && !it.isCompleted })
+        assertEquals(90, built.exercise.restSeconds)
+        assertEquals(10, built.exercise.repsMin) // isolation exercises start at 10-15
+    }
+
+    @Test
     fun `blank workout has no exercises`() {
         val d = SessionFactory.blank("אימון חופשי", 0L, zone, SeqIds("b"))
         assertTrue(d.exercises.isEmpty())
