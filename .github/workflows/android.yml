@@ -30,10 +30,14 @@ jobs:
           java -version
 
       - name: Unit tests (domain + app)
-        run: ./gradlew --console=plain :domain:test :app:testDebugUnitTest
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain --continue :domain:test :app:testDebugUnitTest 2>&1 | tee test.log
 
       - name: Assemble debug APK
-        run: ./gradlew --console=plain :app:assembleDebug
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain :app:assembleDebug 2>&1 | tee assemble.log
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -41,6 +45,17 @@ jobs:
           name: liftos-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "=============== FAILURE SUMMARY ==============="
+          for f in test.log assemble.log; do
+            [ -f "$f" ] || continue
+            echo "----- $f -----"
+            grep -E "^e: |^w: .*(error)|error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |Test.*FAILED|AssertionError|Exception" "$f" | grep -v "^> Task .*UP-TO-DATE" | awk '!seen[$0]++' | head -n 90
+          done
+          echo "=============== END SUMMARY ==============="
 
       - name: Upload test reports
         if: always()

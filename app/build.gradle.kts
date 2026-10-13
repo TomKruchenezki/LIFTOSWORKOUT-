@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "app.liftos"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.liftos"
