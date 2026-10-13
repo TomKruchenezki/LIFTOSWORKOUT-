@@ -1,5 +1,6 @@
 package app.liftos.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -16,6 +17,14 @@ import app.liftos.domain.model.Side
 import app.liftos.domain.model.ThemeMode
 import app.liftos.domain.model.TrackingType
 import app.liftos.domain.model.ActivityType
+import app.liftos.domain.model.EventStatus
+import app.liftos.domain.model.GoalChangeKind
+import app.liftos.domain.model.GoalStatus
+import app.liftos.domain.model.GoalType
+import app.liftos.domain.model.OverrideAction
+import app.liftos.domain.model.PhotoAngle
+import app.liftos.domain.progression.DecisionType
+import app.liftos.domain.progression.SuggestionKind
 
 /*
  * Room entities. They mirror the domain models 1:1 (see Mappers.kt). List-valued fields are stored
@@ -146,6 +155,11 @@ data class WorkoutSessionEntity(
     val notes: String,
     val energyRating: Int?,
     val moodRating: Int?,
+    val difficultyRating: Int?,
+    val qualityRating: Int?,
+    val sorenessRating: Int?,
+    val fatigueRating: Int?,
+    val sleepHours: Double?,
     val restTotalMs: Long?,
     val restEndsAt: Long?,
     val restPausedRemainingMs: Long?,
@@ -243,6 +257,9 @@ data class BodyMeasurementEntity(
     val notes: String,
     val createdAt: Long,
     val updatedAt: Long,
+    val shouldersCm: Double?,
+    /** Comma separated MeasurementCondition names. */
+    @ColumnInfo(defaultValue = "''") val conditions: String,
 )
 
 @Entity(tableName = "activity_events", indices = [Index("startsAt"), Index("localDate")])
@@ -257,6 +274,12 @@ data class ActivityEventEntity(
     val durationMin: Int?,
     val createdAt: Long,
     val updatedAt: Long,
+    @ColumnInfo(defaultValue = "'DONE'") val status: EventStatus,
+    @ColumnInfo(defaultValue = "0") val allDay: Boolean,
+    val plannedWorkoutId: String?,
+    val linkedSessionId: String?,
+    @ColumnInfo(defaultValue = "''") val recurrence: String,
+    @ColumnInfo(defaultValue = "''") val recurrenceExceptions: String,
 )
 
 /** Single-row table (id is always 1). */
@@ -275,4 +298,139 @@ data class AppSettingsEntity(
     val activePlanId: String?,
     val weeklyGoalWorkouts: Int,
     val language: String,
+    /** JSON of ReminderSettings; empty = defaults. */
+    @ColumnInfo(defaultValue = "''") val remindersJson: String,
+)
+
+
+// ---- version 2 --------------------------------------------------------------------------------
+
+/** What the user decided about a progression suggestion (applied / ignored / typed their own weight). */
+@Entity(tableName = "progression_decisions", indices = [Index("exerciseKey"), Index("basedOnSessionId")])
+data class ProgressionDecisionEntity(
+    @PrimaryKey val id: String,
+    val exerciseKey: String,
+    val basedOnSessionId: String,
+    val kind: SuggestionKind,
+    val suggestedWeightKg: Double?,
+    val chosenWeightKg: Double?,
+    val decision: DecisionType,
+    val decidedAt: Long,
+)
+
+@Entity(tableName = "exercise_prefs")
+data class ExercisePrefsEntity(
+    @PrimaryKey val exerciseKey: String,
+    val incrementKg: Double?,
+    val updatedAt: Long,
+)
+
+/** A change to one planned occurrence of a plan day. Soft references only: plans can change freely. */
+@Entity(
+    tableName = "planned_overrides",
+    indices = [
+        Index("plannedWorkoutId", "originalDate", unique = true),
+        Index("newDate"),
+    ],
+)
+data class PlannedOverrideEntity(
+    @PrimaryKey val id: String,
+    val plannedWorkoutId: String,
+    val originalDate: String,
+    val action: OverrideAction,
+    val newDate: String?,
+    val newStartMinutes: Int?,
+    val note: String,
+    val linkedSessionId: String?,
+    val createdAt: Long,
+)
+
+@Entity(tableName = "goals", indices = [Index("status")])
+data class GoalEntity(
+    @PrimaryKey val id: String,
+    val title: String,
+    val type: GoalType,
+    val metricKey: String,
+    val unit: String,
+    val startValue: Double,
+    val targetValue: Double,
+    val currentValue: Double?,
+    val startDate: String,
+    val targetDate: String?,
+    val status: GoalStatus,
+    val achievedAt: Long?,
+    val notes: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+)
+
+@Entity(
+    tableName = "goal_changes",
+    foreignKeys = [
+        ForeignKey(
+            entity = GoalEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["goalId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("goalId")],
+)
+data class GoalChangeEntity(
+    @PrimaryKey val id: String,
+    val goalId: String,
+    val changedAt: Long,
+    val kind: GoalChangeKind,
+    val oldValue: String?,
+    val newValue: String?,
+    val note: String,
+)
+
+@Entity(tableName = "progress_photos", indices = [Index("takenAt"), Index("angle")])
+data class ProgressPhotoEntity(
+    @PrimaryKey val id: String,
+    val takenAt: Long,
+    val localDate: String,
+    val zoneId: String,
+    val angle: PhotoAngle,
+    val fileName: String,
+    val weightKg: Double?,
+    val notes: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+)
+
+@Entity(tableName = "custom_metrics")
+data class CustomMetricEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val unit: String,
+    val sortOrder: Int,
+    val isArchived: Boolean,
+    val createdAt: Long,
+)
+
+@Entity(
+    tableName = "measurement_custom_values",
+    primaryKeys = ["measurementId", "metricId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = BodyMeasurementEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["measurementId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = CustomMetricEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["metricId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("metricId")],
+)
+data class MeasurementCustomValueEntity(
+    val measurementId: String,
+    val metricId: String,
+    val value: Double,
 )

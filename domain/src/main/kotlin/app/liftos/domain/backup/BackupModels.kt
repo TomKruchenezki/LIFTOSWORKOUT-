@@ -29,6 +29,8 @@ data class BackupFile(
     val schemaVersion: Int = CURRENT_SCHEMA,
     val exportedAt: Long = 0L,
     val appVersion: String = "",
+    /** True when the photo files travel with this backup (a ZIP archive), so a restore may replace photos. */
+    val includesPhotos: Boolean = false,
     val data: BackupData = BackupData(),
 ) {
     companion object {

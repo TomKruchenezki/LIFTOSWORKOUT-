@@ -91,40 +91,6 @@ object SessionComparator {
     }
 }
 
-enum class RecordType { MAX_WEIGHT, BEST_E1RM }
-
-data class PersonalRecord(
-    val nameHe: String,
-    val type: RecordType,
-    val newValue: Double,
-    val oldValue: Double,
-)
-
-/** Best values recorded for an exercise *before* the session being checked. */
-data class RecordBaseline(val maxWeightKg: Double, val bestE1rmKg: Double?)
-
-object PersonalRecords {
-    /** Detects records versus [baselines] (keyed by exerciseId). The very first time is not a record. */
-    fun detect(current: WorkoutDetail, baselines: Map<String, RecordBaseline>): List<PersonalRecord> {
-        val out = mutableListOf<PersonalRecord>()
-        for (ex in current.exercises) {
-            val id = ex.exercise.exerciseId ?: continue
-            val base = baselines[id] ?: continue
-            val counted = ex.sets.filter(VolumeCalculator::counts).filter { (it.weightKg ?: 0.0) > 0.0 && (it.reps ?: 0) > 0 }
-            val maxW = counted.maxOfOrNull { it.weightKg!! } ?: continue
-            if (maxW > base.maxWeightKg + 1e-9) {
-                out += PersonalRecord(ex.exercise.nameHe, RecordType.MAX_WEIGHT, maxW, base.maxWeightKg)
-            }
-            val bestE = counted.mapNotNull { OneRepMax.epley(it.weightKg!!, it.reps!!) }.maxOrNull()
-            val baseE = base.bestE1rmKg
-            if (bestE != null && baseE != null && bestE > baseE + 1e-9 && maxW <= base.maxWeightKg + 1e-9) {
-                out += PersonalRecord(ex.exercise.nameHe, RecordType.BEST_E1RM, bestE, baseE)
-            }
-        }
-        return out
-    }
-}
-
 object BodyTrends {
     data class WeightChange(val days: Int, val deltaKg: Double, val fromDate: LocalDate, val toDate: LocalDate)
 

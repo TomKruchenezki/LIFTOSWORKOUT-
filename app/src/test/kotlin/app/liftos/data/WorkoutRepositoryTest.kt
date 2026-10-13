@@ -1,5 +1,7 @@
 package app.liftos.data
 
+import app.liftos.data.repo.AnalyticsRepository
+import app.liftos.domain.analytics.RecordKind
 import app.liftos.data.repo.ToggleResult
 import app.liftos.domain.logic.RestTimer
 import app.liftos.domain.logic.VolumeCalculator
@@ -521,10 +523,10 @@ class WorkoutRepositoryTest {
         assertEquals(first, env.workouts.previousSameType(second)!!.session.id)
         assertNull(env.workouts.previousSameType(first))
 
-        val baselines = env.workouts.recordBaselines(detail(second))
-        assertEquals(60.0, baselines["barbell-bench-press"]!!.maxWeightKg, 0.0)
-        val prs = app.liftos.domain.logic.PersonalRecords.detect(detail(second), baselines)
-        assertTrue(prs.any { it.nameHe == "לחיצת חזה במוט" && it.newValue == 62.5 })
+        val records = AnalyticsRepository(env.db).getData().records
+        val prs = records.eventsFor(second)
+        assertTrue(prs.any { it.exerciseName == "לחיצת חזה במוט" && it.kind == RecordKind.MAX_WEIGHT && it.newValue == 62.5 && it.previousValue == 60.0 })
+        assertTrue(records.eventsFor(first).isEmpty())
     }
 
     @Test

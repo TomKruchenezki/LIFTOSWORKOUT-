@@ -5,6 +5,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
+import app.liftos.domain.model.Equipment
+import app.liftos.domain.model.ExerciseType
+import app.liftos.domain.model.MuscleGroup
+import app.liftos.domain.model.SetType
+import app.liftos.domain.model.Side
+import app.liftos.domain.model.TrackingType
 import kotlinx.coroutines.flow.Flow
 
 /** Result row of "find the previous performance of an exercise". */
@@ -14,12 +20,15 @@ data class PreviousRef(
     val title: String,
 )
 
-/** Per-workout totals for the history list. */
-data class SessionTotalsRow(
+/** Per exercise-in-workout totals; the history list sums them (a left+right pair counts as one set). */
+data class ExerciseTotalsRow(
     val sessionId: String,
+    val sessionExerciseId: String,
+    val isUnilateral: Boolean,
     val volume: Double,
-    val workingSets: Int,
-    val exercises: Int,
+    val rightRows: Int,
+    val leftRows: Int,
+    val plainRows: Int,
 )
 
 data class CompletedRefRow(
@@ -33,11 +42,77 @@ data class PlanStatsRow(
     val exercises: Int,
 )
 
-data class SetValueRow(
-    val exerciseId: String,
-    val weightKg: Double,
-    val reps: Int,
+/** One completed set joined with its workout and exercise: the raw material of all analytics. */
+data class SetFactRow(
+    val sessionId: String,
+    val sessionTitle: String,
+    val startedAt: Long,
+    val localDate: String,
+    val sessionExerciseId: String,
+    val exerciseId: String?,
+    val exerciseName: String,
+    val exerciseNameEn: String,
+    val primaryMuscle: MuscleGroup,
+    val secondaryMuscles: String?,
+    val trackingType: TrackingType,
+    val isUnilateral: Boolean,
+    val exerciseOrder: Int,
+    val plannedSets: Int,
+    val repsMin: Int?,
+    val repsMax: Int?,
+    val equipment: Equipment?,
+    val exerciseType: ExerciseType?,
+    val setId: String,
+    val setOrder: Int,
+    val setType: SetType,
+    val side: Side?,
+    val weightKg: Double?,
+    val reps: Int?,
+    val durationSec: Int?,
+    val rir: Int?,
+    val rpe: Double?,
+    val isFailure: Boolean,
+    val completedAt: Long?,
 )
+
+private const val FACT_SELECT =
+    "SELECT s.id AS sessionId, s.title AS sessionTitle, s.startedAt AS startedAt, s.localDate AS localDate, " +
+        "se.id AS sessionExerciseId, se.exerciseId AS exerciseId, se.nameHe AS exerciseName, se.nameEn AS exerciseNameEn, " +
+        "se.primaryMuscle AS primaryMuscle, e.secondaryMuscles AS secondaryMuscles, se.trackingType AS trackingType, " +
+        "se.isUnilateral AS isUnilateral, se.orderIndex AS exerciseOrder, se.plannedSets AS plannedSets, " +
+        "se.repsMin AS repsMin, se.repsMax AS repsMax, e.equipment AS equipment, e.type AS exerciseType, " +
+        "st.id AS setId, st.orderIndex AS setOrder, st.setType AS setType, st.side AS side, st.weightKg AS weightKg, " +
+        "st.reps AS reps, st.durationSec AS durationSec, st.rir AS rir, st.rpe AS rpe, st.isFailure AS isFailure, " +
+        "st.completedAt AS completedAt " +
+        "FROM exercise_sets st " +
+        "INNER JOIN session_exercises se ON se.id = st.sessionExerciseId " +
+        "INNER JOIN workout_sessions s ON s.id = se.sessionId " +
+        "LEFT JOIN exercises e ON e.id = se.exerciseId "
+
+private const val FACT_ORDER = " ORDER BY s.startedAt, se.orderIndex, st.orderIndex"
+
+@Dao
+interface AnalyticsDao {
+    @Query(FACT_SELECT + "WHERE s.status = 'COMPLETED' AND st.isCompleted = 1 AND se.skipped = 0" + FACT_ORDER)
+    fun observeFacts(): Flow<List<SetFactRow>>
+
+    @Query(FACT_SELECT + "WHERE s.status = 'COMPLETED' AND st.isCompleted = 1 AND se.skipped = 0" + FACT_ORDER)
+    suspend fun getFacts(): List<SetFactRow>
+
+    /** History of the given library exercises (plus ad-hoc ones, filtered by the caller), before the current workout. */
+    @Query(
+        FACT_SELECT + "WHERE s.status = 'COMPLETED' AND st.isCompleted = 1 AND se.skipped = 0 AND s.id != :excludeSessionId " +
+            "AND (se.exerciseId IN (:exerciseIds) OR se.exerciseId IS NULL)" + FACT_ORDER,
+    )
+    suspend fun getFactsForExercises(exerciseIds: List<String>, excludeSessionId: String): List<SetFactRow>
+
+    /** Completed sets of one workout - also works for the workout that is still running. */
+    @Query(FACT_SELECT + "WHERE s.id = :sessionId AND st.isCompleted = 1 AND se.skipped = 0" + FACT_ORDER)
+    suspend fun getFactsOfSession(sessionId: String): List<SetFactRow>
+
+    @Query(FACT_SELECT + "WHERE s.id = :sessionId AND st.isCompleted = 1 AND se.skipped = 0" + FACT_ORDER)
+    fun observeFactsOfSession(sessionId: String): Flow<List<SetFactRow>>
+}
 
 @Dao
 interface ExerciseDao {
@@ -231,16 +306,17 @@ interface SessionDao {
     fun observeCompletedRefs(since: String): Flow<List<CompletedRefRow>>
 
     @Query(
-        "SELECT s.id AS sessionId, " +
+        "SELECT s.id AS sessionId, se.id AS sessionExerciseId, se.isUnilateral AS isUnilateral, " +
             "COALESCE(SUM(CASE WHEN st.isCompleted = 1 AND st.setType != 'WARMUP' THEN st.weightKg * st.reps ELSE 0 END), 0) AS volume, " +
-            "COUNT(CASE WHEN st.isCompleted = 1 AND st.setType != 'WARMUP' THEN 1 END) AS workingSets, " +
-            "COUNT(DISTINCT CASE WHEN st.isCompleted = 1 AND st.setType != 'WARMUP' THEN se.id END) AS exercises " +
+            "COUNT(CASE WHEN st.isCompleted = 1 AND st.setType != 'WARMUP' AND st.side = 'RIGHT' THEN 1 END) AS rightRows, " +
+            "COUNT(CASE WHEN st.isCompleted = 1 AND st.setType != 'WARMUP' AND st.side = 'LEFT' THEN 1 END) AS leftRows, " +
+            "COUNT(CASE WHEN st.isCompleted = 1 AND st.setType != 'WARMUP' AND st.side IS NULL THEN 1 END) AS plainRows " +
             "FROM workout_sessions s " +
-            "LEFT JOIN session_exercises se ON se.sessionId = s.id " +
+            "INNER JOIN session_exercises se ON se.sessionId = s.id " +
             "LEFT JOIN exercise_sets st ON st.sessionExerciseId = se.id " +
-            "WHERE s.status = 'COMPLETED' GROUP BY s.id",
+            "WHERE s.status = 'COMPLETED' GROUP BY se.id",
     )
-    fun observeTotals(): Flow<List<SessionTotalsRow>>
+    fun observeExerciseTotals(): Flow<List<ExerciseTotalsRow>>
 
     // ---- exercises + sets of a session ----------------------------------------------------
 
@@ -312,16 +388,6 @@ interface SessionDao {
         plannedWorkoutId: String?,
         title: String,
     ): WorkoutSessionEntity?
-
-    @Query(
-        "SELECT se.exerciseId AS exerciseId, st.weightKg AS weightKg, st.reps AS reps " +
-            "FROM exercise_sets st INNER JOIN session_exercises se ON se.id = st.sessionExerciseId " +
-            "INNER JOIN workout_sessions s ON s.id = se.sessionId " +
-            "WHERE s.status = 'COMPLETED' AND s.id != :excludeSessionId AND s.startedAt < :before " +
-            "AND st.isCompleted = 1 AND st.setType != 'WARMUP' AND st.weightKg > 0 AND st.reps > 0 " +
-            "AND se.exerciseId IN (:exerciseIds)",
-    )
-    suspend fun getHistoricalSets(exerciseIds: List<String>, excludeSessionId: String, before: Long): List<SetValueRow>
 
     // ---- writes ----------------------------------------------------------------------------
 
@@ -397,6 +463,12 @@ interface SessionDao {
 
     @Query("UPDATE workout_sessions SET energyRating = :energy, moodRating = :mood, updatedAt = :now WHERE id = :id")
     suspend fun setRatings(id: String, energy: Int?, mood: Int?, now: Long)
+
+    @Query(
+        "UPDATE workout_sessions SET difficultyRating = :difficulty, qualityRating = :quality, sorenessRating = :soreness, " +
+            "fatigueRating = :fatigue, sleepHours = :sleep, updatedAt = :now WHERE id = :id",
+    )
+    suspend fun setRecovery(id: String, difficulty: Int?, quality: Int?, soreness: Int?, fatigue: Int?, sleep: Double?, now: Long)
 
     @Query("UPDATE workout_sessions SET title = :title, updatedAt = :now WHERE id = :id")
     suspend fun setTitle(id: String, title: String, now: Long)
@@ -474,6 +546,9 @@ interface ActivityDao {
     @Query("SELECT id FROM activity_events")
     suspend fun ids(): List<String>
 
+    @Query("SELECT * FROM activity_events WHERE id = :id")
+    suspend fun get(id: String): ActivityEventEntity?
+
     @Upsert
     suspend fun upsert(entity: ActivityEventEntity)
 
@@ -503,4 +578,202 @@ interface SettingsDao {
 
     @Query("DELETE FROM app_settings")
     suspend fun deleteAll()
+}
+
+
+@Dao
+interface GoalDao {
+    @Query(
+        "SELECT * FROM goals ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'PAUSED' THEN 1 WHEN 'ACHIEVED' THEN 2 ELSE 3 END, createdAt DESC",
+    )
+    fun observeAll(): Flow<List<GoalEntity>>
+
+    @Query("SELECT * FROM goals ORDER BY createdAt")
+    suspend fun getAll(): List<GoalEntity>
+
+    @Query("SELECT * FROM goals WHERE id = :id")
+    suspend fun get(id: String): GoalEntity?
+
+    @Query("SELECT * FROM goals WHERE id = :id")
+    fun observe(id: String): Flow<GoalEntity?>
+
+    @Query("SELECT id FROM goals")
+    suspend fun ids(): List<String>
+
+    @Upsert
+    suspend fun upsert(entity: GoalEntity)
+
+    @Upsert
+    suspend fun upsertAll(entities: List<GoalEntity>)
+
+    @Query("DELETE FROM goals WHERE id = :id")
+    suspend fun delete(id: String)
+
+    @Query("DELETE FROM goals")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM goal_changes WHERE goalId = :goalId ORDER BY changedAt DESC")
+    fun observeChanges(goalId: String): Flow<List<GoalChangeEntity>>
+
+    @Query("SELECT * FROM goal_changes ORDER BY changedAt")
+    suspend fun getAllChanges(): List<GoalChangeEntity>
+
+    @Query("SELECT id FROM goal_changes")
+    suspend fun changeIds(): List<String>
+
+    @Upsert
+    suspend fun upsertChange(entity: GoalChangeEntity)
+
+    @Upsert
+    suspend fun upsertChanges(entities: List<GoalChangeEntity>)
+
+    @Query("DELETE FROM goal_changes")
+    suspend fun deleteAllChanges()
+}
+
+@Dao
+interface PhotoDao {
+    @Query("SELECT * FROM progress_photos ORDER BY takenAt DESC")
+    fun observeAll(): Flow<List<ProgressPhotoEntity>>
+
+    @Query("SELECT * FROM progress_photos ORDER BY takenAt DESC")
+    suspend fun getAll(): List<ProgressPhotoEntity>
+
+    @Query("SELECT * FROM progress_photos WHERE id = :id")
+    suspend fun get(id: String): ProgressPhotoEntity?
+
+    @Query("SELECT id FROM progress_photos")
+    suspend fun ids(): List<String>
+
+    @Upsert
+    suspend fun upsert(entity: ProgressPhotoEntity)
+
+    @Upsert
+    suspend fun upsertAll(entities: List<ProgressPhotoEntity>)
+
+    @Query("DELETE FROM progress_photos WHERE id = :id")
+    suspend fun delete(id: String)
+
+    @Query("DELETE FROM progress_photos")
+    suspend fun deleteAll()
+}
+
+@Dao
+interface CalendarDao {
+    @Query("SELECT * FROM planned_overrides")
+    fun observeOverrides(): Flow<List<PlannedOverrideEntity>>
+
+    @Query("SELECT * FROM planned_overrides")
+    suspend fun getOverrides(): List<PlannedOverrideEntity>
+
+    @Query("SELECT * FROM planned_overrides WHERE plannedWorkoutId = :workoutId AND originalDate = :date")
+    suspend fun findOverride(workoutId: String, date: String): PlannedOverrideEntity?
+
+    @Query("SELECT id FROM planned_overrides")
+    suspend fun overrideIds(): List<String>
+
+    @Upsert
+    suspend fun upsertOverride(entity: PlannedOverrideEntity)
+
+    @Upsert
+    suspend fun upsertOverrides(entities: List<PlannedOverrideEntity>)
+
+    @Query("DELETE FROM planned_overrides WHERE plannedWorkoutId = :workoutId AND originalDate = :date")
+    suspend fun deleteOverride(workoutId: String, date: String)
+
+    @Query("DELETE FROM planned_overrides")
+    suspend fun deleteAllOverrides()
+}
+
+@Dao
+interface ProgressionDao {
+    @Query("SELECT * FROM progression_decisions ORDER BY decidedAt")
+    fun observeDecisions(): Flow<List<ProgressionDecisionEntity>>
+
+    @Query("SELECT * FROM progression_decisions ORDER BY decidedAt")
+    suspend fun getDecisions(): List<ProgressionDecisionEntity>
+
+    @Query("SELECT id FROM progression_decisions")
+    suspend fun decisionIds(): List<String>
+
+    @Upsert
+    suspend fun upsertDecision(entity: ProgressionDecisionEntity)
+
+    @Upsert
+    suspend fun upsertDecisions(entities: List<ProgressionDecisionEntity>)
+
+    @Query("DELETE FROM progression_decisions")
+    suspend fun deleteAllDecisions()
+
+    @Query("SELECT * FROM exercise_prefs")
+    fun observePrefs(): Flow<List<ExercisePrefsEntity>>
+
+    @Query("SELECT * FROM exercise_prefs")
+    suspend fun getPrefs(): List<ExercisePrefsEntity>
+
+    @Query("SELECT * FROM exercise_prefs WHERE exerciseKey = :key")
+    suspend fun getPref(key: String): ExercisePrefsEntity?
+
+    @Query("SELECT exerciseKey FROM exercise_prefs")
+    suspend fun prefKeys(): List<String>
+
+    @Upsert
+    suspend fun upsertPref(entity: ExercisePrefsEntity)
+
+    @Upsert
+    suspend fun upsertPrefs(entities: List<ExercisePrefsEntity>)
+
+    @Query("DELETE FROM exercise_prefs WHERE exerciseKey = :key")
+    suspend fun deletePref(key: String)
+
+    @Query("DELETE FROM exercise_prefs")
+    suspend fun deleteAllPrefs()
+}
+
+@Dao
+interface CustomMetricDao {
+    @Query("SELECT * FROM custom_metrics ORDER BY isArchived, sortOrder, createdAt")
+    fun observeAll(): Flow<List<CustomMetricEntity>>
+
+    @Query("SELECT * FROM custom_metrics ORDER BY sortOrder, createdAt")
+    suspend fun getAll(): List<CustomMetricEntity>
+
+    @Query("SELECT * FROM custom_metrics WHERE id = :id")
+    suspend fun get(id: String): CustomMetricEntity?
+
+    @Query("SELECT id FROM custom_metrics")
+    suspend fun ids(): List<String>
+
+    @Upsert
+    suspend fun upsert(entity: CustomMetricEntity)
+
+    @Upsert
+    suspend fun upsertAll(entities: List<CustomMetricEntity>)
+
+    @Query("DELETE FROM custom_metrics WHERE id = :id")
+    suspend fun delete(id: String)
+
+    @Query("DELETE FROM custom_metrics")
+    suspend fun deleteAll()
+
+    @Query("SELECT COUNT(*) FROM measurement_custom_values WHERE metricId = :metricId")
+    suspend fun usage(metricId: String): Int
+
+    @Query("SELECT * FROM measurement_custom_values")
+    fun observeValues(): Flow<List<MeasurementCustomValueEntity>>
+
+    @Query("SELECT * FROM measurement_custom_values")
+    suspend fun getValues(): List<MeasurementCustomValueEntity>
+
+    @Query("SELECT * FROM measurement_custom_values WHERE measurementId = :measurementId")
+    suspend fun valuesOf(measurementId: String): List<MeasurementCustomValueEntity>
+
+    @Upsert
+    suspend fun upsertValues(entities: List<MeasurementCustomValueEntity>)
+
+    @Query("DELETE FROM measurement_custom_values WHERE measurementId = :measurementId")
+    suspend fun deleteValuesOf(measurementId: String)
+
+    @Query("DELETE FROM measurement_custom_values")
+    suspend fun deleteAllValues()
 }

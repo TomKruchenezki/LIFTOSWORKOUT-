@@ -18,6 +18,14 @@ import androidx.room.migration.Migration
         BodyMeasurementEntity::class,
         ActivityEventEntity::class,
         AppSettingsEntity::class,
+        ProgressionDecisionEntity::class,
+        ExercisePrefsEntity::class,
+        PlannedOverrideEntity::class,
+        GoalEntity::class,
+        GoalChangeEntity::class,
+        ProgressPhotoEntity::class,
+        CustomMetricEntity::class,
+        MeasurementCustomValueEntity::class,
     ],
     version = AppDatabase.VERSION,
     exportSchema = true,
@@ -29,16 +37,22 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun measurementDao(): MeasurementDao
     abstract fun activityDao(): ActivityDao
     abstract fun settingsDao(): SettingsDao
+    abstract fun analyticsDao(): AnalyticsDao
+    abstract fun goalDao(): GoalDao
+    abstract fun photoDao(): PhotoDao
+    abstract fun calendarDao(): CalendarDao
+    abstract fun progressionDao(): ProgressionDao
+    abstract fun customMetricDao(): CustomMetricDao
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
         const val FILE_NAME = "liftos.db"
 
         /**
          * Every schema change gets a Migration here. We deliberately never call
          * fallbackToDestructiveMigration(): upgrading the app must never erase workout history.
          */
-        val MIGRATIONS: Array<Migration> = arrayOf()
+        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2)
 
         fun build(context: Context, name: String? = FILE_NAME): AppDatabase {
             val builder = if (name == null) {

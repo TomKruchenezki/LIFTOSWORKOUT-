@@ -46,25 +46,6 @@ class ProgressTest {
         assertNull(SessionComparator.compare(cur, prev).volumePercent)
     }
 
-    @Test
-    fun `a heavier top set is a personal record, first time is not`() {
-        val cur = TestData.benchDetail("c", weights = listOf(82.5, 80.0, 80.0), reps = listOf(5, 5, 5))
-        val prs = PersonalRecords.detect(cur, mapOf("barbell-bench-press" to RecordBaseline(80.0, 93.0)))
-        assertEquals(1, prs.size)
-        assertEquals(RecordType.MAX_WEIGHT, prs[0].type)
-        assertEquals(82.5, prs[0].newValue, 0.0)
-        assertTrue(PersonalRecords.detect(cur, emptyMap()).isEmpty())
-    }
-
-    @Test
-    fun `same weight with more reps is a better estimated 1RM record`() {
-        val cur = TestData.benchDetail("c", weights = listOf(80.0, 80.0, 80.0), reps = listOf(8, 8, 8))
-        val base = RecordBaseline(80.0, OneRepMax.epley(80.0, 5))
-        val prs = PersonalRecords.detect(cur, mapOf("barbell-bench-press" to base))
-        assertEquals(1, prs.size)
-        assertEquals(RecordType.BEST_E1RM, prs[0].type)
-    }
-
     // ---- body trends ------------------------------------------------------------------------
 
     private fun m(date: String, kg: Double?) = BodyMeasurement(

@@ -19,8 +19,12 @@ import app.liftos.domain.model.WorkoutSession
 object Notifications {
     const val CHANNEL_WORKOUT = "workout_in_progress"
     const val CHANNEL_REST_DONE = "rest_finished"
+    const val CHANNEL_REMINDERS = "reminders"
+    const val CHANNEL_ACHIEVEMENTS = "achievements"
     const val ID_WORKOUT = 1001
     const val ID_REST_DONE = 1002
+    const val ID_GOAL = 3001
+    const val ID_RECORD = 3002
 
     fun ensureChannels(context: Context) {
         if (Build.VERSION.SDK_INT < 26) return
@@ -35,6 +39,16 @@ object Notifications {
             NotificationChannel(CHANNEL_REST_DONE, "סיום זמן מנוחה", NotificationManager.IMPORTANCE_HIGH).apply {
                 description = "התראה כשזמן המנוחה בין הסטים הסתיים"
                 enableVibration(false) // vibration is triggered manually so the in-app switch is respected
+            },
+        )
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_REMINDERS, "תזכורות", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = "תזכורות לאימון, לשקילה, למדידת היקפים, לסיכום שבועי ולגיבוי"
+            },
+        )
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_ACHIEVEMENTS, "יעדים ושיאים", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = "הודעה כשיעד הושג או נקבע שיא אישי חדש"
             },
         )
     }
@@ -105,4 +119,25 @@ object Notifications {
     fun cancelRestFinished(context: Context) {
         context.getSystemService(NotificationManager::class.java).cancel(ID_REST_DONE)
     }
+
+    /** A plain, tap-to-open notification. Respects the system notification settings and Do Not Disturb. */
+    fun postSimple(context: Context, channel: String, id: Int, title: String, text: String) {
+        if (!canPostNotifications(context)) return
+        ensureChannels(context)
+        val n = NotificationCompat.Builder(context, channel)
+            .setSmallIcon(R.drawable.ic_stat_workout)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(openAppIntent(context))
+            .setAutoCancel(true)
+            .build()
+        context.getSystemService(NotificationManager::class.java).notify(id, n)
+    }
+
+    fun goalReached(context: Context, goalTitle: String) =
+        postSimple(context, CHANNEL_ACHIEVEMENTS, ID_GOAL, "יעד הושג!", goalTitle)
+
+    fun newRecord(context: Context, text: String) =
+        postSimple(context, CHANNEL_ACHIEVEMENTS, ID_RECORD, "שיא אישי חדש!", text)
 }

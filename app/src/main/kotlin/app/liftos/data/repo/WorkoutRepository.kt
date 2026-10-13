@@ -6,10 +6,9 @@ import app.liftos.data.ZoneSource
 import app.liftos.data.db.AppDatabase
 import app.liftos.data.db.toDomain
 import app.liftos.data.db.toEntity
+import app.liftos.domain.analytics.SetCounting
 import app.liftos.domain.logic.IdGenerator
-import app.liftos.domain.logic.OneRepMax
 import app.liftos.domain.logic.PreviousPerformance
-import app.liftos.domain.logic.RecordBaseline
 import app.liftos.domain.logic.RestTimer
 import app.liftos.domain.logic.SessionFactory
 import app.liftos.domain.logic.SetEditing
@@ -98,11 +97,12 @@ class WorkoutRepository(
     }
 
     fun observeHistory(): Flow<List<HistoryItem>> =
-        combine(sessions.observeCompleted(), sessions.observeTotals()) { list, totals ->
-            val byId = totals.associateBy { it.sessionId }
+        combine(sessions.observeCompleted(), sessions.observeExerciseTotals()) { list, totals ->
+            val bySession = totals.groupBy { it.sessionId }
             list.map { e ->
-                val t = byId[e.id]
-                HistoryItem(e.toDomain(), t?.volume ?: 0.0, t?.workingSets ?: 0, t?.exercises ?: 0)
+                val rows = bySession[e.id].orEmpty()
+                val perExercise = rows.map { SetCounting.effective(it.isUnilateral, it.rightRows, it.leftRows, it.plainRows) }
+                HistoryItem(e.toDomain(), rows.sumOf { it.volume }, perExercise.sum(), perExercise.count { it > 0 })
             }
         }
 
@@ -134,19 +134,6 @@ class WorkoutRepository(
         val s = sessions.getSession(sessionId) ?: return null
         val prev = sessions.findPreviousSameType(s.id, s.startedAt, s.plannedWorkoutId, s.title) ?: return null
         return getDetail(prev.id)
-    }
-
-    /** Best values recorded before this workout, for personal-record detection. */
-    suspend fun recordBaselines(detail: WorkoutDetail): Map<String, RecordBaseline> {
-        val exerciseIds = detail.exercises.mapNotNull { it.exercise.exerciseId }.distinct()
-        if (exerciseIds.isEmpty()) return emptyMap()
-        val rows = sessions.getHistoricalSets(exerciseIds, detail.session.id, detail.session.startedAt)
-        return rows.groupBy { it.exerciseId }.mapValues { (_, list) ->
-            RecordBaseline(
-                maxWeightKg = list.maxOf { it.weightKg },
-                bestE1rmKg = list.mapNotNull { OneRepMax.epley(it.weightKg, it.reps) }.maxOrNull(),
-            )
-        }
     }
 
     // ---- starting and finishing ----------------------------------------------------------------
@@ -258,6 +245,19 @@ class WorkoutRepository(
     suspend fun setRatings(sessionId: String, energy: Int?, mood: Int?) =
         sessions.setRatings(sessionId, energy?.coerceIn(1, 5), mood?.coerceIn(1, 5), time.nowMs())
 
+    /** Optional recovery data for a workout; any value may be null. Ratings are clamped to 1..5. */
+    suspend fun setRecovery(
+        sessionId: String,
+        difficulty: Int?,
+        quality: Int?,
+        soreness: Int?,
+        fatigue: Int?,
+        sleepHours: Double?,
+    ) = sessions.setRecovery(
+        sessionId, difficulty?.coerceIn(1, 5), quality?.coerceIn(1, 5), soreness?.coerceIn(1, 5),
+        fatigue?.coerceIn(1, 5), sleepHours?.takeIf { it in 0.0..24.0 }, time.nowMs(),
+    )
+
     suspend fun setTitle(sessionId: String, title: String) {
         if (title.isNotBlank()) sessions.setTitle(sessionId, title.trim(), time.nowMs())
     }
@@ -284,6 +284,17 @@ class WorkoutRepository(
     suspend fun setSetNotes(setId: String, notes: String) = sessions.setSetNotes(setId, notes)
 
     suspend fun setFailure(setId: String, value: Boolean) = sessions.setFailure(setId, value)
+
+    /**
+     * Puts [weightKg] on every working set of the exercise that is not done yet (used when the user
+     * accepts a progression suggestion or types a target weight). Completed sets are never touched.
+     * Returns how many sets were changed.
+     */
+    suspend fun applyWeightToOpenSets(sessionExerciseId: String, weightKg: Double): Int = db.withTransaction {
+        val open = sessions.getSets(sessionExerciseId).filter { !it.isCompleted && it.setType != SetType.WARMUP }
+        open.forEach { sessions.setWeight(it.id, weightKg) }
+        open.size
+    }
 
     suspend fun addSet(sessionExerciseId: String, type: SetType = SetType.WORKING) {
         db.withTransaction {

@@ -1,12 +1,15 @@
 package app.liftos.domain.logic
 
+import app.liftos.domain.analytics.SetCounting
 import app.liftos.domain.model.ExerciseSet
 import app.liftos.domain.model.ExerciseWithSets
 import app.liftos.domain.model.SetType
+import app.liftos.domain.model.Side
 import app.liftos.domain.model.WorkoutDetail
 
 /**
- * Volume load = weight x reps, summed over **completed, non-warm-up** sets.
+ * Volume load = weight x reps, summed over **completed, non-warm-up** sets. A left+right pair of a
+ * unilateral exercise counts as one *set* but both sides count toward volume and reps.
  *
  * Bodyweight-only sets (no added weight) contribute 0 kg-reps; they are still counted in the
  * set and rep totals. Duration sets (plank) contribute no volume.
@@ -34,19 +37,27 @@ object VolumeCalculator {
         var reps = 0
         var exercisesDone = 0
         for (ex in detail.exercises) {
-            var any = false
+            var right = 0
+            var left = 0
+            var plain = 0
             for (s in ex.sets) {
                 if (!s.isCompleted) continue
                 if (s.setType == SetType.WARMUP) {
                     warmups++
                     continue
                 }
-                any = true
-                working++
+                when (s.side) {
+                    Side.RIGHT -> right++
+                    Side.LEFT -> left++
+                    null -> plain++
+                }
                 reps += s.reps ?: 0
                 volume += setVolume(s)
             }
-            if (any) exercisesDone++
+            // A right+left pair is one set; volume and reps still count both sides.
+            val sets = SetCounting.effective(ex.exercise.isUnilateral, right, left, plain)
+            working += sets
+            if (sets > 0) exercisesDone++
         }
         return SessionTotals(volume, working, warmups, reps, exercisesDone)
     }

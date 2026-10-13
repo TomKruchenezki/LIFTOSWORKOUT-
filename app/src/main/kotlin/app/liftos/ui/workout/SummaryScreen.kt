@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Share
@@ -41,7 +42,8 @@ import app.liftos.domain.export.SessionJson
 import app.liftos.domain.export.TextReport
 import app.liftos.domain.logic.Formatters
 import app.liftos.domain.logic.OneRepMax
-import app.liftos.domain.logic.RecordType
+import app.liftos.domain.analytics.RecordKind
+import app.liftos.ui.util.RecordText
 import app.liftos.domain.logic.SetEditing
 import app.liftos.domain.logic.TimeUtils
 import app.liftos.domain.logic.Verdict
@@ -139,15 +141,14 @@ fun SummaryScreen(
 
                     if (state.records.isNotEmpty()) {
                         LiftCard(Modifier.fillMaxWidth(), container = MaterialTheme.colorScheme.primaryContainer) {
-                            Text("שיאים אישיים", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            state.records.forEach { r ->
-                                val what = if (r.type == RecordType.MAX_WEIGHT) "משקל מקסימלי" else "1RM משוער"
-                                Text(
-                                    "${r.nameHe}: $what ${ltr(Formatters.number(r.newValue, 1))} ק״ג (קודם ${ltr(Formatters.number(r.oldValue, 1))})",
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                                Text("שיא אישי חדש!", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
                             }
-                            if (state.records.any { it.type == RecordType.BEST_E1RM }) {
+                            state.records.forEach { r ->
+                                Text(RecordText.describe(r), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            }
+                            if (state.records.any { it.kind.isEstimate }) {
                                 Text(OneRepMax.EXPLANATION, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
                             }
                         }

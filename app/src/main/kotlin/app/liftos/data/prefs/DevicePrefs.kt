@@ -42,6 +42,10 @@ class DevicePrefs(private val store: DataStore<Preferences>) {
         store.edit { it[Keys.lastBackupAt] = ms }
     }
 
+    suspend fun clearBackupTime() {
+        store.edit { it.remove(Keys.lastBackupAt) }
+    }
+
     suspend fun notificationPermissionAsked(): Boolean = store.data.first()[Keys.notificationPermissionAsked] ?: false
 
     suspend fun setNotificationPermissionAsked(value: Boolean) {

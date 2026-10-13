@@ -9,11 +9,16 @@ import app.liftos.data.ZoneSource
 import app.liftos.data.db.AppDatabase
 import app.liftos.data.prefs.DevicePrefs
 import app.liftos.data.repo.ActivityRepository
+import app.liftos.data.repo.AnalyticsData
+import app.liftos.data.repo.AnalyticsRepository
 import app.liftos.data.repo.BackupRepository
 import app.liftos.data.repo.ExerciseRepository
+import app.liftos.data.repo.GoalRepository
 import app.liftos.data.repo.LibraryLoader
 import app.liftos.data.repo.MeasurementRepository
+import app.liftos.data.repo.PhotoRepository
 import app.liftos.data.repo.PlanRepository
+import app.liftos.data.repo.ProgressionRepository
 import app.liftos.data.repo.Seeder
 import app.liftos.data.repo.SettingsRepository
 import app.liftos.data.repo.WorkoutRepository
@@ -21,7 +26,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 /**
@@ -50,6 +58,20 @@ class AppContainer(
     val workouts by lazy { WorkoutRepository(database, time, zones) }
     val measurements by lazy { MeasurementRepository(database, time, zones) }
     val activities by lazy { ActivityRepository(database, time, zones) }
+    val analytics by lazy { AnalyticsRepository(database) }
+    val progression by lazy { ProgressionRepository(database, time) }
+    val goals by lazy { GoalRepository(database, time) }
+    val photos by lazy { PhotoRepository(app, database, time, zones) }
+    val goalTracker by lazy { GoalTracker(this) }
+
+    /**
+     * Facts, sessions and records for all analytics screens. It is shared and only active while a
+     * screen is looking at it (plus a short grace period), so logging sets during a workout does not
+     * recompute the whole history.
+     */
+    val analyticsData: SharedFlow<AnalyticsData> by lazy {
+        analytics.observeData().shareIn(appScope, SharingStarted.WhileSubscribed(30_000), replay = 1)
+    }
 
     val seeder by lazy { Seeder(database, LibraryLoader(app), devicePrefs, time) }
 

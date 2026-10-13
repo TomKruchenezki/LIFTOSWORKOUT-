@@ -113,6 +113,10 @@ data class SessionFact(
  * Volume (kg x reps) still sums both sides, because that is the real tonnage lifted.
  */
 object SetCounting {
+    /** Sets for already counted rows: a right+left pair is one set, so a unilateral exercise counts max(right, left). */
+    fun effective(unilateral: Boolean, right: Int, left: Int, plain: Int): Int =
+        if (unilateral) maxOf(right, left) + plain else right + left + plain
+
     fun effectiveSets(rows: List<SetFact>): Int {
         if (rows.isEmpty()) return 0
         val unilateral = rows.first().isUnilateral
