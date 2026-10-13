@@ -1,0 +1,21 @@
+# Gradle / build
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+local.properties
+*.iml
+.idea/
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing material - never commit release keys
+keystore.properties
+*.jks
+*.keystore
+!app/debug.keystore
+
+# Generated exports
+*.apk
+*.aab

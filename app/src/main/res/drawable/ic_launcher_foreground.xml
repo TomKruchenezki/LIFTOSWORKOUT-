@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Barbell: bar + two plates on each side, centered in the 66dp safe zone -->
+    <path android:fillColor="#FFB6F23C" android:pathData="M30,51h48v6h-48z" />
+    <path android:fillColor="#FFB6F23C" android:pathData="M26,40h6v28h-6z" />
+    <path android:fillColor="#FFB6F23C" android:pathData="M76,40h6v28h-6z" />
+    <path android:fillColor="#FF8DBF1E" android:pathData="M20,45h6v18h-6z" />
+    <path android:fillColor="#FF8DBF1E" android:pathData="M82,45h6v18h-6z" />
+</vector>
