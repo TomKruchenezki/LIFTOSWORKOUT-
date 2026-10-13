@@ -108,4 +108,85 @@ enum class ActivityType(val labelHe: String) {
     REST("יום מנוחה"),
     NOTE("הערה"),
     OTHER("אחר"),
+
+    // Added in version 2 of the calendar (names are stored in the database, never renumbered).
+    STRENGTH("אימון כוח"),
+    COACH("פגישה עם מאמן"),
+    MEASUREMENT("מדידת גוף"),
+    SPORT("פעילות ספורטיבית"),
+    CUSTOM("אירוע אישי"),
+    ;
+
+    /** True for events that are cardio / other sports rather than the gym itself. */
+    val isExternalActivity: Boolean
+        get() = this == WALK || this == RUN || this == SWIM || this == SOCCER || this == CYCLING || this == CARDIO || this == SPORT
+}
+
+@Serializable
+enum class EventStatus(val labelHe: String) {
+    PLANNED("מתוכנן"),
+    DONE("בוצע"),
+    MISSED("לא בוצע"),
+    CANCELLED("בוטל"),
+}
+
+/** What happened to one planned occurrence of a plan day (the plan itself is never touched). */
+@Serializable
+enum class OverrideAction(val labelHe: String) {
+    MOVED("הועבר ליום אחר"),
+    SKIPPED("דולג בכוונה"),
+    MISSED("סומן כלא בוצע"),
+}
+
+/** Circumstances that explain a measurement (a weigh-in after a salty meal is not a trend). */
+@Serializable
+enum class MeasurementCondition(val labelHe: String) {
+    MORNING("בוקר"),
+    FASTED("בצום"),
+    AFTER_MEAL("אחרי ארוחה"),
+    AFTER_WORKOUT("אחרי אימון"),
+    EVENING("ערב"),
+    SALTY_MEAL("ארוחה מלוחה"),
+    ALCOHOL("אלכוהול יום קודם"),
+    POOR_SLEEP("שינה לא טובה"),
+    ILLNESS("מחלה"),
+    CYCLE("מחזור"),
+    SUPPLEMENT("שינוי תוספים"),
+    OTHER("אחר"),
+}
+
+@Serializable
+enum class GoalType(val labelHe: String, val category: GoalCategory) {
+    BODY_WEIGHT("משקל גוף", GoalCategory.BODY),
+    BODY_MEASURE("מדד גוף (היקף / אחוז שומן)", GoalCategory.BODY),
+    EXERCISE_WEIGHT("משקל מקסימלי בתרגיל", GoalCategory.STRENGTH),
+    EXERCISE_REPS("חזרות מקסימליות בתרגיל", GoalCategory.STRENGTH),
+    WORKOUTS_PER_MONTH("אימונים בחודש", GoalCategory.FREQUENCY),
+    WORKOUTS_PER_WEEK("אימונים בשבוע", GoalCategory.FREQUENCY),
+    PROGRAM_WEEKS("השלמת תוכנית אימונים (שבועות)", GoalCategory.PROGRAM),
+    CUSTOM("יעד מותאם אישית", GoalCategory.CUSTOM),
+}
+
+@Serializable
+enum class GoalCategory(val labelHe: String) {
+    BODY("גוף"),
+    STRENGTH("כוח"),
+    FREQUENCY("תדירות"),
+    PROGRAM("תוכנית"),
+    CUSTOM("אישי"),
+}
+
+@Serializable
+enum class GoalStatus(val labelHe: String) {
+    ACTIVE("פעיל"),
+    ACHIEVED("הושג"),
+    PAUSED("בהשהיה"),
+    ABANDONED("ננטש"),
+}
+
+@Serializable
+enum class PhotoAngle(val labelHe: String) {
+    FRONT("חזית"),
+    SIDE("צד"),
+    BACK("גב"),
 }

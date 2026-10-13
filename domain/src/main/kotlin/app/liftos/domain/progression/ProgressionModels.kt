@@ -1,7 +1,9 @@
 package app.liftos.domain.progression
 
 import app.liftos.domain.model.Equipment
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class SuggestionKind(val labelHe: String) {
     INCREASE_WEIGHT("אפשר לשקול העלאת משקל"),
     ADD_REPS("להוסיף חזרות באותו משקל"),
@@ -43,8 +45,10 @@ data class ProgressionSuggestion(
 }
 
 /** What the user did with a suggestion. */
+@Serializable
 enum class DecisionType { APPLIED, IGNORED, MANUAL }
 
+@Serializable
 data class ProgressionDecision(
     val id: String,
     val exerciseKey: String,

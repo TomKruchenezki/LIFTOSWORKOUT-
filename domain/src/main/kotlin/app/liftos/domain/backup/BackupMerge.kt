@@ -11,6 +11,13 @@ data class ExistingIds(
     val sets: Set<String> = emptySet(),
     val measurements: Set<String> = emptySet(),
     val events: Set<String> = emptySet(),
+    val customMetrics: Set<String> = emptySet(),
+    val plannedOverrides: Set<String> = emptySet(),
+    val goals: Set<String> = emptySet(),
+    val goalChanges: Set<String> = emptySet(),
+    val photos: Set<String> = emptySet(),
+    val exercisePrefs: Set<String> = emptySet(),
+    val progressionDecisions: Set<String> = emptySet(),
 )
 
 /**
@@ -37,6 +44,11 @@ object BackupMerge {
         val newSessionExerciseIds = sessionExercises.map { it.id }.toSet()
         val sets = incoming.sets.filter { it.id !in existing.sets && it.sessionExerciseId in newSessionExerciseIds }
 
+        val goals = incoming.goals.filter { it.id !in existing.goals }
+        val newGoalIds = goals.map { it.id }.toSet()
+        val metrics = incoming.customMetrics.filter { it.id !in existing.customMetrics }
+        val knownMetricIds = existing.customMetrics + metrics.map { it.id }
+
         return BackupData(
             exercises = exercises,
             plans = plans,
@@ -45,9 +57,19 @@ object BackupMerge {
             sessions = sessions,
             sessionExercises = sessionExercises,
             sets = sets,
-            measurements = incoming.measurements.filter { it.id !in existing.measurements },
+            // A measurement keeps only the custom values whose metric exists after the merge.
+            measurements = incoming.measurements.filter { it.id !in existing.measurements }
+                .map { m -> m.copy(customValues = m.customValues.filterKeys { it in knownMetricIds }) },
             events = incoming.events.filter { it.id !in existing.events },
             settings = null, // local settings are never replaced by a merge
+            customMetrics = metrics,
+            plannedOverrides = incoming.plannedOverrides.filter { it.id !in existing.plannedOverrides },
+            goals = goals,
+            goalChanges = incoming.goalChanges.filter { it.id !in existing.goalChanges && it.goalId in newGoalIds },
+            photos = incoming.photos.filter { it.id !in existing.photos },
+            // Personal preferences and decisions already on this device win over the imported ones.
+            exercisePrefs = incoming.exercisePrefs.filter { it.exerciseKey !in existing.exercisePrefs },
+            progressionDecisions = incoming.progressionDecisions.filter { it.id !in existing.progressionDecisions },
         )
     }
 }

@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import app.liftos.LiftOsApp
@@ -126,7 +125,7 @@ class AppFlowsTest {
         waitForText("104 תרגילים")
         compose.onNode(hasSetTextAction()).performTextInput("פלאנק")
         waitForText("(מסונן)", substring = true)
-        compose.onAllNodes(hasText("פלאנק") and hasClickAction())[0].performClick()
+        compose.tap("library row") { compose.onAllNodes(hasText("פלאנק") and hasClickAction() and hasSetTextAction().not())[0] }
         waitForText("אופן ביצוע")
         waitForText("חפש הדגמה ביוטיוב")
         waitForText("זהו קישור לחיפוש ביוטיוב, לא סרטון מאומת", substring = true)
@@ -142,7 +141,7 @@ class AppFlowsTest {
         compose.onNodeWithText("מדידה חדשה").performClick()
         waitForText("אפשר למלא רק את מה שמדדת הפעם.")
         compose.onNodeWithText("משקל").performTextInput("82.5")
-        compose.onNodeWithText("שמור מדידה").performScrollTo().performClick()
+        compose.tap("save measurement", scrollFirst = true) { compose.onNodeWithText("שמור מדידה") }
         compose.waitUntilOrDump("measurement saved") {
             runBlocking { app.container.measurements.observeAllOnce() }.any { it.weightKg == 82.5 }
         }

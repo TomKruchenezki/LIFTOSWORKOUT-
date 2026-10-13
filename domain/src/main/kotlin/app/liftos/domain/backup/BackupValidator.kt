@@ -46,6 +46,12 @@ object BackupValidator {
         checkUnique("סטים", d.sets) { it.id }
         checkUnique("מדידות", d.measurements) { it.id }
         checkUnique("אירועים", d.events) { it.id }
+        checkUnique("שדות מדידה מותאמים", d.customMetrics) { it.id }
+        checkUnique("שינויים בתוכנית שבועית", d.plannedOverrides) { it.id }
+        checkUnique("יעדים", d.goals) { it.id }
+        checkUnique("היסטוריית יעדים", d.goalChanges) { it.id }
+        checkUnique("תמונות התקדמות", d.photos) { it.id }
+        checkUnique("החלטות התקדמות", d.progressionDecisions) { it.id }
 
         val exerciseIds = d.exercises.map { it.id }.toSet()
         val allKnownExercises = exerciseIds + knownExerciseIds
@@ -66,6 +72,11 @@ object BackupValidator {
         d.sets.filter { it.sessionExerciseId !in sessionExerciseIds }.take(3)
             .forEach { errors += "נמצא סט שאינו משויך לתרגיל באימון." }
 
+        val goalIds = d.goals.map { it.id }.toSet()
+        d.goalChanges.filter { it.goalId !in goalIds }.take(3)
+            .forEach { errors += "רשומת היסטוריה של יעד מצביעה על יעד שאינו קיים בקובץ." }
+        val metricIds = d.customMetrics.map { it.id }.toSet()
+
         // Value ranges.
         d.sessions.forEach { s ->
             if (s.startedAt !in MIN_EPOCH..MAX_EPOCH) errors += "תאריך התחלה לא סביר באימון '${s.title}'."
@@ -74,10 +85,20 @@ object BackupValidator {
         }
         d.measurements.forEach { m ->
             if (m.measuredAt !in MIN_EPOCH..MAX_EPOCH) errors += "תאריך מדידה לא סביר (${m.localDate})."
-            listOf(m.weightKg, m.waistCm, m.chestCm, m.armCm, m.thighCm, m.hipsCm, m.neckCm, m.bodyFatPct)
-                .forEach { v -> if (v != null && (v < 0.0 || v > 1000.0)) errors += "ערך מדידה לא סביר ($v) בתאריך ${m.localDate}." }
+            (listOf(m.weightKg, m.waistCm, m.chestCm, m.armCm, m.thighCm, m.hipsCm, m.neckCm, m.shouldersCm, m.bodyFatPct) +
+                m.customValues.values)
+                .forEach { v -> if (v != null && (v < 0.0 || v > 100000.0)) errors += "ערך מדידה לא סביר ($v) בתאריך ${m.localDate}." }
         }
         d.sets.forEach { s -> checkSet(s, errors) }
+        d.photos.forEach { p ->
+            if (p.takenAt !in MIN_EPOCH..MAX_EPOCH) errors += "תאריך צילום לא סביר (${p.localDate})."
+            if (p.fileName.isBlank() || p.fileName.contains("/") || p.fileName.contains("..")) {
+                errors += "שם קובץ תמונה לא תקין: '${p.fileName}'."
+            }
+        }
+        d.goals.forEach { g ->
+            if (g.title.isBlank()) warnings += "נמצא יעד ללא שם."
+        }
 
         // Soft repairs.
         val cleanedSessionExercises = d.sessionExercises.map { se ->
@@ -87,7 +108,15 @@ object BackupValidator {
                 se.copy(exerciseId = null)
             } else se
         }
-        val cleaned = d.copy(sessionExercises = cleanedSessionExercises)
+        // A custom value whose metric is missing from the file can not be restored: drop it, say so.
+        val cleanedMeasurements = d.measurements.map { m ->
+            val unknown = m.customValues.keys.filter { it !in metricIds && it !in knownExerciseIds }
+            if (unknown.isEmpty()) m else {
+                warnings += "מדידה מתאריך ${m.localDate} כוללת שדה מותאם שאינו קיים בקובץ; הערך דולג."
+                m.copy(customValues = m.customValues.filterKeys { it in metricIds })
+            }
+        }
+        val cleaned = d.copy(sessionExercises = cleanedSessionExercises, measurements = cleanedMeasurements)
         return ValidationReport(errors.distinct(), warnings.distinct(), cleaned, BackupSummary.of(cleaned))
     }
 

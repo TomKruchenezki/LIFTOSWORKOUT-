@@ -118,6 +118,6 @@ jobs:
           for f in test.log ui.log assemble.log release.log; do
             [ -f "$f" ] || continue
             echo "----- $f ($(grep -c . "$f") lines) -----"
-            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed|\.kt:[0-9]+\)|Timed out|--- screen ---|text=\[|desc=\[|editable=\[" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-2200 | head -n 110
+            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed|\.kt:[0-9]+\)|Timed out|Could not tap|Reason:|Expected exactly|SCREEN:|text=\[|desc=\[|editable=\[" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-2200 | head -n 110
           done
           echo "=============== END SUMMARY ==============="

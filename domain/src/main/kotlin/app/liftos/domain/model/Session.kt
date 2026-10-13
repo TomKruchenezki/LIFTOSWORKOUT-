@@ -26,6 +26,16 @@ data class WorkoutSession(
     val energyRating: Int? = null,
     /** 1..5 */
     val moodRating: Int? = null,
+    /** How hard the workout felt, 1..5 (optional recovery data). */
+    val difficultyRating: Int? = null,
+    /** Overall quality of the workout, 1..5. */
+    val qualityRating: Int? = null,
+    /** Muscle soreness before/after the workout, 1..5; null = not reported. */
+    val sorenessRating: Int? = null,
+    /** General tiredness, 1..5. */
+    val fatigueRating: Int? = null,
+    /** Hours slept the night before, if the user chose to enter it. */
+    val sleepHours: Double? = null,
     val rest: RestTimerState? = null,
     val source: SessionSource = SessionSource.LIVE,
     val createdAt: Long = 0L,

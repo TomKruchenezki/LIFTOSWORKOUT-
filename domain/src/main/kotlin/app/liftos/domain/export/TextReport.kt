@@ -29,9 +29,9 @@ data class BodySnapshot(
 object TextReport {
 
     const val AI_INSTRUCTION =
-        "נתח את האימון שלי מבחינת נפח, עצימות, התקדמות, התאוששות ובחירת התרגילים. " +
-            "השווה לנתונים הקודמים כשיש בסיס לכך. הסבר מה עבד, מה כדאי לשפר והצע יעדים ריאליים לאימון הבא. " +
-            "אל תמציא מידע שלא מופיע בדוח."
+        "נתח את אימון הכוח שלי בצורה מקצועית. בדוק את נפח האימון, העצימות, ההתקדמות, התפלגות קבוצות השרירים וההתאוששות. " +
+            "השווה לאימונים קודמים רק כאשר קיימים נתונים מספקים. ציין מה עבד טוב, מה כדאי לשפר, " +
+            "והצע יעדי משקל וחזרות לאימון הבא בשיטת Progressive Overload. אל תמציא מידע חסר."
 
     /** Readable summary of one workout, optionally followed by a short comparison to [previous]. */
     fun workout(detail: WorkoutDetail, previous: WorkoutDetail? = null): String {
