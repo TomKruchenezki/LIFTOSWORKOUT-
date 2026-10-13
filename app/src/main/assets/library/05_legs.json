@@ -1,0 +1,954 @@
+{
+ "exercises": [
+  {
+   "id": "barbell-back-squat",
+   "he": "סקוואט עם מוט על הגב",
+   "en": "Barbell Back Squat",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "HAMSTRINGS",
+    "LOWER_BACK",
+    "ABS"
+   ],
+   "equipment": "BARBELL",
+   "difficulty": "ADVANCED",
+   "desc": "תרגיל הבסיס לפיתוח כוח ונפח בכל פלג הגוף התחתון.",
+   "steps": [
+    "הנח את המוט על הטרפז העליון, אחוז בו ברוחב נוח והסר אותו מהמתלה.",
+    "עמוד ברוחב כתפיים או מעט יותר, בהטיית רגליים קלה החוצה.",
+    "הורד את האגן אחורה ולמטה בזמן שהברכיים עוקבות אחרי כיוון האצבעות, עד עומק נוח.",
+    "דחוף בחזרה למעלה דרך כף הרגל המלאה, חזה גבוה וגב ניטרלי."
+   ],
+   "mistakes": [
+    "קריסת הברכיים פנימה.",
+    "עיגול הגב התחתון בתחתית.",
+    "הרמת העקבים.",
+    "הטיית גוף קדימה בצורה מוגזמת."
+   ],
+   "safety": [
+    "התאמן עם מתלה עם מוטות ביטחון בעומסים כבדים.",
+    "התחל במשקל קל ושפר טכניקה.",
+    "הימנע מהתרגיל אם מופיע כאב חד בברך או בגב."
+   ],
+   "alternatives": [
+    "front-squat",
+    "hack-squat",
+    "leg-press",
+    "goblet-squat"
+   ]
+  },
+  {
+   "id": "front-squat",
+   "he": "סקוואט קדמי",
+   "en": "Front Squat",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "ABS",
+    "LOWER_BACK"
+   ],
+   "equipment": "BARBELL",
+   "difficulty": "ADVANCED",
+   "desc": "סקוואט עם מוט מקדימה שמדגיש את הארבע-ראשי ודורש יציבות גו.",
+   "steps": [
+    "הנח את המוט על הכתפיים הקדמיות עם מרפקים גבוהים.",
+    "עמוד ברוחב כתפיים.",
+    "רד לעומק נוח כשהגו זקוף.",
+    "דחוף למעלה דרך כף הרגל המלאה."
+   ],
+   "mistakes": [
+    "מרפקים נופלים למטה.",
+    "עיגול הגב העליון.",
+    "הרמת עקבים."
+   ],
+   "safety": [
+    "התאמן עם מתלה בטיחות.",
+    "התחל במשקל קל; הניידות בשורשי הידיים נדרשת."
+   ],
+   "alternatives": [
+    "barbell-back-squat",
+    "goblet-squat",
+    "hack-squat"
+   ]
+  },
+  {
+   "id": "goblet-squat",
+   "he": "סקוואט גביע",
+   "en": "Goblet Squat",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "ABS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "desc": "סקוואט עם משקולת מול החזה, מתאים ללימוד תנועת הסקוואט.",
+   "steps": [
+    "אחוז במשקולת מול החזה עם מרפקים כלפי מטה.",
+    "עמוד ברוחב כתפיים.",
+    "רד לסקוואט עם גו זקוף.",
+    "קום בדחיפה דרך כל כף הרגל."
+   ],
+   "mistakes": [
+    "הטיית גו קדימה.",
+    "קריסת ברכיים פנימה.",
+    "עקבים מורמים."
+   ],
+   "safety": [
+    "בחר משקולת שמאפשרת גו זקוף.",
+    "שמור על גב ניטרלי."
+   ],
+   "alternatives": [
+    "barbell-back-squat",
+    "front-squat",
+    "leg-press"
+   ]
+  },
+  {
+   "id": "leg-press",
+   "he": "מכבש רגליים",
+   "en": "Leg Press",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "HAMSTRINGS"
+   ],
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "desc": "לחיצת רגליים במכונה להעמסה בטוחה יחסית של הארבע-ראשי והישבן.",
+   "steps": [
+    "התיישב עם גב ואגן צמודים למשענת והנח רגליים ברוחב כתפיים על הפלטפורמה.",
+    "שחרר את הנעילות ודחוף עד כמעט יישור, בלי לנעול את הברכיים.",
+    "הורד בשליטה עד שהברכיים בזווית של כ-90 מעלות או נוחה.",
+    "דחוף חזרה למעלה."
+   ],
+   "mistakes": [
+    "הרמת האגן מהכיסא בתחתית.",
+    "נעילת ברכיים בכוח.",
+    "קריסת ברכיים פנימה."
+   ],
+   "safety": [
+    "אל תנעל את הברכיים בראש התנועה.",
+    "הפעל את הנעילות בסוף הסט."
+   ],
+   "alternatives": [
+    "hack-squat",
+    "barbell-back-squat",
+    "goblet-squat"
+   ]
+  },
+  {
+   "id": "hack-squat",
+   "he": "סקוואט האק",
+   "en": "Hack Squat",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES"
+   ],
+   "equipment": "MACHINE",
+   "desc": "סקוואט במכונה משופעת שמדגיש את הארבע-ראשי בגו נתמך.",
+   "steps": [
+    "כוון את המכונה, הצמד גב וכתפיים לכרית.",
+    "הנח רגליים ברוחב כתפיים על הפלטפורמה.",
+    "רד בשליטה עד זווית נוחה.",
+    "דחוף למעלה בלי לנעול ברכיים."
+   ],
+   "mistakes": [
+    "הרמת עקבים.",
+    "קריסת ברכיים.",
+    "ירידה לא מבוקרת."
+   ],
+   "safety": [
+    "הפעל נעילות בטיחות.",
+    "התחל במשקל קל."
+   ],
+   "alternatives": [
+    "leg-press",
+    "barbell-back-squat",
+    "smith-machine-squat"
+   ]
+  },
+  {
+   "id": "bulgarian-split-squat",
+   "he": "סקוואט בולגרי",
+   "en": "Bulgarian Split Squat",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "HAMSTRINGS"
+   ],
+   "equipment": "DUMBBELL",
+   "unilateral": true,
+   "desc": "סקוואט חד-צדדי עם רגל אחורית מורמת על ספסל, לחיזוק רגליים ויציבות.",
+   "steps": [
+    "הנח את החלק העליון של כף הרגל האחורית על ספסל, והרגל הקדמית מספיק רחוק קדימה.",
+    "אחוז במשקולות לצד הגוף וגו זקוף מעט נוטה קדימה.",
+    "רד בשליטה עד שהירך הקדמית קרובה למקביל.",
+    "דחוף דרך העקב הקדמי למעלה."
+   ],
+   "mistakes": [
+    "רגל קדמית קרובה מדי לספסל.",
+    "קריסת ברכיים.",
+    "איבוד איזון."
+   ],
+   "safety": [
+    "התחל במשקל גוף כדי ללמוד איזון.",
+    "שמור על גב ניטרלי."
+   ],
+   "alternatives": [
+    "walking-lunge",
+    "reverse-lunge",
+    "step-up"
+   ]
+  },
+  {
+   "id": "walking-lunge",
+   "he": "פסיעות הליכה",
+   "en": "Walking Lunge",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "HAMSTRINGS"
+   ],
+   "equipment": "DUMBBELL",
+   "unilateral": true,
+   "desc": "פסיעות בהליכה קדימה לחיזוק הרגליים והישבן.",
+   "steps": [
+    "עמוד זקוף עם משקולות לצד הגוף.",
+    "צעד קדימה בצעד גדול והורד את הברך האחורית לכיוון הרצפה.",
+    "דחוף דרך הרגל הקדמית ועבור לצעד הבא.",
+    "המשך לסירוגין."
+   ],
+   "mistakes": [
+    "צעד קצר מדי.",
+    "קריסת ברכיים.",
+    "הטיית גוף."
+   ],
+   "safety": [
+    "ודא שיש מקום פנוי.",
+    "התחל במשקל גוף."
+   ],
+   "alternatives": [
+    "reverse-lunge",
+    "bulgarian-split-squat",
+    "step-up"
+   ]
+  },
+  {
+   "id": "reverse-lunge",
+   "he": "פסיעה לאחור",
+   "en": "Reverse Lunge",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES",
+    "HAMSTRINGS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "unilateral": true,
+   "desc": "פסיעה לאחור, עדינה יותר לברכיים מפסיעה קדימה.",
+   "steps": [
+    "עמוד זקוף עם משקולות.",
+    "צעד לאחור והורד את הברך האחורית לכיוון הרצפה.",
+    "דחוף דרך הרגל הקדמית וחזור לעמידה.",
+    "חזור על הצד השני."
+   ],
+   "mistakes": [
+    "הטיית גו.",
+    "פסיעה קצרה.",
+    "איבוד איזון."
+   ],
+   "safety": [
+    "התחל בלי משקל.",
+    "שמור על יציבות."
+   ],
+   "alternatives": [
+    "walking-lunge",
+    "bulgarian-split-squat",
+    "step-up"
+   ]
+  },
+  {
+   "id": "leg-extension",
+   "he": "פשיטת ברכיים במכונה",
+   "en": "Leg Extension",
+   "primary": "QUADS",
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד הארבע-ראשי במכונה.",
+   "steps": [
+    "כוון את הכרית מעל הקרסוליים והתיישב עם גב צמוד.",
+    "פשוט ברכיים עד יישור כמעט מלא.",
+    "כווץ שנייה בראש התנועה.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "הרמת האגן.",
+    "משקל כבד שמעמיס על הברכיים."
+   ],
+   "safety": [
+    "שמור על שליטה בירידה.",
+    "הימנע מהתרגיל אם יש כאב ברך."
+   ],
+   "alternatives": [
+    "leg-press",
+    "hack-squat",
+    "goblet-squat"
+   ]
+  },
+  {
+   "id": "step-up",
+   "he": "עליות על ספסל",
+   "en": "Step-Up",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "unilateral": true,
+   "desc": "עלייה על ספסל בכל רגל בנפרד לחיזוק רגליים וישבן.",
+   "steps": [
+    "עמוד מול ספסל עם משקולות בידיים.",
+    "הנח רגל אחת על הספסל כולה.",
+    "דחוף דרך העקב עד עמידה על הספסל.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "דחיפה בעזרת הרגל האחורית.",
+    "ספסל גבוה מדי.",
+    "הטיית גו."
+   ],
+   "safety": [
+    "בחר גובה ספסל נוח.",
+    "שמור על יציבות."
+   ],
+   "alternatives": [
+    "bulgarian-split-squat",
+    "reverse-lunge",
+    "walking-lunge"
+   ]
+  },
+  {
+   "id": "smith-machine-squat",
+   "he": "סקוואט במכונת סמית'",
+   "en": "Smith Machine Squat",
+   "primary": "QUADS",
+   "secondary": [
+    "GLUTES"
+   ],
+   "equipment": "SMITH_MACHINE",
+   "difficulty": "BEGINNER",
+   "desc": "סקוואט על מסילה, מאפשר יציבות והתמקדות בארבע-ראשי.",
+   "steps": [
+    "הנח את המוט על הגב העליון ורגליים מעט קדימה.",
+    "שחרר את הנעילה.",
+    "רד לעומק נוח.",
+    "דחוף למעלה ונעל במתלה בסוף."
+   ],
+   "mistakes": [
+    "רגליים קרובות מדי למוט.",
+    "קריסת ברכיים.",
+    "שכחת הנעילה."
+   ],
+   "safety": [
+    "הפעל את נעילות המכונה.",
+    "מקם רגליים כך שהברכיים לא עוברות יותר מדי."
+   ],
+   "alternatives": [
+    "barbell-back-squat",
+    "hack-squat",
+    "leg-press"
+   ]
+  },
+  {
+   "id": "romanian-deadlift",
+   "he": "דדליפט רומני",
+   "en": "Romanian Deadlift",
+   "primary": "HAMSTRINGS",
+   "secondary": [
+    "GLUTES",
+    "LOWER_BACK"
+   ],
+   "equipment": "BARBELL",
+   "desc": "תרגיל מרכזי לשרשרת האחורית, בדגש על הירך האחורית והישבן.",
+   "steps": [
+    "עמוד זקוף עם מוט לפני הירכיים באחיזה ברוחב כתפיים.",
+    "כפוף ברכיים מעט והטה את האגן אחורה.",
+    "הורד את המוט לאורך הרגליים עם גב ישר עד תחושת מתיחה בירך האחורית.",
+    "דחוף את האגן קדימה וחזור לעמידה."
+   ],
+   "mistakes": [
+    "עיגול הגב.",
+    "כיפוף ברכיים מוגזם.",
+    "מוט רחוק מהרגליים."
+   ],
+   "safety": [
+    "שמור על גב ניטרלי.",
+    "הורד רק עד לטווח שבו הגב נשאר ישר."
+   ],
+   "alternatives": [
+    "dumbbell-romanian-deadlift",
+    "conventional-deadlift",
+    "good-morning",
+    "lying-leg-curl"
+   ]
+  },
+  {
+   "id": "dumbbell-romanian-deadlift",
+   "he": "דדליפט רומני במשקולות יד",
+   "en": "Dumbbell Romanian Deadlift",
+   "primary": "HAMSTRINGS",
+   "secondary": [
+    "GLUTES",
+    "LOWER_BACK"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "desc": "גרסה במשקולות יד של הדדליפט הרומני.",
+   "steps": [
+    "עמוד זקוף עם משקולות לפני הירכיים.",
+    "הטה את האגן אחורה עם ברכיים מעט כפופות.",
+    "הורד את המשקולות לאורך הרגליים.",
+    "חזור בדחיפת האגן."
+   ],
+   "mistakes": [
+    "עיגול הגב.",
+    "משקולות רחוקות מהגוף.",
+    "כיפוף ברכיים."
+   ],
+   "safety": [
+    "שמור על גב ישר.",
+    "בחר משקל שמאפשר שליטה."
+   ],
+   "alternatives": [
+    "romanian-deadlift",
+    "good-morning",
+    "lying-leg-curl"
+   ]
+  },
+  {
+   "id": "seated-leg-curl",
+   "he": "כפיפת ברכיים בישיבה",
+   "en": "Seated Leg Curl",
+   "primary": "HAMSTRINGS",
+   "secondary": [
+    "CALVES"
+   ],
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד הירך האחורית בישיבה.",
+   "steps": [
+    "כוון את הכרית מעל הקרסוליים והתיישב עם גב צמוד.",
+    "כופף ברכיים ומשוך את הכרית מתחת לגוף.",
+    "כווץ שנייה.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "הרמת האגן.",
+    "משקל כבד מדי."
+   ],
+   "safety": [
+    "שמור על שליטה.",
+    "הימנע מכאב חד מאחורי הברך."
+   ],
+   "alternatives": [
+    "lying-leg-curl",
+    "romanian-deadlift",
+    "nordic-hamstring-curl"
+   ]
+  },
+  {
+   "id": "lying-leg-curl",
+   "he": "כפיפת ברכיים בשכיבה",
+   "en": "Lying Leg Curl",
+   "primary": "HAMSTRINGS",
+   "secondary": [
+    "CALVES"
+   ],
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד הירך האחורית בשכיבה על הבטן.",
+   "steps": [
+    "שכב על הבטן על המכונה, הכרית מעל העקבים.",
+    "כופף ברכיים והרם את הכרית אל הישבן.",
+    "כווץ שנייה.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "הרמת האגן מהספסל.",
+    "תנופה.",
+    "משקל כבד מדי."
+   ],
+   "safety": [
+    "שמור על אגן צמוד לספסל.",
+    "הימנע מתנועה מהירה."
+   ],
+   "alternatives": [
+    "seated-leg-curl",
+    "romanian-deadlift",
+    "nordic-hamstring-curl"
+   ]
+  },
+  {
+   "id": "good-morning",
+   "he": "בוקר טוב",
+   "en": "Good Morning",
+   "primary": "HAMSTRINGS",
+   "secondary": [
+    "GLUTES",
+    "LOWER_BACK"
+   ],
+   "equipment": "BARBELL",
+   "difficulty": "ADVANCED",
+   "desc": "הטיית גו קדימה עם מוט על הגב לחיזוק הירך האחורית והגב התחתון.",
+   "steps": [
+    "הנח מוט על הגב העליון ועמוד ברוחב כתפיים.",
+    "כפוף ברכיים מעט והטה את האגן אחורה.",
+    "הורד את הגו קדימה עם גב ישר.",
+    "חזור לעמידה בדחיפת האגן."
+   ],
+   "mistakes": [
+    "עיגול הגב.",
+    "משקל כבד מדי.",
+    "כיפוף ברכיים מוגזם."
+   ],
+   "safety": [
+    "התחל במשקל קל מאוד.",
+    "הימנע אם יש בעיית גב תחתון ללא ייעוץ מקצועי."
+   ],
+   "alternatives": [
+    "romanian-deadlift",
+    "back-extension",
+    "dumbbell-romanian-deadlift"
+   ]
+  },
+  {
+   "id": "nordic-hamstring-curl",
+   "he": "כפיפה נורדית",
+   "en": "Nordic Hamstring Curl",
+   "primary": "HAMSTRINGS",
+   "secondary": [
+    "GLUTES",
+    "CALVES"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "ADVANCED",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "תרגיל משקל גוף מתקדם לחיזוק הירך האחורית.",
+   "steps": [
+    "כרע על כרית כשהקרסוליים מקובעים.",
+    "הגוף ישר מהברכיים לראש.",
+    "הורד את הגוף קדימה לאט ככל האפשר.",
+    "התפוס ברצפה בידיים וחזור בעזרת ידיים לפי הצורך."
+   ],
+   "mistakes": [
+    "שבירת קו האגן.",
+    "נפילה מהירה.",
+    "יציבות חלשה."
+   ],
+   "safety": [
+    "התחל בטווח קצר.",
+    "הימנע אם יש היסטוריה של פציעות בירך האחורית ללא התאמה."
+   ],
+   "alternatives": [
+    "lying-leg-curl",
+    "seated-leg-curl",
+    "romanian-deadlift"
+   ]
+  },
+  {
+   "id": "hip-thrust",
+   "he": "הרמות אגן עם מוט",
+   "en": "Hip Thrust",
+   "primary": "GLUTES",
+   "secondary": [
+    "HAMSTRINGS",
+    "QUADS"
+   ],
+   "equipment": "BARBELL",
+   "desc": "תרגיל מרכזי להעמסת שרירי הישבן.",
+   "steps": [
+    "שב על הרצפה עם הגב העליון על ספסל והנח מוט על האגן (עם כרית).",
+    "כפות רגליים על הרצפה, ברכיים כפופות.",
+    "דחוף את האגן למעלה עד שהגוף בקו ישר מהכתפיים לברכיים.",
+    "כווץ ישבן שנייה והורד בשליטה."
+   ],
+   "mistakes": [
+    "קימור יתר של הגב התחתון.",
+    "דחיפה בעזרת הגב.",
+    "רגליים רחוקות או קרובות מדי."
+   ],
+   "safety": [
+    "השתמש בכרית על האגן.",
+    "יצב את הספסל כך שלא יזוז."
+   ],
+   "alternatives": [
+    "glute-bridge",
+    "cable-pull-through",
+    "romanian-deadlift"
+   ]
+  },
+  {
+   "id": "glute-bridge",
+   "he": "גשר ישבן",
+   "en": "Glute Bridge",
+   "primary": "GLUTES",
+   "secondary": [
+    "HAMSTRINGS",
+    "LOWER_BACK"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "הרמת אגן בשכיבה על הרצפה, גרסה קלה של הרמות אגן.",
+   "steps": [
+    "שכב על הגב עם ברכיים כפופות וכפות רגליים על הרצפה.",
+    "דחוף את האגן למעלה עד קו ישר מהכתפיים לברכיים.",
+    "כווץ ישבן שנייה.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "קימור יתר של הגב.",
+    "דחיפה מהבהונות.",
+    "הורדה מהירה."
+   ],
+   "safety": [
+    "שמור על צוואר רפוי.",
+    "הימנע מקימור יתר."
+   ],
+   "alternatives": [
+    "hip-thrust",
+    "back-extension",
+    "cable-pull-through"
+   ]
+  },
+  {
+   "id": "cable-kickback",
+   "he": "בעיטת ישבן בכבל",
+   "en": "Cable Glute Kickback",
+   "primary": "GLUTES",
+   "secondary": [
+    "HAMSTRINGS"
+   ],
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "unilateral": true,
+   "desc": "בידוד הישבן בבעיטה לאחור בפולי תחתון.",
+   "steps": [
+    "חבר רצועת קרסול לפולי תחתון והחזק את המכונה.",
+    "הטה מעט את הגו קדימה.",
+    "בעט את הרגל לאחור בישבן מכווץ.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "קימור הגב.",
+    "תנופה.",
+    "סיבוב האגן."
+   ],
+   "safety": [
+    "שמור על גב ניטרלי.",
+    "השתמש במשקל בינוני."
+   ],
+   "alternatives": [
+    "hip-thrust",
+    "glute-bridge",
+    "hip-abduction-machine"
+   ]
+  },
+  {
+   "id": "cable-pull-through",
+   "he": "משיכת כבל בין הרגליים",
+   "en": "Cable Pull-Through",
+   "primary": "GLUTES",
+   "secondary": [
+    "HAMSTRINGS",
+    "LOWER_BACK"
+   ],
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "desc": "תנועת ציר אגן בכבל לחיזוק הישבן והירך האחורית.",
+   "steps": [
+    "עמוד עם גב לפולי תחתון, אחוז בחבל בין הרגליים.",
+    "צעד קדימה והטה את האגן אחורה.",
+    "דחוף את האגן קדימה בכוח הישבן.",
+    "חזור בשליטה."
+   ],
+   "mistakes": [
+    "כפיפת ברכיים מוגזמת כמו סקוואט.",
+    "עיגול הגב.",
+    "משיכה בידיים."
+   ],
+   "safety": [
+    "שמור על גב ישר.",
+    "התחל במשקל קל."
+   ],
+   "alternatives": [
+    "romanian-deadlift",
+    "hip-thrust",
+    "glute-bridge"
+   ]
+  },
+  {
+   "id": "sumo-deadlift",
+   "he": "דדליפט סומו",
+   "en": "Sumo Deadlift",
+   "primary": "GLUTES",
+   "secondary": [
+    "QUADS",
+    "HAMSTRINGS",
+    "ADDUCTORS",
+    "LOWER_BACK"
+   ],
+   "equipment": "BARBELL",
+   "difficulty": "ADVANCED",
+   "desc": "דדליפט בעמידה רחבה, מדגיש ישבן ומקרבי ירך.",
+   "steps": [
+    "עמוד ברוחב גדול מהכתפיים עם אצבעות לכיוון החוץ.",
+    "אחוז במוט בין הרגליים וגב ישר.",
+    "דחוף את הרצפה והרם את המוט עד עמידה.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "עיגול הגב.",
+    "ברכיים קורסות פנימה.",
+    "מוט רחוק מהגוף."
+   ],
+   "safety": [
+    "התחל במשקל קל.",
+    "שמור על גב ניטרלי."
+   ],
+   "alternatives": [
+    "conventional-deadlift",
+    "romanian-deadlift",
+    "trap-bar-deadlift"
+   ]
+  },
+  {
+   "id": "hip-abduction-machine",
+   "he": "הרחקת ירכיים במכונה",
+   "en": "Hip Abduction Machine",
+   "primary": "ABDUCTORS",
+   "secondary": [
+    "GLUTES"
+   ],
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד מרחיקי הירך והישבן הצידי.",
+   "steps": [
+    "התיישב עם גב צמוד וכרית על הצד החיצוני של הברכיים.",
+    "דחוף את הברכיים החוצה.",
+    "עצור קצר.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "הטיית גוף.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "שמור על שליטה.",
+    "הימנע מתנועה פתאומית."
+   ],
+   "alternatives": [
+    "cable-kickback",
+    "hip-adduction-machine",
+    "hip-thrust"
+   ]
+  },
+  {
+   "id": "hip-adduction-machine",
+   "he": "קירוב ירכיים במכונה",
+   "en": "Hip Adduction Machine",
+   "primary": "ADDUCTORS",
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד מקרבי הירך (ירך פנימית).",
+   "steps": [
+    "התיישב עם גב צמוד והנח את הברכיים על הכריות.",
+    "קרב את הברכיים זו לזו.",
+    "עצור קצר.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "טווח חופשי מדי שמעמיס.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "הימנע מפתיחה אגרסיבית בתחילת התנועה.",
+    "שמור על שליטה."
+   ],
+   "alternatives": [
+    "hip-abduction-machine",
+    "sumo-deadlift",
+    "goblet-squat"
+   ]
+  },
+  {
+   "id": "curtsy-lunge",
+   "he": "פסיעת קרטסי",
+   "en": "Curtsy Lunge",
+   "primary": "GLUTES",
+   "secondary": [
+    "QUADS",
+    "ADDUCTORS"
+   ],
+   "equipment": "DUMBBELL",
+   "unilateral": true,
+   "desc": "פסיעה אלכסונית לאחור שמדגישה את הישבן ואת היציבות.",
+   "steps": [
+    "עמוד זקוף עם משקולת מול החזה או משקולות בצדדים.",
+    "צעד אלכסונית אחורה מעבר לרגל הקדמית.",
+    "רד עד קרוב לרצפה.",
+    "חזור לעמידה."
+   ],
+   "mistakes": [
+    "איבוד איזון.",
+    "קריסת ברכיים.",
+    "הטיית גו."
+   ],
+   "safety": [
+    "התחל בלי משקל.",
+    "שמור על יציבות."
+   ],
+   "alternatives": [
+    "reverse-lunge",
+    "bulgarian-split-squat",
+    "step-up"
+   ]
+  },
+  {
+   "id": "standing-calf-raise",
+   "he": "הרמות תאומים בעמידה",
+   "en": "Standing Calf Raise",
+   "primary": "CALVES",
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד שרירי התאומים בעמידה.",
+   "steps": [
+    "התייצב על המכונה עם קצות כפות הרגליים על הפלטפורמה.",
+    "רד בעקבים בשליטה עד מתיחה.",
+    "עלה על קצות האצבעות הכי גבוה שאפשר.",
+    "עצור שנייה למעלה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "טווח חלקי.",
+    "כיפוף ברכיים."
+   ],
+   "safety": [
+    "שמור על ברכיים כמעט ישרות.",
+    "התחל במשקל בינוני."
+   ],
+   "alternatives": [
+    "seated-calf-raise",
+    "leg-press-calf-raise",
+    "single-leg-calf-raise"
+   ]
+  },
+  {
+   "id": "seated-calf-raise",
+   "he": "הרמות תאומים בישיבה",
+   "en": "Seated Calf Raise",
+   "primary": "CALVES",
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "הרמות תאומים בישיבה, בדגש על שריר הסוליאוס.",
+   "steps": [
+    "התיישב והנח את הברכיים מתחת לכרית.",
+    "רד בעקבים עד מתיחה.",
+    "עלה על קצות האצבעות.",
+    "עצור שנייה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "טווח חלקי.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "שמור על שליטה.",
+    "הימנע מקפיצות."
+   ],
+   "alternatives": [
+    "standing-calf-raise",
+    "leg-press-calf-raise",
+    "single-leg-calf-raise"
+   ]
+  },
+  {
+   "id": "leg-press-calf-raise",
+   "he": "הרמות תאומים במכבש רגליים",
+   "en": "Leg Press Calf Raise",
+   "primary": "CALVES",
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "הרמות תאומים באמצעות מכבש רגליים.",
+   "steps": [
+    "התיישב במכבש והנח את קצות כפות הרגליים על הפלטפורמה.",
+    "פשוט ברכיים (בלי נעילה כבדה).",
+    "דחוף בקצות האצבעות והרם.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "כיפוף ברכיים.",
+    "פלטפורמה שמחליקה.",
+    "תנועה מהירה."
+   ],
+   "safety": [
+    "אל תנעל ברכיים.",
+    "הפעל נעילות בסוף."
+   ],
+   "alternatives": [
+    "standing-calf-raise",
+    "seated-calf-raise",
+    "single-leg-calf-raise"
+   ]
+  },
+  {
+   "id": "single-leg-calf-raise",
+   "he": "הרמות תאומים ברגל אחת",
+   "en": "Single-Leg Calf Raise",
+   "primary": "CALVES",
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "unilateral": true,
+   "desc": "הרמות תאומים חד-צדדיות על מדרגה.",
+   "steps": [
+    "עמוד על קצה מדרגה עם רגל אחת, החזק בקיר לאיזון.",
+    "רד בעקב בשליטה.",
+    "עלה על קצה האצבעות.",
+    "עצור שנייה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "טווח חלקי.",
+    "איבוד איזון."
+   ],
+   "safety": [
+    "החזק משהו יציב.",
+    "שמור על ברך כמעט ישרה."
+   ],
+   "alternatives": [
+    "standing-calf-raise",
+    "seated-calf-raise",
+    "leg-press-calf-raise"
+   ]
+  }
+ ]
+}

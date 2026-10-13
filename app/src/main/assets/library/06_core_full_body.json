@@ -1,0 +1,502 @@
+{
+ "exercises": [
+  {
+   "id": "plank",
+   "he": "פלאנק",
+   "en": "Plank",
+   "primary": "ABS",
+   "secondary": [
+    "SHOULDERS",
+    "GLUTES",
+    "LOWER_BACK"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "tracking": "DURATION",
+   "desc": "החזקה איזומטרית לחיזוק שרירי הליבה, נמדדת בזמן (שניות).",
+   "steps": [
+    "התמקם על האמות והבהונות, מרפקים מתחת לכתפיים.",
+    "הגוף בקו ישר מהראש ועד העקבים.",
+    "הדק בטן וישבן, הבט לרצפה והמשך לנשום.",
+    "החזק את הזמן המתוכנן ובצע ירידה בשליטה."
+   ],
+   "mistakes": [
+    "צניחת אגן או הרמת ישבן.",
+    "עצירת נשימה.",
+    "הרמת הראש."
+   ],
+   "safety": [
+    "עצור כשהצורה מתחילה להתפרק.",
+    "אם יש כאב בגב התחתון, קצר את הזמן."
+   ],
+   "alternatives": [
+    "side-plank",
+    "dead-bug",
+    "ab-wheel-rollout"
+   ]
+  },
+  {
+   "id": "side-plank",
+   "he": "פלאנק צידי",
+   "en": "Side Plank",
+   "primary": "ABS",
+   "secondary": [
+    "SHOULDERS",
+    "GLUTES"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "tracking": "DURATION",
+   "unilateral": true,
+   "desc": "החזקה צידית לחיזוק שרירי הבטן הצידיים והיציבות.",
+   "steps": [
+    "שכב על הצד והישען על האמה כשהמרפק מתחת לכתף.",
+    "הרם את האגן כך שהגוף בקו ישר.",
+    "הדק בטן וישבן.",
+    "החזק וחזור על הצד השני."
+   ],
+   "mistakes": [
+    "צניחת אגן.",
+    "סיבוב הגו.",
+    "הרמת כתף לאוזן."
+   ],
+   "safety": [
+    "הפחת זמן אם אתה מרגיש כאב.",
+    "התחל מהברכיים אם קשה."
+   ],
+   "alternatives": [
+    "plank",
+    "pallof-press",
+    "dead-bug"
+   ]
+  },
+  {
+   "id": "cable-crunch",
+   "he": "כפיפות בטן בכבל",
+   "en": "Cable Crunch",
+   "primary": "ABS",
+   "equipment": "CABLE",
+   "type": "ISOLATION",
+   "desc": "כפיפת בטן עם התנגדות מכבל על ברכיים.",
+   "steps": [
+    "כרע מול פולי עליון ואחוז בחבל ליד הראש.",
+    "הטה את הגו קדימה בכיפוף עמוד השדרה.",
+    "קרב את המרפקים לברכיים בכיווץ הבטן.",
+    "חזור בשליטה."
+   ],
+   "mistakes": [
+    "משיכה בעזרת הידיים.",
+    "ישיבה אחורה על העקבים.",
+    "תנועה מהירה."
+   ],
+   "safety": [
+    "שמור על שליטה.",
+    "הימנע מכאב בגב התחתון."
+   ],
+   "alternatives": [
+    "crunch",
+    "hanging-leg-raise",
+    "ab-wheel-rollout"
+   ]
+  },
+  {
+   "id": "hanging-leg-raise",
+   "he": "הרמות רגליים בתלייה",
+   "en": "Hanging Leg Raise",
+   "primary": "ABS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "ADVANCED",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "הרמת רגליים בתלייה לחיזוק הבטן התחתונה.",
+   "steps": [
+    "תלה על מוט עם אחיזה יציבה וגוף שקט.",
+    "הרם רגליים ישרות או כפופות מעט עד גובה האגן או יותר.",
+    "הימנע מנדנוד.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד.",
+    "הורדה מהירה.",
+    "משיכה בעזרת הידיים."
+   ],
+   "safety": [
+    "התחל בהרמת ברכיים אם קשה.",
+    "אחיזה בטוחה."
+   ],
+   "alternatives": [
+    "hanging-knee-raise",
+    "cable-crunch",
+    "ab-wheel-rollout"
+   ]
+  },
+  {
+   "id": "hanging-knee-raise",
+   "he": "הרמות ברכיים בתלייה",
+   "en": "Hanging Knee Raise",
+   "primary": "ABS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "BODYWEIGHT",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "גרסה קלה יותר של הרמות רגליים בתלייה.",
+   "steps": [
+    "תלה על מוט עם אחיזה יציבה.",
+    "הרם ברכיים לכיוון החזה.",
+    "כווץ בטן בקצה התנועה.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד.",
+    "הורדה מהירה.",
+    "תנופה."
+   ],
+   "safety": [
+    "אחיזה בטוחה.",
+    "התקדם להרמות רגליים ישרות."
+   ],
+   "alternatives": [
+    "hanging-leg-raise",
+    "crunch",
+    "cable-crunch"
+   ]
+  },
+  {
+   "id": "crunch",
+   "he": "כפיפות בטן",
+   "en": "Crunch",
+   "primary": "ABS",
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "תרגיל בסיסי לשריר הבטן הישר.",
+   "steps": [
+    "שכב על הגב עם ברכיים כפופות וכפות רגליים על הרצפה.",
+    "הנח ידיים ליד הראש בלי למשוך את הצוואר.",
+    "הרם את הכתפיים מעט מהרצפה בכיווץ הבטן.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "משיכת הצוואר.",
+    "תנופה.",
+    "הרמת הגו כולו."
+   ],
+   "safety": [
+    "שמור על צוואר רפוי.",
+    "אל תכפה כאב בגב התחתון."
+   ],
+   "alternatives": [
+    "cable-crunch",
+    "bicycle-crunch",
+    "dead-bug"
+   ]
+  },
+  {
+   "id": "ab-wheel-rollout",
+   "he": "גלגל בטן",
+   "en": "Ab Wheel Rollout",
+   "primary": "ABS",
+   "secondary": [
+    "SHOULDERS",
+    "LOWER_BACK"
+   ],
+   "equipment": "OTHER",
+   "difficulty": "ADVANCED",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "תרגיל מתקדם לבטן ולליבה עם גלגל.",
+   "steps": [
+    "כרע על כרית ואחוז בגלגל.",
+    "הדק בטן וגלגל קדימה תוך שמירה על גב ישר.",
+    "עצור במרחק שאתה שולט בו.",
+    "משוך חזרה בכיווץ הבטן."
+   ],
+   "mistakes": [
+    "קימור הגב התחתון.",
+    "טווח רחב מדי.",
+    "צניחת אגן."
+   ],
+   "safety": [
+    "התחל בטווח קצר.",
+    "הימנע אם יש כאב בגב התחתון."
+   ],
+   "alternatives": [
+    "plank",
+    "cable-crunch",
+    "hanging-leg-raise"
+   ]
+  },
+  {
+   "id": "russian-twist",
+   "he": "סיבובי רוסי",
+   "en": "Russian Twist",
+   "primary": "ABS",
+   "equipment": "BODYWEIGHT",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "סיבוב הגו בישיבה לחיזוק שרירי הבטן הצידיים.",
+   "steps": [
+    "שב על הרצפה עם ברכיים כפופות והטה את הגו מעט אחורה.",
+    "אחוז בידיים יחד או במשקולת.",
+    "סובב את הגו מצד לצד.",
+    "שמור על גב ישר."
+   ],
+   "mistakes": [
+    "עיגול הגב.",
+    "סיבוב הידיים בלבד.",
+    "תנועה מהירה."
+   ],
+   "safety": [
+    "אם יש כאב בגב התחתון, הפחת טווח או הנח רגליים על הרצפה.",
+    "בחר משקל קל."
+   ],
+   "alternatives": [
+    "pallof-press",
+    "bicycle-crunch",
+    "side-plank"
+   ]
+  },
+  {
+   "id": "dead-bug",
+   "he": "באג מת",
+   "en": "Dead Bug",
+   "primary": "ABS",
+   "secondary": [
+    "LOWER_BACK"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "תרגיל שליטה בליבה בשכיבה על הגב.",
+   "steps": [
+    "שכב על הגב עם ידיים למעלה וברכיים בזווית של 90 מעלות.",
+    "הצמד את הגב התחתון לרצפה.",
+    "הורד יד אחת ורגל נגדית לכיוון הרצפה.",
+    "חזור והחלף צד."
+   ],
+   "mistakes": [
+    "קימור הגב התחתון.",
+    "תנועה מהירה.",
+    "עצירת נשימה."
+   ],
+   "safety": [
+    "שמור על גב צמוד לרצפה.",
+    "צמצם טווח אם הגב מתקמר."
+   ],
+   "alternatives": [
+    "plank",
+    "crunch",
+    "pallof-press"
+   ]
+  },
+  {
+   "id": "pallof-press",
+   "he": "לחיצת פאלוף",
+   "en": "Pallof Press",
+   "primary": "ABS",
+   "secondary": [
+    "SHOULDERS"
+   ],
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "unilateral": true,
+   "desc": "תרגיל נגד סיבוב לחיזוק היציבות של הליבה.",
+   "steps": [
+    "עמוד ניצב לפולי בגובה החזה ואחוז בידית בשתי ידיים מול החזה.",
+    "צעד הצידה להגברת מתח.",
+    "דחוף את הידיים קדימה ושמור על גוף יציב בלי סיבוב.",
+    "החזר לחזה."
+   ],
+   "mistakes": [
+    "סיבוב הגו.",
+    "עמידה קרובה מדי לפולי.",
+    "תנועה מהירה."
+   ],
+   "safety": [
+    "התחל במשקל קל.",
+    "שמור על יציבות."
+   ],
+   "alternatives": [
+    "side-plank",
+    "russian-twist",
+    "dead-bug"
+   ]
+  },
+  {
+   "id": "bicycle-crunch",
+   "he": "אופניים",
+   "en": "Bicycle Crunch",
+   "primary": "ABS",
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "כפיפת בטן עם סיבוב לשרירי הבטן הצידיים.",
+   "steps": [
+    "שכב על הגב עם ידיים ליד הראש.",
+    "הרם כתפיים ורגליים מעט מהרצפה.",
+    "קרב מרפק לברך הנגדית ויישר את הרגל השנייה.",
+    "החלף צד בקצב מבוקר."
+   ],
+   "mistakes": [
+    "משיכת הצוואר.",
+    "תנועה מהירה.",
+    "קימור הגב."
+   ],
+   "safety": [
+    "שמור על צוואר רפוי.",
+    "עצור אם יש כאב בגב התחתון."
+   ],
+   "alternatives": [
+    "crunch",
+    "russian-twist",
+    "dead-bug"
+   ]
+  },
+  {
+   "id": "decline-sit-up",
+   "he": "כפיפות בטן על ספסל משופע",
+   "en": "Decline Sit-Up",
+   "primary": "ABS",
+   "secondary": [
+    "QUADS"
+   ],
+   "equipment": "BODYWEIGHT",
+   "type": "ISOLATION",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "כפיפת בטן על ספסל משופע עם התנגדות מוגברת.",
+   "steps": [
+    "שב על ספסל משופע והדק את הרגליים.",
+    "שלב ידיים על החזה או ליד הראש.",
+    "התרומם בכיווץ הבטן.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "משיכה בעזרת הצוואר.",
+    "תנופה.",
+    "קימור הגב."
+   ],
+   "safety": [
+    "התחל בשיפוע קל.",
+    "הימנע מכאב בגב התחתון."
+   ],
+   "alternatives": [
+    "crunch",
+    "cable-crunch",
+    "hanging-knee-raise"
+   ]
+  },
+  {
+   "id": "kettlebell-swing",
+   "he": "נדנוד קטלבל",
+   "en": "Kettlebell Swing",
+   "primary": "FULL_BODY",
+   "secondary": [
+    "GLUTES",
+    "HAMSTRINGS",
+    "LOWER_BACK",
+    "SHOULDERS"
+   ],
+   "equipment": "KETTLEBELL",
+   "desc": "תנועה דינמית בציר האגן לפיתוח כוח ויכולת אירובית.",
+   "steps": [
+    "עמוד ברוחב כתפיים עם קטלבל לפניך.",
+    "הטה את האגן אחורה, אחוז בקטלבל והעבר אותו בין הרגליים.",
+    "דחוף את האגן קדימה בכוח כדי להניף את הקטלבל לגובה החזה.",
+    "אפשר לקטלבל לרדת וחזור על התנועה."
+   ],
+   "mistakes": [
+    "תנועה מתרגיל סקוואט במקום ציר אגן.",
+    "הרמת הקטלבל בעזרת הידיים.",
+    "עיגול הגב."
+   ],
+   "safety": [
+    "התחל בקטלבל קל ולמד את הטכניקה.",
+    "ודא שיש מקום פנוי סביבך."
+   ],
+   "alternatives": [
+    "romanian-deadlift",
+    "hip-thrust",
+    "trap-bar-deadlift"
+   ]
+  },
+  {
+   "id": "farmers-carry",
+   "he": "הליכת איכר",
+   "en": "Farmer's Carry",
+   "primary": "FULL_BODY",
+   "secondary": [
+    "FOREARMS",
+    "TRAPS",
+    "ABS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "desc": "הליכה עם משקולות כבדות בידיים לחיזוק האחיזה והליבה.",
+   "steps": [
+    "אחוז במשקולת בכל יד לצד הגוף.",
+    "עמוד זקוף עם כתפיים למטה ואחורה.",
+    "לך בצעדים יציבים למרחק או לזמן שנקבע.",
+    "הנח את המשקולות בזהירות."
+   ],
+   "mistakes": [
+    "הטיית גו.",
+    "הרמת כתפיים.",
+    "צעדים מהירים ולא יציבים."
+   ],
+   "safety": [
+    "בחר משקל שמאפשר יציבות.",
+    "הנח את המשקולות בעזרת ברכיים כפופות."
+   ],
+   "alternatives": [
+    "barbell-shrug",
+    "dumbbell-shrug",
+    "wrist-curl"
+   ]
+  },
+  {
+   "id": "trap-bar-deadlift",
+   "he": "דדליפט במוט משושה",
+   "en": "Trap Bar Deadlift",
+   "primary": "FULL_BODY",
+   "secondary": [
+    "QUADS",
+    "GLUTES",
+    "HAMSTRINGS",
+    "LOWER_BACK",
+    "TRAPS"
+   ],
+   "equipment": "BARBELL",
+   "desc": "דדליפט במוט משושה, מעט קל יותר ללמידה מהדדליפט הקלאסי.",
+   "steps": [
+    "עמוד בתוך המוט, רגליים ברוחב אגן.",
+    "התכופף ואחוז בידיות עם גב ישר.",
+    "דחוף את הרצפה והרם עד עמידה.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "עיגול הגב.",
+    "הרמה בעזרת הגב.",
+    "הטיית ראש."
+   ],
+   "safety": [
+    "התחל בעומס נמוך.",
+    "שמור על גב ניטרלי."
+   ],
+   "alternatives": [
+    "conventional-deadlift",
+    "romanian-deadlift",
+    "kettlebell-swing"
+   ]
+  }
+ ]
+}

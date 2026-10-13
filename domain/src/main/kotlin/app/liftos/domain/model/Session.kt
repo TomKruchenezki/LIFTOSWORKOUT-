@@ -82,11 +82,13 @@ data class ExerciseSet(
     val notes: String = "",
 )
 
+@Serializable
 data class ExerciseWithSets(
     val exercise: SessionExercise,
     val sets: List<ExerciseSet>,
 )
 
+@Serializable
 data class WorkoutDetail(
     val session: WorkoutSession,
     val exercises: List<ExerciseWithSets>,

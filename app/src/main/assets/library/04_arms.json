@@ -1,0 +1,614 @@
+{
+ "exercises": [
+  {
+   "id": "barbell-curl",
+   "he": "כפיפת מרפקים במוט",
+   "en": "Barbell Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "BARBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "תרגיל בסיסי לפיתוח היד הקדמית.",
+   "steps": [
+    "עמוד זקוף ואחוז במוט באחיזה הפוכה ברוחב כתפיים.",
+    "מרפקים צמודים לגוף.",
+    "כופף מרפקים והרם את המוט לכיוון הכתפיים.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד הגוף.",
+    "הרחקת מרפקים.",
+    "הורדה מהירה."
+   ],
+   "safety": [
+    "אל תקמר את הגב.",
+    "בחר משקל שמאפשר שליטה."
+   ],
+   "alternatives": [
+    "ez-bar-curl",
+    "dumbbell-curl",
+    "cable-curl"
+   ]
+  },
+  {
+   "id": "ez-bar-curl",
+   "he": "כפיפת מרפקים במוט EZ",
+   "en": "EZ Bar Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "EZ_BAR",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "כפיפת מרפקים במוט מעוקל, נוחה יותר לשורשי כפות הידיים.",
+   "steps": [
+    "אחוז במוט EZ באחיזה בנקודות המעוקלות.",
+    "עמוד זקוף עם מרפקים צמודים לגוף.",
+    "כופף מרפקים והרם את המוט.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד הגוף.",
+    "מרפקים נעים קדימה.",
+    "הורדה מהירה."
+   ],
+   "safety": [
+    "שמור על ליבה מהודקת.",
+    "הימנע מקימור הגב."
+   ],
+   "alternatives": [
+    "barbell-curl",
+    "dumbbell-curl",
+    "preacher-curl"
+   ]
+  },
+  {
+   "id": "dumbbell-curl",
+   "he": "כפיפת מרפקים במשקולות יד",
+   "en": "Dumbbell Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "כפיפת מרפקים במשקולות יד עם סיבוב כפות הידיים.",
+   "steps": [
+    "עמוד או שב עם משקולת בכל יד, כפות ידיים קדימה.",
+    "מרפקים צמודים לגוף.",
+    "כופף מרפקים והרם עד כיווץ מלא.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד הגוף.",
+    "תנופה.",
+    "הרחקת מרפקים."
+   ],
+   "safety": [
+    "בחר משקל שמאפשר שליטה.",
+    "שמור על גב ישר."
+   ],
+   "alternatives": [
+    "hammer-curl",
+    "incline-dumbbell-curl",
+    "cable-curl"
+   ]
+  },
+  {
+   "id": "hammer-curl",
+   "he": "כפיפת פטיש",
+   "en": "Hammer Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "כפיפת מרפקים באחיזה נייטרלית שמדגישה גם את שריר הזרוע התחתונה.",
+   "steps": [
+    "החזק משקולות לצד הגוף באחיזה נייטרלית.",
+    "מרפקים צמודים לגוף.",
+    "כופף מרפקים והרם את המשקולות.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "נדנוד.",
+    "הרחקת מרפקים."
+   ],
+   "safety": [
+    "שמור על שורשי כפות ידיים ישרים.",
+    "השתמש במשקל מתון."
+   ],
+   "alternatives": [
+    "dumbbell-curl",
+    "reverse-curl",
+    "cable-curl"
+   ]
+  },
+  {
+   "id": "incline-dumbbell-curl",
+   "he": "כפיפת מרפקים בשיפוע",
+   "en": "Incline Dumbbell Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "DUMBBELL",
+   "type": "ISOLATION",
+   "desc": "כפיפה על ספסל משופע לבידוד היד הקדמית בטווח תנועה ארוך.",
+   "steps": [
+    "שב על ספסל משופע בזווית של כ-45 עד 60 מעלות עם זרועות תלויות.",
+    "כופף מרפקים והרם את המשקולות בלי להזיז את הכתפיים.",
+    "כווץ בראש התנועה.",
+    "הורד בשליטה עד יישור מלא."
+   ],
+   "mistakes": [
+    "הקדמת הכתפיים.",
+    "משקל כבד.",
+    "תנופה."
+   ],
+   "safety": [
+    "התחל במשקל קל; המתיחה מעמיסה על הגידים.",
+    "הימנע מירידה חדה."
+   ],
+   "alternatives": [
+    "dumbbell-curl",
+    "preacher-curl",
+    "bayesian-curl"
+   ]
+  },
+  {
+   "id": "preacher-curl",
+   "he": "כפיפת מרפקים על ספסל שיעור",
+   "en": "Preacher Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "EZ_BAR",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "כפיפה עם זרועות נתמכות שמונעת תנופה ומבודדת את היד הקדמית.",
+   "steps": [
+    "שב מול הספסל והנח את הזרועות על הכרית.",
+    "אחוז במוט והורד כמעט עד יישור.",
+    "כופף מרפקים והרם את המוט.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "יישור בכוח בתחתית.",
+    "הרמת הישבן.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "אל תיתן למשקל ליפול בתחתית; שמור על שליטה.",
+    "הימנע מיישור אגרסיבי של המרפק."
+   ],
+   "alternatives": [
+    "ez-bar-curl",
+    "dumbbell-curl",
+    "cable-curl"
+   ]
+  },
+  {
+   "id": "cable-curl",
+   "he": "כפיפת מרפקים בכבל",
+   "en": "Cable Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "כפיפה עם מתח קבוע לאורך כל התנועה.",
+   "steps": [
+    "עמוד מול פולי תחתון ואחוז במוט או בחבל.",
+    "מרפקים צמודים לגוף.",
+    "כופף מרפקים והרם.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד.",
+    "משקל כבד.",
+    "הרחקת מרפקים."
+   ],
+   "safety": [
+    "שמור על יציבות.",
+    "הימנע מקימור הגב."
+   ],
+   "alternatives": [
+    "barbell-curl",
+    "dumbbell-curl",
+    "hammer-curl"
+   ]
+  },
+  {
+   "id": "concentration-curl",
+   "he": "כפיפה מרוכזת",
+   "en": "Concentration Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "unilateral": true,
+   "desc": "כפיפה חד-צדדית בישיבה לבידוד היד הקדמית.",
+   "steps": [
+    "שב על ספסל והישען על הירך עם המרפק צמוד לירך.",
+    "אחוז במשקולת וכופף מרפק.",
+    "כווץ בראש התנועה.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "תנופה מהגוף.",
+    "הרחקת המרפק מהירך.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "שמור על גב ישר.",
+    "בחר משקל מתון."
+   ],
+   "alternatives": [
+    "dumbbell-curl",
+    "preacher-curl",
+    "incline-dumbbell-curl"
+   ]
+  },
+  {
+   "id": "bayesian-curl",
+   "he": "כפיפה בכבל מאחורי הגוף",
+   "en": "Bayesian Cable Curl",
+   "primary": "BICEPS",
+   "secondary": [
+    "FOREARMS"
+   ],
+   "equipment": "CABLE",
+   "type": "ISOLATION",
+   "unilateral": true,
+   "desc": "כפיפה בכבל כשהזרוע מאחורי הגוף, למתיחה מקסימלית של היד הקדמית.",
+   "steps": [
+    "התייצב עם גב לפולי תחתון ואחוז בידית ביד אחת.",
+    "הזרוע מאחורי הגוף עם מרפק מעט לפני קו הגוף.",
+    "כופף מרפק והרם את הידית לכיוון הכתף.",
+    "הורד בשליטה עד מתיחה."
+   ],
+   "mistakes": [
+    "נדנוד הגוף.",
+    "הזזת הכתף קדימה.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "התחל במשקל קל.",
+    "הימנע מיישור מוגזם."
+   ],
+   "alternatives": [
+    "incline-dumbbell-curl",
+    "cable-curl",
+    "dumbbell-curl"
+   ]
+  },
+  {
+   "id": "triceps-pushdown",
+   "he": "פשיטת מרפקים בפולי עליון",
+   "en": "Triceps Pushdown",
+   "primary": "TRICEPS",
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "תרגיל בידוד בסיסי לשריר התלת-ראשי בפולי עליון.",
+   "steps": [
+    "עמוד מול פולי עליון ואחוז במוט או בחבל.",
+    "מרפקים צמודים לצדי הגוף.",
+    "פשוט מרפקים עד יישור מלא.",
+    "החזר בשליטה עד זווית של כ-90 מעלות."
+   ],
+   "mistakes": [
+    "תנועת מרפקים קדימה.",
+    "הטיית גוף והעמסה בעזרת משקל הגוף.",
+    "הרמת כתפיים."
+   ],
+   "safety": [
+    "שמור על מרפקים צמודים.",
+    "השתמש במשקל שמאפשר טווח תנועה מלא."
+   ],
+   "alternatives": [
+    "overhead-cable-triceps-extension",
+    "skull-crusher",
+    "triceps-dip"
+   ]
+  },
+  {
+   "id": "overhead-cable-triceps-extension",
+   "he": "פשיטת מרפקים מעל הראש בכבל",
+   "en": "Overhead Cable Triceps Extension",
+   "primary": "TRICEPS",
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "פשיטת מרפקים מעל הראש שמותחת את הראש הארוך של התלת-ראשי.",
+   "steps": [
+    "התייצב עם גב לפולי, אחוז בחבל מאחורי הראש.",
+    "צעד קדימה והטה גוף מעט קדימה, מרפקים מופנים קדימה.",
+    "פשוט מרפקים עד יישור.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "פתיחת מרפקים לצדדים.",
+    "קימור הגב.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "שמור על ליבה יציבה.",
+    "הימנע מקימור הגב."
+   ],
+   "alternatives": [
+    "overhead-dumbbell-triceps-extension",
+    "triceps-pushdown",
+    "skull-crusher"
+   ]
+  },
+  {
+   "id": "overhead-dumbbell-triceps-extension",
+   "he": "פשיטת מרפקים מעל הראש במשקולת",
+   "en": "Overhead Dumbbell Triceps Extension",
+   "primary": "TRICEPS",
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "פשיטת מרפקים מעל הראש עם משקולת אחת בשתי הידיים.",
+   "steps": [
+    "שב או עמוד ואחוז במשקולת בשתי ידיים מעל הראש.",
+    "הורד את המשקולת מאחורי הראש בכיפוף מרפקים.",
+    "פשוט מרפקים בחזרה למעלה.",
+    "שמור על מרפקים קרובים לראש."
+   ],
+   "mistakes": [
+    "פתיחת מרפקים.",
+    "קימור הגב.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "שמור על אחיזה בטוחה במשקולת.",
+    "בחר משקל מתון."
+   ],
+   "alternatives": [
+    "overhead-cable-triceps-extension",
+    "skull-crusher",
+    "triceps-pushdown"
+   ]
+  },
+  {
+   "id": "skull-crusher",
+   "he": "פשיטת מרפקים בשכיבה",
+   "en": "Skull Crusher",
+   "primary": "TRICEPS",
+   "equipment": "EZ_BAR",
+   "type": "ISOLATION",
+   "desc": "פשיטת מרפקים בשכיבה על ספסל עם מוט EZ.",
+   "steps": [
+    "שכב על ספסל והחזק מוט EZ מעל החזה בזרועות ישרות.",
+    "כופף מרפקים והורד את המוט לכיוון המצח.",
+    "פשוט מרפקים בחזרה.",
+    "שמור על זרועות עליונות כמעט קבועות."
+   ],
+   "mistakes": [
+    "פתיחת מרפקים.",
+    "הורדת המוט מהר.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "התאמן עם מלווה בעומס כבד.",
+    "שמור על שליטה בירידה."
+   ],
+   "alternatives": [
+    "overhead-dumbbell-triceps-extension",
+    "triceps-pushdown",
+    "close-grip-bench-press"
+   ]
+  },
+  {
+   "id": "close-grip-bench-press",
+   "he": "לחיצת חזה באחיזה צרה",
+   "en": "Close-Grip Bench Press",
+   "primary": "TRICEPS",
+   "secondary": [
+    "CHEST",
+    "SHOULDERS"
+   ],
+   "equipment": "BARBELL",
+   "desc": "לחיצת חזה באחיזה צרה שמדגישה את השריר התלת-ראשי.",
+   "steps": [
+    "שכב על ספסל ואחוז במוט ברוחב כתפיים.",
+    "הורד את המוט אל החזה התחתון תוך מרפקים צמודים.",
+    "דחוף למעלה עד יישור.",
+    "שמור על שכמות מכווצות."
+   ],
+   "mistakes": [
+    "אחיזה צרה מדי שמעמיסה על פרקי הידיים.",
+    "פתיחת מרפקים.",
+    "הקפצה."
+   ],
+   "safety": [
+    "השתמש במוטות ביטחון או במלווה.",
+    "אל תצמצם את האחיזה מעבר לנוחות."
+   ],
+   "alternatives": [
+    "barbell-bench-press",
+    "triceps-dip",
+    "skull-crusher"
+   ]
+  },
+  {
+   "id": "bench-dip",
+   "he": "מקבילים על ספסל",
+   "en": "Bench Dip",
+   "primary": "TRICEPS",
+   "secondary": [
+    "CHEST",
+    "SHOULDERS"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "BEGINNER",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "תרגיל משקל גוף על ספסל לחיזוק התלת-ראשי.",
+   "steps": [
+    "שב על קצה ספסל, הנח כפות ידיים לצדי הירכיים והרם את האגן.",
+    "כופף מרפקים והורד את הגוף.",
+    "דחוף חזרה למעלה.",
+    "שמור על גב קרוב לספסל."
+   ],
+   "mistakes": [
+    "ירידה עמוקה מדי שמעמיסה על הכתף.",
+    "מרפקים פתוחים.",
+    "גב רחוק מהספסל."
+   ],
+   "safety": [
+    "הגבל את עומק הירידה אם הכתף כואבת.",
+    "שמור על כתפיים רחוקות מהאוזניים."
+   ],
+   "alternatives": [
+    "triceps-dip",
+    "triceps-pushdown",
+    "close-grip-bench-press"
+   ]
+  },
+  {
+   "id": "triceps-dip",
+   "he": "מקבילים לתלת-ראשי",
+   "en": "Triceps Dip",
+   "primary": "TRICEPS",
+   "secondary": [
+    "CHEST",
+    "SHOULDERS"
+   ],
+   "equipment": "BODYWEIGHT",
+   "difficulty": "ADVANCED",
+   "tracking": "BODYWEIGHT_REPS",
+   "desc": "מקבילים עם גוף זקוף ומרפקים צמודים שמדגישים את התלת-ראשי.",
+   "steps": [
+    "אחוז במקבילים בזרועות ישרות והגוף זקוף.",
+    "כופף מרפקים והורד את הגוף עם מרפקים צמודים.",
+    "דחוף חזרה למעלה.",
+    "שמור על כתפיים יציבות."
+   ],
+   "mistakes": [
+    "ירידה עמוקה.",
+    "נדנוד.",
+    "פתיחת מרפקים."
+   ],
+   "safety": [
+    "שמור על כתפיים יציבות ומרפקים לא נעולים.",
+    "אל תכפה ירידה עמוקה מדי."
+   ],
+   "alternatives": [
+    "bench-dip",
+    "triceps-pushdown",
+    "close-grip-bench-press"
+   ]
+  },
+  {
+   "id": "triceps-kickback",
+   "he": "בעיטת טריצפס",
+   "en": "Triceps Kickback",
+   "primary": "TRICEPS",
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "unilateral": true,
+   "desc": "בידוד התלת-ראשי בפשיטת מרפק בכפיפה.",
+   "steps": [
+    "כפוף את הגו קדימה עם גב ישר והישען על ספסל ביד אחת.",
+    "הזרוע העליונה מקבילה לגו עם מרפק כפוף.",
+    "פשוט מרפק לאחור.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "הזזת הזרוע העליונה.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "שמור על גב ישר.",
+    "השתמש במשקל קל."
+   ],
+   "alternatives": [
+    "triceps-pushdown",
+    "overhead-cable-triceps-extension",
+    "skull-crusher"
+   ]
+  },
+  {
+   "id": "wrist-curl",
+   "he": "כפיפת שורש כף יד",
+   "en": "Wrist Curl",
+   "primary": "FOREARMS",
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "חיזוק שרירי האמה (כופפי שורש כף היד).",
+   "steps": [
+    "שב והנח אמות על הירכיים עם כפות ידיים כלפי מעלה.",
+    "אחוז במשקולת ושחרר אותה לכיוון האצבעות.",
+    "כופף את שורש כף היד והרם.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "משקל כבד.",
+    "הזזת אמות.",
+    "תנועה מהירה."
+   ],
+   "safety": [
+    "התחל במשקל קל.",
+    "אל תכפה כאב בשורש כף היד."
+   ],
+   "alternatives": [
+    "reverse-curl",
+    "hammer-curl",
+    "farmers-carry"
+   ]
+  },
+  {
+   "id": "reverse-curl",
+   "he": "כפיפה באחיזה מלמעלה",
+   "en": "Reverse Curl",
+   "primary": "FOREARMS",
+   "secondary": [
+    "BICEPS"
+   ],
+   "equipment": "EZ_BAR",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "כפיפה באחיזה מלמעלה לחיזוק האמות ושריר הזרוע הקדמית התחתונה.",
+   "steps": [
+    "אחוז במוט באחיזה מלמעלה ברוחב כתפיים.",
+    "מרפקים צמודים.",
+    "כופף מרפקים והרם.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "נדנוד.",
+    "משקל כבד.",
+    "כיפוף שורש כף יד."
+   ],
+   "safety": [
+    "השתמש במשקל קל יחסית.",
+    "שמור על שורשי כפות ידיים ישרים."
+   ],
+   "alternatives": [
+    "hammer-curl",
+    "wrist-curl",
+    "barbell-curl"
+   ]
+  }
+ ]
+}

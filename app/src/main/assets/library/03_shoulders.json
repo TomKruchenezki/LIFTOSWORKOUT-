@@ -1,0 +1,400 @@
+{
+ "exercises": [
+  {
+   "id": "overhead-press",
+   "he": "לחיצת כתפיים במוט בעמידה",
+   "en": "Overhead Press",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRICEPS",
+    "TRAPS",
+    "ABS"
+   ],
+   "equipment": "BARBELL",
+   "difficulty": "ADVANCED",
+   "desc": "לחיצת כתפיים בעמידה לפיתוח כוח בכתפיים ובשריר התלת-ראשי, תוך הפעלת הליבה.",
+   "steps": [
+    "עמוד ברוחב אגן, אחוז במוט ברוחב כתפיים והנח אותו על החזה העליון עם מרפקים מעט לפני המוט.",
+    "הדק את הבטן והישבן.",
+    "דחוף את המוט ישר למעלה, הזז את הראש מעט אחורה ואז קדימה מתחת למוט.",
+    "הורד בשליטה לחזה העליון."
+   ],
+   "mistakes": [
+    "קימור יתר של הגב התחתון.",
+    "דחיפה בעזרת הרגליים כאילו זו לחיצה דחופה.",
+    "מוט רחוק מהגוף."
+   ],
+   "safety": [
+    "שמור על ליבה ובטן מהודקות כדי להגן על הגב התחתון.",
+    "התחל במשקל מתון ושפר טכניקה."
+   ],
+   "alternatives": [
+    "seated-dumbbell-shoulder-press",
+    "machine-shoulder-press",
+    "arnold-press"
+   ]
+  },
+  {
+   "id": "seated-dumbbell-shoulder-press",
+   "he": "לחיצת כתפיים במשקולות בישיבה",
+   "en": "Seated Dumbbell Shoulder Press",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRICEPS",
+    "TRAPS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "desc": "לחיצת כתפיים בישיבה עם משענת גב שמפחיתה עומס על הגב ומאפשרת התמקדות בכתפיים.",
+   "steps": [
+    "כוון את הספסל בזווית של כ-80 עד 90 מעלות והתיישב עם גב צמוד.",
+    "הרם את המשקולות לגובה הכתפיים עם כפות ידיים קדימה.",
+    "דחוף למעלה עד כמעט פגישה בין המשקולות.",
+    "הורד בשליטה עד גובה האוזניים."
+   ],
+   "mistakes": [
+    "קימור הגב והרחקת האחוריים מהמשענת.",
+    "הורדה לא מספקת.",
+    "נעילה מוגזמת של המרפקים."
+   ],
+   "safety": [
+    "הרם את המשקולות לתנוחת ההתחלה בעזרת הירכיים בעומסים כבדים.",
+    "אם הכתף כואבת, נסה אחיזה נייטרלית."
+   ],
+   "alternatives": [
+    "overhead-press",
+    "machine-shoulder-press",
+    "arnold-press"
+   ]
+  },
+  {
+   "id": "machine-shoulder-press",
+   "he": "לחיצת כתפיים במכונה",
+   "en": "Machine Shoulder Press",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRICEPS"
+   ],
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "desc": "לחיצת כתפיים מונחית, מתאימה למתחילים ולסטים קרובים לכשל.",
+   "steps": [
+    "כוון את הכיסא כך שהידיות בגובה הכתפיים.",
+    "הצמד גב וראש למשענת.",
+    "דחוף למעלה עד יישור כמעט מלא של הזרועות.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "כיוון כיסא שגוי.",
+    "קימור הגב.",
+    "שחרור המשקל בירידה."
+   ],
+   "safety": [
+    "כוון את המכונה לפני הסט.",
+    "הימנע מנעילת מרפקים בכוח."
+   ],
+   "alternatives": [
+    "seated-dumbbell-shoulder-press",
+    "overhead-press",
+    "arnold-press"
+   ]
+  },
+  {
+   "id": "arnold-press",
+   "he": "לחיצת ארנולד",
+   "en": "Arnold Press",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRICEPS"
+   ],
+   "equipment": "DUMBBELL",
+   "desc": "לחיצת כתפיים עם סיבוב כפות הידיים, שמערבת את כל ראשי הכתף.",
+   "steps": [
+    "שב עם משקולות בגובה הכתפיים וכפות ידיים אליך.",
+    "דחוף למעלה תוך סיבוב כפות הידיים קדימה.",
+    "בקצה העליון כפות הידיים קדימה והזרועות מורמות.",
+    "הורד תוך סיבוב חזרה לכפות ידיים אליך."
+   ],
+   "mistakes": [
+    "סיבוב מהיר ללא שליטה.",
+    "קימור הגב.",
+    "משקל כבד מדי."
+   ],
+   "safety": [
+    "השתמש במשקל קל מלחיצת כתפיים רגילה.",
+    "שמור על תנועה חלקה."
+   ],
+   "alternatives": [
+    "seated-dumbbell-shoulder-press",
+    "machine-shoulder-press",
+    "overhead-press"
+   ]
+  },
+  {
+   "id": "dumbbell-lateral-raise",
+   "he": "הרמות צד במשקולות",
+   "en": "Dumbbell Lateral Raise",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRAPS"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד ראש הכתף האמצעי להרחבת מראה הכתפיים.",
+   "steps": [
+    "עמוד זקוף עם משקולת בכל יד, מרפקים מעט כפופים.",
+    "הרם את הזרועות לצדדים עד גובה הכתפיים, כשהמרפקים מובילים.",
+    "עצור קצר בראש התנועה.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "תנופה מהגוף.",
+    "הרמה גבוהה מגובה כתפיים.",
+    "משקל כבד מדי שמעביר עומס לטרפז."
+   ],
+   "safety": [
+    "השתמש במשקל קל ושמור על שליטה.",
+    "הימנע מהרמת כתפיים לאוזניים."
+   ],
+   "alternatives": [
+    "cable-lateral-raise",
+    "machine-shoulder-press",
+    "upright-row"
+   ]
+  },
+  {
+   "id": "cable-lateral-raise",
+   "he": "הרמות צד בכבל",
+   "en": "Cable Lateral Raise",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRAPS"
+   ],
+   "equipment": "CABLE",
+   "type": "ISOLATION",
+   "unilateral": true,
+   "desc": "הרמות צד עם מתח קבוע לאורך התנועה, בצד אחד בכל פעם.",
+   "steps": [
+    "עמוד לצד הפולי התחתון ואחוז בידית ביד הרחוקה.",
+    "הרם את היד לצד עד גובה כתף עם מרפק מעט כפוף.",
+    "עצור קצר בראש.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "תנופת גוף.",
+    "הרמה גבוהה מדי.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "התאם משקל כך שתשמור על שליטה.",
+    "עמוד יציב."
+   ],
+   "alternatives": [
+    "dumbbell-lateral-raise",
+    "reverse-pec-deck",
+    "upright-row"
+   ]
+  },
+  {
+   "id": "dumbbell-front-raise",
+   "he": "הרמות קדמיות במשקולות",
+   "en": "Dumbbell Front Raise",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "CHEST"
+   ],
+   "equipment": "DUMBBELL",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד הכתף הקדמית.",
+   "steps": [
+    "עמוד זקוף עם משקולות לפני הירכיים.",
+    "הרם משקולת אחת קדימה עד גובה כתף.",
+    "עצור קצר.",
+    "הורד בשליטה ועבור ליד השנייה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "קימור הגב.",
+    "הרמה גבוהה מדי."
+   ],
+   "safety": [
+    "השתמש במשקל קל; הכתף הקדמית כבר פעילה בלחיצות.",
+    "שמור על גב ישר."
+   ],
+   "alternatives": [
+    "dumbbell-lateral-raise",
+    "seated-dumbbell-shoulder-press",
+    "machine-shoulder-press"
+   ]
+  },
+  {
+   "id": "reverse-pec-deck",
+   "he": "פרפר הפוך במכונה",
+   "en": "Reverse Pec Deck",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRAPS",
+    "BACK"
+   ],
+   "equipment": "MACHINE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "בידוד הכתף האחורית והשכמות במכונה.",
+   "steps": [
+    "שב פונה אל המשענת, כוון את הידיות לגובה כתפיים.",
+    "אחוז בידיות עם מרפקים מעט כפופים.",
+    "פתח את הזרועות לצדדים וכווץ שכמות.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "משיכת כתפיים למעלה.",
+    "תנועה בעזרת הגב.",
+    "משקל כבד."
+   ],
+   "safety": [
+    "השתמש במשקל מתון.",
+    "הימנע מתנופה."
+   ],
+   "alternatives": [
+    "rear-delt-fly",
+    "face-pull",
+    "cable-lateral-raise"
+   ]
+  },
+  {
+   "id": "rear-delt-fly",
+   "he": "פרפר הפוך במשקולות",
+   "en": "Bent-Over Rear Delt Fly",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRAPS",
+    "BACK"
+   ],
+   "equipment": "DUMBBELL",
+   "type": "ISOLATION",
+   "desc": "בידוד הכתף האחורית בכפיפה קדימה.",
+   "steps": [
+    "כפוף את הגו קדימה עם גב ישר ומשקולות תלויות.",
+    "מרפקים מעט כפופים.",
+    "הרם את הזרועות לצדדים עד גובה הגב.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "תנופה.",
+    "עיגול הגב.",
+    "הרמה בעזרת הטרפז."
+   ],
+   "safety": [
+    "שמור על גב ניטרלי.",
+    "השתמש במשקל קל."
+   ],
+   "alternatives": [
+    "reverse-pec-deck",
+    "face-pull",
+    "cable-lateral-raise"
+   ]
+  },
+  {
+   "id": "face-pull",
+   "he": "משיכת פנים בכבל",
+   "en": "Face Pull",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRAPS",
+    "BACK"
+   ],
+   "equipment": "CABLE",
+   "difficulty": "BEGINNER",
+   "type": "ISOLATION",
+   "desc": "משיכה לכיוון הפנים לחיזוק הכתף האחורית ושרירי היציבה העליונה.",
+   "steps": [
+    "התקן חבל בפולי בגובה הפנים ואחוז בו באחיזה נייטרלית.",
+    "קח צעד אחורה עם גוף יציב.",
+    "משוך את החבל אל הפנים תוך פתיחת המרפקים לצדדים.",
+    "החזר בשליטה."
+   ],
+   "mistakes": [
+    "משיכה בעזרת תנופה.",
+    "משקל כבד שמוביל לגו אחורה.",
+    "מרפקים נמוכים מדי."
+   ],
+   "safety": [
+    "השתמש במשקל קל.",
+    "שמור על חזה גבוה."
+   ],
+   "alternatives": [
+    "reverse-pec-deck",
+    "rear-delt-fly",
+    "dumbbell-shrug"
+   ]
+  },
+  {
+   "id": "upright-row",
+   "he": "משיכה זקופה",
+   "en": "Upright Row",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "TRAPS",
+    "BICEPS"
+   ],
+   "equipment": "BARBELL",
+   "desc": "משיכת מוט לאורך הגוף לכתפיים ולטרפז העליון.",
+   "steps": [
+    "עמוד זקוף ואחוז במוט באחיזה ברוחב כתפיים.",
+    "משוך את המוט לאורך הגוף עד גובה החזה.",
+    "המרפקים מובילים ונשארים מעל פרקי הידיים.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "משיכה גבוהה מדי שמעמיסה על הכתף.",
+    "אחיזה צרה מדי.",
+    "תנופה."
+   ],
+   "safety": [
+    "אם אתה מרגיש לחץ בכתף, עצור משיכה בגובה הבטן העליונה או בחר תרגיל חלופי.",
+    "השתמש במשקל מתון."
+   ],
+   "alternatives": [
+    "dumbbell-lateral-raise",
+    "dumbbell-shrug",
+    "face-pull"
+   ]
+  },
+  {
+   "id": "landmine-press",
+   "he": "לחיצת לנדמיין",
+   "en": "Landmine Press",
+   "primary": "SHOULDERS",
+   "secondary": [
+    "CHEST",
+    "TRICEPS",
+    "ABS"
+   ],
+   "equipment": "BARBELL",
+   "unilateral": true,
+   "desc": "לחיצה במוט המקובע בקצהו, בקשת הנוחה לכתף.",
+   "steps": [
+    "הצב את קצה המוט בפינה או בתושבת, עמוד לפניו ואחוז בקצה השני בגובה הכתף.",
+    "צעד קל קדימה, ליבה מהודקת.",
+    "דחוף את המוט למעלה ולפנים עד יישור הזרוע.",
+    "הורד בשליטה."
+   ],
+   "mistakes": [
+    "קימור הגב.",
+    "תנועה מהירה.",
+    "עמידה רחבה מדי."
+   ],
+   "safety": [
+    "התחל במשקל קל.",
+    "שמור על ליבה מהודקת."
+   ],
+   "alternatives": [
+    "overhead-press",
+    "machine-shoulder-press",
+    "seated-dumbbell-shoulder-press"
+   ]
+  }
+ ]
+}
