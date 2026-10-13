@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import app.liftos.data.repo.DeleteOutcome
 import app.liftos.di.AppContainer
 import app.liftos.domain.library.YouTube
 import app.liftos.domain.model.Exercise
@@ -162,12 +161,8 @@ fun ExerciseDetailScreen(
             destructive = true,
             onConfirm = {
                 confirmDelete = false
-                scope.launch {
-                    when (container.exercises.delete(ex.id)) {
-                        DeleteOutcome.DELETED -> onBack()
-                        else -> Unit
-                    }
-                }
+                // When it was really deleted the exercise flow turns null and this screen closes itself.
+                scope.launch { container.exercises.delete(ex.id) }
             },
             onDismiss = { confirmDelete = false },
         )

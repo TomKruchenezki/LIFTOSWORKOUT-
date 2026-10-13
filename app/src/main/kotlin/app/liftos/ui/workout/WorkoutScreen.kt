@@ -342,13 +342,14 @@ private fun WorkoutContent(
         )
     }
     if (showDiscard) {
+        // The screen closes itself when the workout disappears from the database (see WorkoutUi.NotFound).
         ConfirmDialog(
             title = "לבטל את האימון?",
             text = "כל מה שנרשם באימון הזה יימחק ולא יישמר בהיסטוריה.",
             confirmText = "בטל אימון",
             destructive = true,
             dismissText = "חזור",
-            onConfirm = { showDiscard = false; vm.discard(onClose) },
+            onConfirm = { showDiscard = false; vm.discard { } },
             onDismiss = { showDiscard = false },
         )
     }
@@ -358,7 +359,7 @@ private fun WorkoutContent(
             text = "האימון, כל התרגילים והסטים שלו יימחקו לצמיתות. מומלץ לוודא שיש גיבוי עדכני.",
             confirmText = "מחק",
             destructive = true,
-            onConfirm = { showDelete = false; vm.deleteCompleted(onClose) },
+            onConfirm = { showDelete = false; vm.deleteCompleted { } },
             onDismiss = { showDelete = false },
         )
     }

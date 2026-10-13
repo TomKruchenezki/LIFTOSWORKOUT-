@@ -238,7 +238,7 @@ fun SummaryScreen(
                     text = "האימון וכל הסטים שלו יימחקו לצמיתות.",
                     confirmText = "מחק",
                     destructive = true,
-                    onConfirm = { confirmDelete = false; vm.delete(onBack) },
+                    onConfirm = { confirmDelete = false; vm.delete { } },
                     onDismiss = { confirmDelete = false },
                 )
             }

@@ -200,7 +200,7 @@ fun PlanDetailScreen(
     if (confirmDelete) {
         ConfirmDialog(
             "למחוק את התוכנית?", "התוכנית תימחק. אימונים שכבר בוצעו לא יושפעו.", "מחק", destructive = true,
-            onConfirm = { confirmDelete = false; vm.delete(onBack) }, onDismiss = { confirmDelete = false },
+            onConfirm = { confirmDelete = false; vm.delete { } }, onDismiss = { confirmDelete = false },
         )
     }
 }

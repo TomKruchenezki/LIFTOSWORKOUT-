@@ -37,7 +37,7 @@
 
 ## בנייה
 
-דרישות: Android Studio (Narwhal ומעלה) או JDK 17+ ו-Android SDK 37.
+דרישות: Android Studio בגרסה שתומכת ב-AGP 9.4 (או JDK 17+ עם Android SDK 37 משורת הפקודה).
 
 ```bash
 # בדיקות (domain על ה-JVM + app על Robolectric)

@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.MonitorWeight
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -170,13 +169,16 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                 )
             }
             composable(Routes.EXERCISE_EDIT) { entry ->
+                val editingId = entry.arguments?.getString("exerciseId").orEmpty()
                 ExerciseEditScreen(
                     container,
-                    exerciseId = entry.arguments?.getString("exerciseId").orEmpty(),
+                    exerciseId = editingId,
                     onBack = { nav.popBackStack() },
                     onSaved = { id ->
+                        // Returning to the page we came from; open the saved exercise unless that is where we were.
+                        val cameFrom = nav.previousBackStackEntry?.arguments?.getString("exerciseId")
                         nav.popBackStack()
-                        nav.navigate(Routes.exercise(id))
+                        if (cameFrom != id) nav.navigate(Routes.exercise(id))
                     },
                 )
             }

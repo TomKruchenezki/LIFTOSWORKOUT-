@@ -18,7 +18,10 @@ import app.liftos.LiftOsApp
 import app.liftos.domain.model.AppSettings
 import app.liftos.ui.nav.LiftOsRoot
 import app.liftos.ui.theme.LiftOsTheme
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -121,6 +124,18 @@ class AppSmokeTest {
         // Completing a working set starts the rest bar (it offers +15 / +30).
         waitForText("15", substring = true)
         compose.onNodeWithContentDescription("דלג על המנוחה").assertIsDisplayed()
+
+        // And the typed values really reached the database (auto-save): weight, reps, completed, rest running.
+        val container = app.container
+        val activeId = runBlocking { container.workouts.observeActive().first() }!!.id
+        compose.waitUntil(10_000) {
+            runBlocking { container.workouts.getDetail(activeId) }!!.exercises[0].sets[0].isCompleted
+        }
+        val saved = runBlocking { container.workouts.getDetail(activeId) }!!
+        val first = saved.exercises[0].sets[0]
+        assertEquals(60.0, first.weightKg!!, 0.0)
+        assertEquals(8, first.reps)
+        assertNotNull(saved.session.rest)
     }
 
     @Test
