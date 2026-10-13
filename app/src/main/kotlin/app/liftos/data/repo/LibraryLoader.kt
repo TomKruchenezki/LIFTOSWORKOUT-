@@ -4,7 +4,7 @@ import android.content.Context
 import app.liftos.domain.library.ExerciseLibrary
 import app.liftos.domain.library.Library
 
-/** Reads the built-in exercise library (assets/library/*.json). */
+/** Reads the built-in exercise library (the library JSON files in app assets). */
 class LibraryLoader(private val context: Context) {
     fun load(): Library {
         val assets = context.assets

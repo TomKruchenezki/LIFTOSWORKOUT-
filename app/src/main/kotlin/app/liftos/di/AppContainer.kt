@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
  * swapping this for Hilt later is mechanical.
  */
 class AppContainer(
-    private val app: Application,
+    val app: Application,
     databaseName: String? = AppDatabase.FILE_NAME,
 ) {
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -56,6 +56,12 @@ class AppContainer(
         BackupRepository(app, database, seeder, devicePrefs, time, appVersion = versionName())
     }
 
+    @Volatile
+    private var latestSettings: app.liftos.domain.model.AppSettings = app.liftos.domain.model.AppSettings()
+
+    /** Last known settings (kept fresh by [start]); lets non-suspend code read a preference. */
+    fun settingsSnapshot(): app.liftos.domain.model.AppSettings = latestSettings
+
     private val _ready = MutableStateFlow(false)
 
     /** True once the database exists and has been seeded. Screens wait for this. */
@@ -65,6 +71,9 @@ class AppContainer(
         appScope.launch {
             seeder.seedIfNeeded()
             _ready.value = true
+        }
+        appScope.launch {
+            settings.observe().collect { latestSettings = it }
         }
     }
 

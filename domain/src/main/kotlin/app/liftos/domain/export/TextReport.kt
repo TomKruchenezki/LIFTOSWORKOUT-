@@ -140,7 +140,7 @@ object TextReport {
         }
     }
 
-    internal fun setText(ex: ExerciseWithSets, set: ExerciseSet): String {
+    fun setText(ex: ExerciseWithSets, set: ExerciseSet): String {
         val parts = mutableListOf<String>()
         when (ex.exercise.trackingType) {
             TrackingType.DURATION -> parts += "${set.durationSec ?: 0} שניות"

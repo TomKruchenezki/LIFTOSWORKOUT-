@@ -29,6 +29,8 @@ class PlanRepository(
 
     fun observePlans(): Flow<List<WorkoutPlan>> = dao.observePlans().map { l -> l.map { it.toDomain() } }
 
+    fun observePlanStats(): Flow<List<app.liftos.data.db.PlanStatsRow>> = dao.observePlanStats()
+
     fun observePlanDetail(planId: String): Flow<PlanDetail?> =
         combine(dao.observePlan(planId), dao.observeWorkouts(planId), dao.observeAllExercisesOfPlan(planId)) { plan, workouts, exercises ->
             plan?.let { assemble(it.toDomain(), workouts.map { w -> w.toDomain() }, exercises.map { e -> e.toDomain() }) }

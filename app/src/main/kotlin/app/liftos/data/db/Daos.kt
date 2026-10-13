@@ -27,6 +27,12 @@ data class CompletedRefRow(
     val localDate: String,
 )
 
+data class PlanStatsRow(
+    val planId: String,
+    val workouts: Int,
+    val exercises: Int,
+)
+
 data class SetValueRow(
     val exerciseId: String,
     val weightKg: Double,
@@ -94,6 +100,13 @@ interface PlanDao {
 
     @Query("SELECT id FROM workout_plans")
     suspend fun planIds(): List<String>
+
+    @Query(
+        "SELECT p.id AS planId, COUNT(DISTINCT w.id) AS workouts, COUNT(e.id) AS exercises " +
+            "FROM workout_plans p LEFT JOIN planned_workouts w ON w.planId = p.id " +
+            "LEFT JOIN planned_exercises e ON e.plannedWorkoutId = w.id GROUP BY p.id",
+    )
+    fun observePlanStats(): Flow<List<PlanStatsRow>>
 
     @Query("SELECT * FROM planned_workouts ORDER BY planId, orderIndex")
     suspend fun getAllWorkouts(): List<PlannedWorkoutEntity>

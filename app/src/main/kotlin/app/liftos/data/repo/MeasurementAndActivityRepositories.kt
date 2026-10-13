@@ -42,6 +42,9 @@ class MeasurementRepository(
 
     suspend fun get(id: String): BodyMeasurement? = dao.get(id)?.toDomain()
 
+    /** Snapshot of all measurements, newest first. */
+    suspend fun observeAllOnce(): List<BodyMeasurement> = dao.getAll().map { it.toDomain() }
+
     /** Creates a measurement at [measuredAt] (epoch millis); a note-only entry is allowed. */
     suspend fun add(input: MeasurementInput, measuredAt: Long = time.nowMs()): String {
         val zone = zones.zone()
