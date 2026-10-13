@@ -110,3 +110,17 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
+
+tasks.withType<Test>().configureEach {
+    // Compose UI tests (app.liftos.ui.*) run in their own CI step: ./gradlew :app:testDebugUnitTest -PuiTests --tests 'app.liftos.ui.*'
+    if (!project.hasProperty("uiTests")) {
+        filter { excludeTestsMatching("app.liftos.ui.*") }
+    }
+    // Fail loudly instead of hanging CI, and print enough detail to diagnose a failing test from the log alone.
+    timeout.set(java.time.Duration.ofMinutes(10))
+    testLogging {
+        events("failed", "skipped")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showCauses = true
+    }
+}

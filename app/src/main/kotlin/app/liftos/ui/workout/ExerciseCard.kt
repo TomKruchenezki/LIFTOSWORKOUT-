@@ -74,7 +74,7 @@ class ExerciseActions(
     val skip: (String) -> Unit,
     val unskip: (String) -> Unit,
     val openInfo: (String) -> Unit,
-    val onFocus: (FocusedField?) -> Unit,
+    val onFocus: (FocusedField, Boolean) -> Unit,
 )
 
 @Composable
@@ -332,7 +332,7 @@ private fun SetRow(
                 placeholder = hint?.durationSec?.toString() ?: ex.repsMin?.toString().orEmpty(),
                 maxDigits = 4,
                 highlight = done,
-                onFocusChanged = { f -> actions.onFocus(if (f) FocusedField(set.id, FieldKind.DURATION) else null) },
+                onFocusChanged = { f -> actions.onFocus(FocusedField(set.id, FieldKind.DURATION), f) },
             )
         } else {
             DecimalField(
@@ -341,7 +341,7 @@ private fun SetRow(
                 modifier = Modifier.weight(1.1f),
                 placeholder = Formatters.number(hint?.weightKg ?: ex.targetWeightKg),
                 highlight = done,
-                onFocusChanged = { f -> actions.onFocus(if (f) FocusedField(set.id, FieldKind.WEIGHT) else null) },
+                onFocusChanged = { f -> actions.onFocus(FocusedField(set.id, FieldKind.WEIGHT), f) },
             )
             IntField(
                 value = set.reps,
@@ -349,7 +349,7 @@ private fun SetRow(
                 modifier = Modifier.weight(1f),
                 placeholder = repsHint(ex),
                 highlight = done,
-                onFocusChanged = { f -> actions.onFocus(if (f) FocusedField(set.id, FieldKind.REPS) else null) },
+                onFocusChanged = { f -> actions.onFocus(FocusedField(set.id, FieldKind.REPS), f) },
             )
             if (effortMode == EffortMode.RPE) {
                 DecimalField(
@@ -358,7 +358,7 @@ private fun SetRow(
                     modifier = Modifier.weight(0.8f),
                     placeholder = Formatters.number(ex.targetRpe, 1),
                     highlight = done,
-                    onFocusChanged = { f -> actions.onFocus(if (f) FocusedField(set.id, FieldKind.EFFORT) else null) },
+                    onFocusChanged = { f -> actions.onFocus(FocusedField(set.id, FieldKind.EFFORT), f) },
                 )
             } else {
                 IntField(
@@ -368,7 +368,7 @@ private fun SetRow(
                     placeholder = ex.targetRir?.toString().orEmpty(),
                     maxDigits = 2,
                     highlight = done,
-                    onFocusChanged = { f -> actions.onFocus(if (f) FocusedField(set.id, FieldKind.EFFORT) else null) },
+                    onFocusChanged = { f -> actions.onFocus(FocusedField(set.id, FieldKind.EFFORT), f) },
                 )
             }
         }

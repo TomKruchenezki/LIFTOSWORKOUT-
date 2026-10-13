@@ -188,7 +188,7 @@ private fun WorkoutContent(
             skip = { id -> skipTarget = id },
             unskip = vm::unskip,
             openInfo = onOpenExercise,
-            onFocus = { focused = it },
+            onFocus = { field, has -> if (has) focused = field else if (focused == field) focused = null },
         )
     }
 

@@ -27,6 +27,13 @@ jobs:
           set -o pipefail
           ./gradlew --console=plain --continue :domain:test :app:testDebugUnitTest 2>&1 | tee test.log
 
+      - name: UI smoke tests (Compose on Robolectric)
+        timeout-minutes: 12
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain :app:testDebugUnitTest -PuiTests --tests 'app.liftos.ui.*' 2>&1 | tee ui.log
+
       - name: Assemble debug APK
         run: |
           set -o pipefail
@@ -65,12 +72,27 @@ jobs:
             domain/build/test-results
           if-no-files-found: ignore
 
+      - name: Test totals
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, re
+          for module in ("domain", "app"):
+              tests = fails = errs = skips = 0
+              for f in glob.glob(f"{module}/build/test-results/**/*.xml", recursive=True):
+                  m = re.search(r'tests="(\d+)" skipped="(\d+)" failures="(\d+)" errors="(\d+)"', open(f, encoding="utf-8").read())
+                  if m:
+                      t, sk, fa, er = map(int, m.groups())
+                      tests += t; skips += sk; fails += fa; errs += er
+              print(f"TEST TOTALS {module}: tests={tests} failures={fails} errors={errs} skipped={skips}")
+          PY
+
       # Kept last on purpose: the end of the log is what gets read first.
       - name: Failure summary
         if: failure()
         run: |
           echo "=============== FAILURE SUMMARY ==============="
-          for f in test.log assemble.log release.log; do
+          for f in test.log ui.log assemble.log release.log; do
             [ -f "$f" ] || continue
             echo "----- $f -----"
             grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-300 | head -n 45

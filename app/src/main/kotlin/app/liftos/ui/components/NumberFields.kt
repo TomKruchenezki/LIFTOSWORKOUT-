@@ -86,9 +86,11 @@ private fun NumberBox(
             .background(if (highlight) colors.primaryContainer else colors.surfaceContainerHighest, shape)
             .border(2.dp, borderColor, shape)
             .onFocusChanged {
+                val changed = focused != it.isFocused
                 focused = it.isFocused
                 if (it.isFocused) field = field.copy(selection = TextRange(0, field.text.length))
-                onFocusChanged(it.isFocused)
+                // The initial "not focused" callback of every freshly composed field must not look like a blur.
+                if (changed) onFocusChanged(it.isFocused)
             },
         decorationBox = { inner ->
             Box(contentAlignment = Alignment.Center) {
