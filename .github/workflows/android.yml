@@ -20,14 +20,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Environment
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools" || true
-          java -version
+          cache: gradle
 
       - name: Unit tests (domain + app)
         run: |
@@ -46,17 +39,6 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Failure summary
-        if: failure()
-        run: |
-          echo "=============== FAILURE SUMMARY ==============="
-          for f in test.log assemble.log; do
-            [ -f "$f" ] || continue
-            echo "----- $f -----"
-            grep -E "^e: |^w: .*(error)|error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |Test.*FAILED|AssertionError|Exception" "$f" | grep -v "^> Task .*UP-TO-DATE" | awk '!seen[$0]++' | head -n 90
-          done
-          echo "=============== END SUMMARY ==============="
-
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -65,4 +47,18 @@ jobs:
           path: |
             domain/build/reports/tests
             app/build/reports/tests
+            app/build/test-results
+            domain/build/test-results
           if-no-files-found: ignore
+
+      # Kept last on purpose: the end of the log is what gets read first.
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "=============== FAILURE SUMMARY ==============="
+          for f in test.log assemble.log; do
+            [ -f "$f" ] || continue
+            echo "----- $f -----"
+            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not resolve|^\s+> |AssertionError|Exception|expected:|Caused by|Test.*FAILED|tests completed" "$f" | grep -v "UP-TO-DATE" | awk '!seen[$0]++' | cut -c1-300 | head -n 45
+          done
+          echo "=============== END SUMMARY ==============="
