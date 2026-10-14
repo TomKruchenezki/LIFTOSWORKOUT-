@@ -256,7 +256,7 @@ internal fun BackupSection(container: AppContainer, say: (String) -> Unit) {
 }
 
 @Composable
-private fun DeleteAllDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+internal fun DeleteAllDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
     var typed by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,

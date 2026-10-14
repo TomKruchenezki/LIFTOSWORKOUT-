@@ -2,8 +2,6 @@ package app.liftos.ui
 
 import android.Manifest
 import android.app.Application
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -17,7 +15,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import app.liftos.LiftOsApp
-import app.liftos.data.repo.MeasurementInput
 import app.liftos.domain.model.ActivityType
 import app.liftos.domain.model.AppSettings
 import app.liftos.domain.model.SessionStatus
@@ -179,31 +176,5 @@ class AppFlowsTest {
         }
         // The sheet closes and the new event is listed on the selected day (today).
         compose.waitUntilOrDump("event shown on the day") { !compose.containsText("אירוע חדש") && compose.containsText("ריצה") }
-    }
-
-    @Test
-    fun delete_all_data_needs_a_typed_confirmation_and_resets_the_app() {
-        runBlocking { app.container.measurements.add(MeasurementInput(weightKg = 80.0)) }
-        waitForText("התחל אימון")
-        compose.onNodeWithContentDescription("הגדרות").performClick()
-        waitForText("מחיקת נתונים")
-        compose.tap("delete all button", scrollFirst = true) { compose.onNodeWithText("מחק את כל הנתונים שלי") }
-        // The confirmation field keeps animating its cursor, which would stop Compose from ever being idle in a test:
-        // freeze the animation clock and advance it by hand while the dialog is open.
-        compose.mainClock.autoAdvance = false
-        compose.mainClock.advanceTimeBy(1_000)
-        if (!compose.containsText("למחוק את כל הנתונים?")) {
-            throw AssertionError("The delete-all dialog did not open | END OF SCREEN: ${compose.screenDump(400).takeLast(1_400)}")
-        }
-        compose.onNodeWithText("מחק הכול").assertIsNotEnabled()
-        compose.onNode(hasSetTextAction()).performTextInput("מחק")
-        compose.mainClock.advanceTimeBy(500)
-        compose.onNodeWithText("מחק הכול").assertIsEnabled()
-        compose.onNodeWithText("מחק הכול").performClick()
-        compose.mainClock.autoAdvance = true
-        compose.waitUntilOrDump("measurements deleted") { runBlocking { app.container.measurements.observeAllOnce() }.isEmpty() }
-        waitForText("כל הנתונים נמחקו", substring = true)
-        // Like a fresh install: the library and the starting program are back.
-        compose.waitUntilOrDump("starting program restored") { runBlocking { app.container.plans.observePlans().first() }.size == 1 }
     }
 }
