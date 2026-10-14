@@ -149,6 +149,8 @@ class AppSmokeTest {
         waitForText("התחל אימון")
         compose.onNodeWithContentDescription("הגדרות").performClick()
         waitForText("גיבוי וייצוא נתונים")
-        compose.onNodeWithText("שמור גיבוי מלא לקובץ (JSON)").assertExists()
+        compose.onNodeWithText("שמור גיבוי מלא לקובץ").assertExists()
+        compose.onNodeWithText("מחק את כל הנתונים שלי").assertExists()
+        compose.onNodeWithText("תזכורת לשקילה").assertExists()
     }
 }

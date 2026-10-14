@@ -2,6 +2,7 @@ package app.liftos.ui
 
 import android.Manifest
 import android.app.Application
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -15,6 +16,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import app.liftos.LiftOsApp
+import app.liftos.data.repo.MeasurementInput
+import app.liftos.domain.model.ActivityType
 import app.liftos.domain.model.AppSettings
 import app.liftos.domain.model.SessionStatus
 import app.liftos.ui.nav.LiftOsRoot
@@ -158,5 +161,39 @@ class AppFlowsTest {
             runBlocking { app.container.measurements.observeAllOnce() }.any { it.weightKg == 82.5 }
         }
         waitForText("כל המדידות")
+    }
+
+    @Test
+    fun an_event_added_in_the_journal_is_saved_and_shown() {
+        waitForText("התחל אימון")
+        compose.onNodeWithText("יומן").performClick()
+        waitForText("יומן אימונים")
+        compose.onNodeWithContentDescription("הוסף").performClick()
+        compose.tap("new event menu item") { compose.onNodeWithText("אירוע או פעילות חדשים") }
+        waitForText("אירוע חדש")
+        compose.tap("running chip") { compose.onNodeWithText("ריצה") }
+        compose.tap("save event", scrollFirst = true) { compose.onNodeWithText("הוסף ליומן") }
+        compose.waitUntilOrDump("event saved") {
+            runBlocking { app.container.activities.observeAll().first() }.any { it.type == ActivityType.RUN }
+        }
+        // The sheet closes and the new event is listed on the selected day (today).
+        compose.waitUntilOrDump("event shown on the day") { !compose.containsText("אירוע חדש") && compose.containsText("ריצה") }
+    }
+
+    @Test
+    fun delete_all_data_needs_a_typed_confirmation_and_resets_the_app() {
+        runBlocking { app.container.measurements.add(MeasurementInput(weightKg = 80.0)) }
+        waitForText("התחל אימון")
+        compose.onNodeWithContentDescription("הגדרות").performClick()
+        waitForText("מחיקת נתונים")
+        compose.tap("delete all button", scrollFirst = true) { compose.onNodeWithText("מחק את כל הנתונים שלי") }
+        waitForText("למחוק את כל הנתונים?")
+        compose.onNodeWithText("מחק הכול").assertIsNotEnabled()
+        compose.onNode(hasSetTextAction()).performTextInput("מחק")
+        compose.tap("confirm delete") { compose.onNodeWithText("מחק הכול") }
+        compose.waitUntilOrDump("measurements deleted") { runBlocking { app.container.measurements.observeAllOnce() }.isEmpty() }
+        waitForText("כל הנתונים נמחקו", substring = true)
+        // Like a fresh install: the library and the starting program are back.
+        compose.waitUntilOrDump("starting program restored") { runBlocking { app.container.plans.observePlans().first() }.size == 1 }
     }
 }
