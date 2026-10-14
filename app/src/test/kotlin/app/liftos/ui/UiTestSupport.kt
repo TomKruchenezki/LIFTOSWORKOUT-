@@ -114,7 +114,8 @@ fun ComposeContentTestRule.swipeUntilDisplayed(text: String, attempts: Int = 6) 
             false
         }
         if (shown) return
-        onRoot().performTouchInput { swipeUp() }
+        // Start well above the bottom bar: a swipe that begins on the bar never reaches the page behind it.
+        onRoot().performTouchInput { swipeUp(startY = height * 0.75f, endY = height * 0.25f) }
         waitForIdle()
     }
     throw AssertionError("\"$text\" never became visible | SCREEN: ${screenDump()}")
