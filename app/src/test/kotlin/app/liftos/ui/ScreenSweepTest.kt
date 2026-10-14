@@ -6,7 +6,11 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -15,9 +19,11 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import app.liftos.LiftOsApp
 import app.liftos.data.repo.MeasurementInput
@@ -71,9 +77,12 @@ class ScreenSweepTest {
 
     private fun show(fontScale: Float? = null) {
         compose.setContent {
-            layoutDirection = LocalLayoutDirection.current
             val content = @androidx.compose.runtime.Composable {
-                LiftOsTheme(AppSettings().themeMode) { LiftOsRoot(app.container, AppSettings()) }
+                LiftOsTheme(AppSettings().themeMode) {
+                    // The theme sets the layout direction, so it can only be read from inside it.
+                    layoutDirection = LocalLayoutDirection.current
+                    LiftOsRoot(app.container, AppSettings())
+                }
             }
             if (fontScale == null) content() else {
                 CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale)) { content() }
@@ -154,6 +163,21 @@ class ScreenSweepTest {
         assertTrue("the weigh-in empty state is gone", !compose.containsText("עוד לא תועד משקל"))
     }
 
+    @Test
+    fun the_main_buttons_are_big_enough_for_a_thumb() {
+        show()
+        waitForText("התחל אימון")
+        compose.onNodeWithText("התחל אימון").assertHeightIsAtLeast(48.dp)
+        compose.onNodeWithText("התחל אימון").performClick()
+        waitForText("סיים")
+        waitForText("הוסף סט")
+        compose.waitUntilOrDump("complete-set button", 10_000) {
+            compose.onAllNodesWithContentDescription("סמן כבוצע").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onAllNodesWithContentDescription("סמן כבוצע")[0].assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(40.dp)
+        compose.onAllNodesWithText("הוסף סט")[0].assertHeightIsAtLeast(40.dp)
+    }
+
     // ---- progress ---------------------------------------------------------------------------------------
 
     @Test
@@ -211,7 +235,7 @@ class ScreenSweepTest {
         waitForText("התקדמות לפי תרגיל")
         compose.onNode(hasSetTextAction()).performTextInput(firstExerciseName.take(3))
         compose.waitUntilOrDump("exercise row is listed", 10_000) { compose.containsText(firstExerciseName) }
-        tapText("exercise row", firstExerciseName)
+        tapText("exercise row", firstExerciseName, scroll = true)
         waitForText("היסטוריית הסטים")
         assertShown("מדרגת משקל להצעות")
         assertShown("משקל עבודה ממוצע", substring = true)
@@ -266,6 +290,44 @@ class ScreenSweepTest {
         assertTrue("body data is not included unless asked", !text.contains("מדדי גוף"))
     }
 
+    // ---- resuming and editing ----------------------------------------------------------------------------
+
+    @Test
+    fun a_running_workout_is_offered_for_continuing_on_home() {
+        val id = runBlocking {
+            val c = app.container
+            val plan = c.plans.getPlanDetail(c.plans.observePlans().first().first().id)!!
+            c.workouts.startFromPlan(plan.workouts.first().workout.id)
+        }
+        show()
+        waitForText("המשך אימון")
+        tapText("continue workout", "המשך אימון", first = true)
+        waitForText("סיים")
+        assertTrue(runBlocking { app.container.workouts.observeActive().first() }?.id == id)
+    }
+
+    @Test
+    fun a_finished_workout_can_be_opened_for_editing_from_its_summary() {
+        show()
+        waitForText("התחל אימון")
+        tapText("journal tab", "יומן")
+        waitForText("יומן אימונים")
+        tapText("history view", "היסטוריה")
+        waitForText("Upper A", substring = true)
+        compose.tap("first workout row") { compose.onAllNodesWithText("Upper A", substring = true).onFirst() }
+        waitForText("סיכום אימון")
+        compose.tap("edit workout button") { compose.onNodeWithContentDescription("ערוך אימון") }
+        waitForText("סיום עריכה")
+    }
+
+    @Test
+    fun the_plan_shortcut_on_home_opens_the_plan() {
+        show()
+        waitForText("התחל אימון")
+        tapText("plan chip", "4 ימים בשבוע - פלג עליון / תחתון", first = true)
+        waitForText("הוסף יום אימון")
+    }
+
     // ---- body -------------------------------------------------------------------------------------------
 
     @Test
@@ -273,14 +335,22 @@ class ScreenSweepTest {
         show()
         waitForText("התחל אימון")
         tapText("body tab", "גוף")
-        waitForText("כל המדידות")
+        waitForText("מגמות")
         assertShown("82", substring = true)
+        scrollBodyListTo("כל המדידות")
+        scrollBodyListTo("תמונות התקדמות")
         tapTextContaining("photos button", "תמונות התקדמות")
         waitForText("תמונות התקדמות")
         compose.waitUntilOrDump("both photos are listed", 10_000) {
             compose.onAllNodesWithContentDescription("תמונה חזית", substring = true).fetchSemanticsNodes().size >= 2
         }
         compose.onNodeWithContentDescription("השוואת תמונות").assertExists()
+    }
+
+    /** The body screen is a lazy list: items below the fold do not exist until the list is scrolled to them. */
+    private fun scrollBodyListTo(text: String) {
+        compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(text, substring = true))
+        waitForText(text, substring = true)
     }
 
     private fun tapTextContaining(what: String, text: String) =
