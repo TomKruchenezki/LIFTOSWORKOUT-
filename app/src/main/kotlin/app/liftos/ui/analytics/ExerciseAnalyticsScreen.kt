@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Lightbulb
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +41,7 @@ import app.liftos.domain.model.TrackingType
 import app.liftos.domain.progression.ProgressionEngine
 import app.liftos.domain.progression.ProgressionSuggestion
 import app.liftos.domain.progression.SuggestionKind
+import app.liftos.ui.components.InfoChip
 import app.liftos.ui.components.ChartKind
 import app.liftos.ui.components.InteractiveChart
 import app.liftos.ui.components.LiftCard
@@ -207,6 +207,21 @@ fun ExerciseAnalyticsScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    val loaded = s.sets.filter { it.isWorking && (it.weightKg ?: 0.0) > 0.0 && (it.reps ?: 0) > 0 }
+                    if (overview.trackingType != TrackingType.DURATION && loaded.isNotEmpty()) {
+                        val avgWeight = s.avgWorkingWeightKg?.let { "משקל עבודה ממוצע ${ltr(Formatters.number(it, 1))} ק״ג" }
+                        val avgReps = s.avgReps?.let { "חזרות ממוצעות ${ltr(Formatters.number(it, 1))}" }
+                        Text(
+                            listOfNotNull(avgWeight, avgReps).joinToString(" · "),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            "נפח לכל סט: " + loaded.joinToString(" · ") { Formatters.number(it.volumeKg, 0) }.let { ltr(it) },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
             if (!showAll && sessions.size > 8) {
@@ -331,7 +346,7 @@ private fun SuggestionCard(s: ProgressionSuggestion, visibility: ProgressionEngi
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Rounded.Lightbulb, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Text("הצעה לאימון הבא", style = MaterialTheme.typography.titleMedium)
-            AssistChip(onClick = {}, label = { Text(s.confidence.labelHe) })
+            InfoChip(s.confidence.labelHe)
         }
         when (visibility) {
             ProgressionEngine.Visibility.IGNORED -> Text(

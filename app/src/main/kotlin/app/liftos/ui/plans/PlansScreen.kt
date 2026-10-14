@@ -15,7 +15,6 @@ import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -37,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import app.liftos.di.AppContainer
 import app.liftos.domain.model.WorkoutPlan
+import app.liftos.ui.components.InfoChip
 import app.liftos.ui.components.ConfirmDialog
 import app.liftos.ui.components.EmptyState
 import app.liftos.ui.components.LiftCard
@@ -188,7 +188,7 @@ private fun PlanCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (row.isActive) {
-                    AssistChip(onClick = {}, label = { Text("תוכנית פעילה") })
+                    InfoChip("תוכנית פעילה")
                 }
             }
             Box {

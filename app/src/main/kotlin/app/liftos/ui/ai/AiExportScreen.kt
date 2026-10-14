@@ -265,7 +265,10 @@ private fun OptionRow(label: String, checked: Boolean, enabled: Boolean = true, 
     }
 }
 
-/** Copies the report, then opens the assistant app; the website is the fallback. Always says what really happened. */
+/**
+ * Copies the report, then tries a direct share to the assistant app, then just opening the app, then the website.
+ * Always says what really happened.
+ */
 private fun openAssistant(
     context: android.content.Context,
     report: String,
@@ -277,6 +280,8 @@ private fun openAssistant(
 ) {
     ShareHelper.copy(context, "דוח LiftOS", report, sensitive = sensitive)
     when {
+        ShareHelper.shareTextTo(context, packageName, "דוח LiftOS", report) ->
+            say("הדוח הועבר לאפליקציית $name במכשיר (וגם הועתק ללוח). בדוק שהטקסט הופיע לפני השליחה. האפליקציה שלנו לא שלחה אותו לאינטרנט.")
         ShareHelper.openApp(context, packageName) -> say("הדוח הועתק ואפליקציית $name נפתחה. הדבק אותו בשיחה: האפליקציה שלנו לא שלחה אותו.")
         ShareHelper.openLink(context, webUrl) -> say("אפליקציית $name לא מותקנת. הדוח הועתק ואתר $name נפתח בדפדפן. הדבק אותו שם.")
         else -> say("הדוח הועתק ללוח, אבל לא נמצאה אפליקציה או דפדפן לפתיחת $name.")

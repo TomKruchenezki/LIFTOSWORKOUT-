@@ -32,6 +32,7 @@ import app.liftos.di.AppContainer
 import app.liftos.domain.library.YouTube
 import app.liftos.domain.model.Exercise
 import app.liftos.domain.model.TrackingType
+import app.liftos.ui.components.InfoChip
 import app.liftos.ui.components.BigButton
 import app.liftos.ui.components.ConfirmDialog
 import app.liftos.ui.components.LiftCard
@@ -83,13 +84,13 @@ fun ExerciseDetailScreen(
                 Text(ex.nameEn, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AssistChip(onClick = {}, label = { Text(ex.primaryMuscle.labelHe) })
-                    ex.secondaryMuscles.forEach { AssistChip(onClick = {}, label = { Text(it.labelHe) }) }
-                    AssistChip(onClick = {}, label = { Text(ex.equipment.labelHe) })
-                    AssistChip(onClick = {}, label = { Text(ex.type.labelHe) })
-                    AssistChip(onClick = {}, label = { Text(ex.difficulty.labelHe) })
-                    if (ex.isUnilateral) AssistChip(onClick = {}, label = { Text("חד-צדדי") })
-                    if (ex.trackingType == TrackingType.DURATION) AssistChip(onClick = {}, label = { Text("נמדד בשניות") })
+                    InfoChip(ex.primaryMuscle.labelHe)
+                    ex.secondaryMuscles.forEach { InfoChip(it.labelHe) }
+                    InfoChip(ex.equipment.labelHe)
+                    InfoChip(ex.type.labelHe)
+                    InfoChip(ex.difficulty.labelHe)
+                    if (ex.isUnilateral) InfoChip("חד-צדדי")
+                    if (ex.trackingType == TrackingType.DURATION) InfoChip("נמדד בשניות")
                 }
                 if (ex.isArchived) Text("התרגיל בארכיון ולא מוצג בבחירת תרגילים.", color = MaterialTheme.colorScheme.tertiary)
             }

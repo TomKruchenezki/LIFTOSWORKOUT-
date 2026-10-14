@@ -195,6 +195,18 @@ fun SummaryScreen(
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.height(10.dp))
+                        SoftButton("העתק דוח לניתוח ב-ChatGPT", modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.ContentCopy, onClick = {
+                            scope.launch {
+                                val ready = vm.aiReportText()
+                                if (ready == null) {
+                                    snackbar.showSnackbar("לא הצלחתי להכין את הדוח. נסה דרך \"נתח את האימון עם AI\".")
+                                } else {
+                                    ShareHelper.copy(context, "דוח LiftOS", ready)
+                                    snackbar.showSnackbar("הדוח הועתק ללוח. הדבק אותו בשיחה עם ChatGPT או Claude. האפליקציה לא שלחה אותו לשום מקום.")
+                                }
+                            }
+                        })
+                        Spacer(Modifier.height(8.dp))
                         SoftButton("העתק סיכום קצר", modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.ContentCopy, onClick = {
                             ShareHelper.copy(context, "סיכום אימון", TextReport.workout(detail, state.previous))
                             scope.launch { snackbar.showSnackbar("הסיכום הועתק ללוח") }

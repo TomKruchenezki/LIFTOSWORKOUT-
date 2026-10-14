@@ -33,7 +33,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun post(context: Context, container: AppContainer, type: ReminderType) {
+    internal suspend fun post(context: Context, container: AppContainer, type: ReminderType) {
         val settings = container.settings.observe().first()
         val ctx = ReminderScheduler.loadContext(container)
         val today = LocalDate.now(container.zones.zone())

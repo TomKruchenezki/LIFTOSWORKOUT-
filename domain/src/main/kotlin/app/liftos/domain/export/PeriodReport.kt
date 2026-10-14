@@ -189,8 +189,7 @@ object PeriodReport {
             return
         }
         events.sortedWith(compareBy({ it.date }, { it.exerciseName }, { it.kind.priority })).take(40).forEach {
-            val est = if (it.kind.isEstimate) " (הערכה)" else ""
-            sb.appendLine("- ${Formatters.date(it.date)} · ${it.exerciseName}: ${it.kind.labelHe}$est ${Formatters.number(it.newValue)} ${it.kind.unit} (קודם ${Formatters.number(it.previousValue)})")
+            sb.appendLine("- ${Formatters.date(it.date)} · ${RecordLines.line(it)}")
         }
     }
 

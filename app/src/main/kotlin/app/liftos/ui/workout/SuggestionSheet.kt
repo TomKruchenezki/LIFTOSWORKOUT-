@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lightbulb
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.liftos.domain.logic.Formatters
 import app.liftos.domain.progression.ProgressionSuggestion
+import app.liftos.ui.components.InfoChip
 import app.liftos.ui.components.BigButton
 import app.liftos.ui.components.DecimalTextField
 import app.liftos.ui.components.SoftButton
@@ -58,7 +58,7 @@ fun SuggestionSheet(
                 Icon(Icons.Rounded.Lightbulb, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Text("הצעה: $exerciseName", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
             }
-            AssistChip(onClick = {}, label = { Text(suggestion.confidence.labelHe) })
+            InfoChip(suggestion.confidence.labelHe)
             Text(suggestion.headline, style = MaterialTheme.typography.titleMedium)
             suggestion.suggestedWeightKg?.let { w ->
                 val repsText = suggestion.targetRepsMin?.let { " · יעד ${it}–${suggestion.targetRepsMax} חזרות" }.orEmpty()

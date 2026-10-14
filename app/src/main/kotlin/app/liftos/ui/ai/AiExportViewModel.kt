@@ -19,6 +19,7 @@ import app.liftos.domain.export.ReportScope
 import app.liftos.domain.export.SessionExportFile
 import app.liftos.domain.export.SessionJson
 import app.liftos.domain.export.TextReport
+import app.liftos.domain.export.WorkoutReportContext
 import app.liftos.domain.export.withoutNotes
 import app.liftos.domain.goals.GoalContext
 import app.liftos.domain.goals.GoalEngine
@@ -129,8 +130,9 @@ class AiExportViewModel(private val c: AppContainer, initialSessionId: String?) 
             val p = if (opts.includeNotes) previous else previous?.withoutNotes()
             val body = if (opts.includeBody) bodySnapshot() else null
             val date = app.liftos.domain.logic.TimeUtils.parseDate(detail.session.localDate) ?: today
+            val extras = WorkoutReportContext.build(detail, data.facts, data.sessions, data.records)
             return@withContext BuiltReport(
-                TextReport.aiReport(d, p, body), DateRange(date, date), "${detail.session.title} (${Formatters.date(date)})", 1, detail.session.id,
+                TextReport.aiReport(d, p, body, extras), DateRange(date, date), "${detail.session.title} (${Formatters.date(date)})", 1, detail.session.id,
             )
         }
         val range = sel.scope.range(today, data.earliest, sel.custom)

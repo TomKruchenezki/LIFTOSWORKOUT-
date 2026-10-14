@@ -49,7 +49,7 @@ object TextReport {
     }
 
     /** Full report for pasting into an AI chat: current workout, previous workout, optional body data, request. */
-    fun aiReport(detail: WorkoutDetail, previous: WorkoutDetail?, body: BodySnapshot?): String {
+    fun aiReport(detail: WorkoutDetail, previous: WorkoutDetail?, body: BodySnapshot?, extras: WorkoutReportExtras? = null): String {
         val sb = StringBuilder()
         sb.appendLine("דוח אימון מתוך LiftOS")
         sb.appendLine("(הנתונים נרשמו ידנית על ידי המתאמן; אין בדוח נתונים שלא הוזנו.)")
@@ -74,6 +74,22 @@ object TextReport {
         } else {
             sb.appendLine("## האימון הקודם מאותו סוג")
             sb.appendLine("אין אימון קודם מאותו סוג במערכת, ולכן אין בסיס להשוואה.")
+        }
+
+        if (extras != null) {
+            sb.appendLine()
+            sb.appendLine("## שיאים אישיים שנקבעו באימון הזה")
+            if (extras.newRecords.isEmpty()) {
+                sb.appendLine("לא נקבעו שיאים חדשים באימון הזה.")
+            } else {
+                extras.newRecords.forEach { sb.appendLine("- ${RecordLines.line(it)}") }
+                if (extras.newRecords.any { it.kind.isEstimate }) sb.appendLine("(${OneRepMax.EXPLANATION})")
+            }
+            sb.appendLine()
+            sb.appendLine("## מגמות רלוונטיות")
+            sb.appendLine("אימונים ב-28 הימים עד האימון הזה (כולל): ${extras.workoutsInLast28Days}")
+            if (extras.trendLines.isEmpty()) sb.appendLine("אין נתוני מגמה לתרגילי האימון.")
+            else extras.trendLines.forEach { sb.appendLine("- $it") }
         }
 
         if (body != null) {
@@ -102,6 +118,11 @@ object TextReport {
         s.durationMs?.let { sb.appendLine("משך האימון: ${Formatters.duration(it)}") }
         s.energyRating?.let { sb.appendLine("דירוג אנרגיה: $it/5") }
         s.moodRating?.let { sb.appendLine("הרגשה כללית: $it/5") }
+        s.difficultyRating?.let { sb.appendLine("תחושת קושי: $it/5") }
+        s.qualityRating?.let { sb.appendLine("איכות האימון: $it/5") }
+        s.sorenessRating?.let { sb.appendLine("כאבי שרירים: $it/5") }
+        s.fatigueRating?.let { sb.appendLine("עייפות כללית: $it/5") }
+        s.sleepHours?.let { sb.appendLine("שעות שינה: ${Formatters.number(it, 1)}") }
         if (s.notes.isNotBlank()) sb.appendLine("הערות לאימון: ${s.notes}")
     }
 

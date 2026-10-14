@@ -33,6 +33,28 @@ object ShareHelper {
         context.startActivity(Intent.createChooser(send, title).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
+    /**
+     * Hands [text] straight to one installed app (for example ChatGPT or Claude) through a package-targeted share.
+     * Returns false when that app is not installed or does not accept shared text. Nothing leaves the phone from here:
+     * the other app receives the text and the user decides whether to send it.
+     */
+    fun shareTextTo(context: Context, packageName: String, title: String, text: String): Boolean {
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            setPackage(packageName)
+            putExtra(Intent.EXTRA_TEXT, text)
+            putExtra(Intent.EXTRA_TITLE, title)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (context.packageManager.resolveActivity(send, 0) == null) return false
+        return try {
+            context.startActivity(send)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     /** Writes [content] to a cache file and offers it through the Android Share Sheet (Drive, mail, ...). */
     fun shareFile(context: Context, fileName: String, mime: String, content: String, utf8Bom: Boolean = false) {
         shareUri(context, fileName, mime, ExportFiles.write(context, fileName, content, utf8Bom))

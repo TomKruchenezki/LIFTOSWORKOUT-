@@ -44,6 +44,7 @@ import app.liftos.domain.analytics.MuscleModel
 import app.liftos.domain.insights.Insight
 import app.liftos.domain.insights.InsightTone
 import app.liftos.domain.logic.Formatters
+import app.liftos.ui.components.InfoChip
 import app.liftos.ui.components.ChartKind
 import app.liftos.ui.components.DistributionBars
 import app.liftos.ui.components.EmptyState
@@ -259,7 +260,7 @@ private fun Dashboard(cards: DashboardCards, nav: AnalyticsNav) {
             Text("עוד לא אומנו שרירים השבוע.", style = MaterialTheme.typography.bodyMedium)
         } else {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                cards.musclesTrainedThisWeek.forEach { AssistChip(onClick = {}, label = { Text(it.labelHe) }) }
+                cards.musclesTrainedThisWeek.forEach { InfoChip(it.labelHe) }
             }
         }
     }

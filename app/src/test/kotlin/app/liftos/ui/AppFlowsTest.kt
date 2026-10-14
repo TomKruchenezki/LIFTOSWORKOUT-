@@ -2,6 +2,8 @@ package app.liftos.ui
 
 import android.Manifest
 import android.app.Application
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -15,6 +17,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import app.liftos.LiftOsApp
+import app.liftos.domain.export.TextReport
 import app.liftos.domain.model.ActivityType
 import app.liftos.domain.model.AppSettings
 import app.liftos.domain.model.SessionStatus
@@ -104,6 +107,14 @@ class AppFlowsTest {
         waitForText("סיכום אימון")
         waitForText("480", substring = true)
         waitForText("נתח את האימון עם AI")
+
+        // Quick copy for ChatGPT: the clipboard holds the full report, ending with the analysis instruction.
+        compose.tap("copy report for ChatGPT button", scrollFirst = true) { compose.onNodeWithText("העתק דוח לניתוח ב-ChatGPT") }
+        waitForText("הדוח הועתק ללוח", substring = true)
+        val clipboard = app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val copied = clipboard.primaryClip!!.getItemAt(0).text.toString()
+        assertTrue("report header", copied.contains("דוח אימון מתוך LiftOS"))
+        assertTrue("analysis instruction", copied.trimEnd().endsWith(TextReport.AI_INSTRUCTION.trimEnd()))
 
         // The AI screen shows exactly the report that would be copied: built from the real workout.
         compose.tap("analyze with AI button") { compose.onNodeWithText("נתח את האימון עם AI") }

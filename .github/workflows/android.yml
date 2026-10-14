@@ -62,6 +62,34 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
+      - name: APK facts (commit, SHA-256, package, version, signature)
+        if: always()
+        run: |
+          {
+            echo "COMMIT ${GITHUB_SHA}"
+            echo "RUN ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT}"
+            echo "BUILT_AT_UTC $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            BT=$(ls -d "$ANDROID_HOME"/build-tools/* 2>/dev/null | sort -V | tail -n 1)
+            for apk in app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/*.apk; do
+              [ -f "$apk" ] || continue
+              echo "----- $apk -----"
+              echo "SIZE_BYTES $(stat -c %s "$apk")"
+              sha256sum "$apk"
+              if [ -n "$BT" ]; then
+                "$BT/aapt2" dump badging "$apk" 2>/dev/null | grep -E "^package:|^sdkVersion:|^targetSdkVersion:|^uses-permission:|^application-label:" || true
+                "$BT/apksigner" verify --print-certs "$apk" 2>&1 | grep -E "Signer #1 certificate (DN|SHA-256)|Verifies" || true
+              fi
+            done
+          } 2>&1 | tee apk-info.txt
+
+      - name: Upload APK facts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-info
+          path: apk-info.txt
+          if-no-files-found: ignore
+
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -122,4 +150,27 @@ jobs:
           done
           echo "----- totals -----"
           cat totals.txt 2>/dev/null || true
+          echo "----- apk facts -----"
+          cat apk-info.txt 2>/dev/null || true
           echo "=============== END SUMMARY ==============="
+
+      # The UI step above is allowed to fail so that the APK is still built; this gate makes the run honest again:
+      # the run is red when ANY test failed (UI tests included) or when the UI tests did not run at all.
+      - name: Test gate
+        if: always()
+        run: |
+          [ -f totals.txt ] || { echo "no totals.txt"; exit 1; }
+          python3 - <<'PY'
+          import re, sys
+          bad = False
+          for line in open("totals.txt", encoding="utf-8"):
+              m = re.search(r"TEST TOTALS (\S+): tests=(\d+) failures=(\d+) errors=(\d+)", line)
+              if not m:
+                  continue
+              module, tests, fails, errs = m.group(1), *map(int, m.groups()[1:])
+              print(f"gate {module}: tests={tests} failures={fails} errors={errs}")
+              if fails or errs or tests == 0:
+                  bad = True
+          sys.exit(1 if bad else 0)
+          PY
+          ls app/build/outputs/apk/release/*.apk

@@ -15,8 +15,8 @@ android {
         applicationId = "app.liftos"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.2.1"
     }
 
     // A fixed debug key (committed on purpose): every debug APK - local or from CI - is signed with the

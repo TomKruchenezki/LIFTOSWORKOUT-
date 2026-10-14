@@ -1,5 +1,7 @@
 package app.liftos.ui.workout
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -328,12 +330,18 @@ private fun SetRow(
     val done = set.isCompleted
     val colors = MaterialTheme.colorScheme
     val rowShape = RoundedCornerShape(14.dp)
+    // A short fade when a set is ticked, so the change is noticed without looking for it.
+    val rowColor by animateColorAsState(
+        if (done) colors.primaryContainer.copy(alpha = 0.45f) else colors.surfaceContainerLow,
+        animationSpec = tween(durationMillis = 220),
+        label = "set-row-color",
+    )
 
     Row(
         Modifier
             .fillMaxWidth()
             .clip(rowShape)
-            .background(if (done) colors.primaryContainer.copy(alpha = 0.45f) else colors.surfaceContainerLow)
+            .background(rowColor)
             .padding(horizontal = 4.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
