@@ -21,14 +21,14 @@ import org.robolectric.Shadows.shadowOf
  * What the app hands to Android when the user copies or shares. The system chooser itself and the receiving apps
  * (Drive, mail, ChatGPT, Claude) are outside the app and NOT VERIFIED.
  */
+@Suppress("DEPRECATION")
 @RunWith(RobolectricTestRunner::class)
 class ShareIntentsTest {
     private val context: Application = ApplicationProvider.getApplicationContext()
 
     private fun chooserTarget(chooser: Intent): Intent {
         assertEquals(Intent.ACTION_CHOOSER, chooser.action)
-        @Suppress("DEPRECATION")
-        return chooser.getParcelableExtra(Intent.EXTRA_INTENT)!!
+        return chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
     }
 
     @Test
@@ -54,7 +54,6 @@ class ShareIntentsTest {
         assertEquals(Intent.ACTION_SEND, send.action)
         assertEquals("text/csv", send.type)
         assertTrue(send.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION != 0)
-        @Suppress("DEPRECATION")
         val uri = send.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)!!
         assertEquals("content", uri.scheme)
         assertEquals("app.liftos.fileprovider", uri.authority)
