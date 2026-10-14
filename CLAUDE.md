@@ -33,6 +33,7 @@ Owner timezone Asia/Jerusalem. Product rules: every button must work, real data 
 - Other pitfalls seen: inside `AppContainer` the property `app` shadows the package `app.liftos` (import classes instead of writing fully qualified
   names); always use named arguments for `MeasurementInput`; the extended FAB label is only in the *unmerged* semantics tree
   (`onNodeWithText(..., useUnmergedTree = true)`); Robolectric cannot run `PdfDocument` (keep paging logic in `:domain` `ReportBlocks`);
+  a text field inside an `AlertDialog` never reaches Compose idle in Robolectric (test the rule as a plain unit test instead);
   Room's schema JSON is a KSP side effect, so the KSP tasks declare `app/schemas` as an output (a build-cache hit otherwise leaves it missing).
 
 ## Key decisions (do not undo without a reason)
