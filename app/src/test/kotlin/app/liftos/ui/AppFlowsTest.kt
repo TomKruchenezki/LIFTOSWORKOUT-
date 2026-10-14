@@ -192,7 +192,9 @@ class AppFlowsTest {
         // freeze the animation clock and advance it by hand while the dialog is open.
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("למחוק את כל הנתונים?").assertExists()
+        if (!compose.containsText("למחוק את כל הנתונים?")) {
+            throw AssertionError("The delete-all dialog did not open | SCREEN: ${compose.screenDump(120)}")
+        }
         compose.onNodeWithText("מחק הכול").assertIsNotEnabled()
         compose.onNode(hasSetTextAction()).performTextInput("מחק")
         compose.mainClock.advanceTimeBy(500)
