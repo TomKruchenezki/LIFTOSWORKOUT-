@@ -89,6 +89,8 @@ class AppSmokeTest {
         waitForText("עוד אין נתוני אימונים")
 
         compose.onNodeWithText("יומן").performClick()
+        waitForText("יומן אימונים")
+        compose.onNodeWithText("היסטוריה").performClick()
         waitForText("עוד אין אימונים ביומן")
 
         compose.onNodeWithText("גוף").performClick()

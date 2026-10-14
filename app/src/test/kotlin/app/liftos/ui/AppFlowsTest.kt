@@ -116,6 +116,8 @@ class AppFlowsTest {
         waitForText("התחל אימון")
         compose.onNodeWithText("יומן").performClick()
         waitForText("יומן אימונים")
+        // The month view marks the day; the history view lists the workout with its volume.
+        compose.tap("history segment") { compose.onNodeWithText("היסטוריה") }
         compose.waitUntilOrDump("volume shown in the journal") { !gone("נפח", substring = true) }
     }
 

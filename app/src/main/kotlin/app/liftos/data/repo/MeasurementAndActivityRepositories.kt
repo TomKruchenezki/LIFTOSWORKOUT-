@@ -195,13 +195,39 @@ class ActivityRepository(
      * Moves one occurrence to [newStartsAt]. A repeating event keeps its series: the original date is
      * excluded and a separate single event is created at the new time.
      */
-    suspend fun moveOccurrence(id: String, date: LocalDate, newStartsAt: Long): String? = db.withTransaction {
+    suspend fun moveOccurrence(id: String, date: LocalDate, newStartsAt: Long): String? =
+        changeOccurrence(id, date, newStartsAt) { it }
+
+    /** Sets the status of ONE occurrence; a repeating series is split so the other dates are unaffected. */
+    suspend fun setOccurrenceStatus(id: String, date: LocalDate, status: EventStatus): String? =
+        changeOccurrence(id, date, null) { it.copy(status = status) }
+
+    /** Links ONE occurrence to a recorded workout (marking it done), or removes the link. */
+    suspend fun linkOccurrence(id: String, date: LocalDate, sessionId: String?): String? =
+        changeOccurrence(id, date, null) {
+            it.copy(linkedSessionId = sessionId, status = if (sessionId != null) EventStatus.DONE else it.status)
+        }
+
+    /**
+     * Applies [change] to one occurrence. A single event is edited in place; for a repeating series the
+     * date is added to the exceptions and a separate single event carries the change (at [newStartsAt],
+     * or at the same time of day on [date] when null).
+     */
+    private suspend fun changeOccurrence(
+        id: String,
+        date: LocalDate,
+        newStartsAt: Long?,
+        change: (ActivityEvent) -> ActivityEvent,
+    ): String? = db.withTransaction {
         val e = get(id) ?: return@withTransaction null
         if (e.recurrence.isBlank()) {
-            save(e.copy(startsAt = newStartsAt))
+            save(change(e).let { if (newStartsAt != null) it.copy(startsAt = newStartsAt) else it })
         } else {
+            val zone = TimeUtils.zone(e.zoneId)
+            val minutes = app.liftos.domain.calendar.CalendarBuilder.minutesOfDay(e.startsAt, zone)
+            val at = newStartsAt ?: TimeUtils.toEpochMs(date, minutes / 60, minutes % 60, zone)
             save(Exceptions.withException(e, date))
-            save(e.copy(id = "", startsAt = newStartsAt, recurrence = "", recurrenceExceptions = "", createdAt = 0L))
+            save(change(e).copy(id = "", startsAt = at, recurrence = "", recurrenceExceptions = "", createdAt = 0L))
         }
     }
 

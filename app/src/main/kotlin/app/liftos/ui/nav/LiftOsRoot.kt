@@ -52,10 +52,10 @@ import app.liftos.ui.analytics.AnalyticsNav
 import app.liftos.ui.analytics.AnalyticsScreen
 import app.liftos.ui.analytics.ExerciseAnalyticsScreen
 import app.liftos.ui.analytics.RecordsScreen
+import app.liftos.ui.calendar.JournalScreen
 import app.liftos.ui.body.BodyScreen
 import app.liftos.ui.goals.GoalsScreen
 import app.liftos.ui.recovery.RecoveryScreen
-import app.liftos.ui.history.HistoryScreen
 import app.liftos.ui.home.HomeNav
 import app.liftos.ui.home.HomeScreen
 import app.liftos.ui.library.ExerciseDetailScreen
@@ -205,7 +205,7 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                 )
             }
             composable(Routes.HISTORY) {
-                HistoryScreen(
+                JournalScreen(
                     container,
                     onOpenSession = { nav.navigate(Routes.summary(it)) },
                     onEditSession = { nav.navigate(Routes.workout(it)) },

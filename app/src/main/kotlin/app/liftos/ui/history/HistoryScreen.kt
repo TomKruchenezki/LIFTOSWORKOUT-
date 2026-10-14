@@ -58,84 +58,44 @@ import app.liftos.ui.util.ltr
 import app.liftos.ui.util.monthYear
 import java.time.LocalDate
 
+/** The full history as a list grouped by month (the "היסטוריה" view of the journal). */
 @Composable
-fun HistoryScreen(container: AppContainer, onOpenSession: (String) -> Unit, onEditSession: (String) -> Unit) {
-    val vm = appViewModel { HistoryViewModel(container) }
-    val state by vm.state.collectAsStateWithLifecycle()
-    var addMenu by remember { mutableStateOf(false) }
-    var addPast by remember { mutableStateOf(false) }
-    var editEvent by remember { mutableStateOf<ActivityEvent?>(null) }
-    var deleteWorkout by remember { mutableStateOf<String?>(null) }
-    var deleteEvent by remember { mutableStateOf<String?>(null) }
-
-    Scaffold(
-        contentWindowInsets = WindowInsets(0.dp),
-        topBar = {
-            ScreenTopBar("יומן אימונים", actions = {
-                Box {
-                    IconButton(onClick = { addMenu = true }) { Icon(Icons.Rounded.Add, contentDescription = "הוסף") }
-                    DropdownMenu(expanded = addMenu, onDismissRequest = { addMenu = false }) {
-                        DropdownMenuItem(text = { Text("אימון שבוצע בעבר") }, onClick = { addMenu = false; addPast = true })
-                        DropdownMenuItem(text = { Text("פעילות אחרת או הערה") }, onClick = {
-                            addMenu = false
-                            val zone = java.time.ZoneId.systemDefault()
-                            editEvent = ActivityEvent(id = "", startsAt = System.currentTimeMillis(), localDate = "", zoneId = zone.id)
-                        })
-                    }
-                }
-            })
-        },
-    ) { padding ->
-        if (state.loading) {
-            LoadingBox(Modifier.padding(padding))
-            return@Scaffold
+fun HistoryList(
+    entries: List<HistoryEntry>,
+    onOpenSession: (String) -> Unit,
+    onEditSession: (String) -> Unit,
+    onDeleteWorkout: (String) -> Unit,
+    onEditEvent: (ActivityEvent) -> Unit,
+    onDeleteEvent: (String) -> Unit,
+    onAddPast: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (entries.isEmpty()) {
+        Column(modifier) {
+            EmptyState(
+                title = "עוד אין אימונים ביומן",
+                subtitle = "אימונים שתסיים יופיעו כאן. אפשר גם להוסיף אימון שבוצע בעבר.",
+                icon = Icons.Rounded.History,
+                action = { BigButton("הוסף אימון מהעבר", onClick = onAddPast) },
+            )
         }
-        if (state.entries.isEmpty()) {
-            Column(Modifier.padding(padding)) {
-                EmptyState(
-                    title = "עוד אין אימונים ביומן",
-                    subtitle = "אימונים שתסיים יופיעו כאן. אפשר גם להוסיף אימון שבוצע בעבר.",
-                    icon = Icons.Rounded.History,
-                    action = { BigButton("הוסף אימון מהעבר", onClick = { addPast = true }) },
-                )
-            }
-        } else {
-            val grouped = state.entries.groupBy { e -> TimeUtils.parseDate(e.localDate)?.withDayOfMonth(1) ?: LocalDate.MIN }
-            LazyColumn(
-                Modifier.padding(padding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                grouped.forEach { (month, entries) ->
-                    item(key = "m-$month") { SectionTitle(if (month == LocalDate.MIN) "ללא תאריך" else monthYear(month)) }
-                    items(entries, key = { e -> when (e) { is HistoryEntry.Workout -> "w-" + e.item.session.id; is HistoryEntry.Activity -> "a-" + e.event.id } }) { e ->
-                        when (e) {
-                            is HistoryEntry.Workout -> WorkoutRow(e, { onOpenSession(e.item.session.id) }, { onEditSession(e.item.session.id) }, { deleteWorkout = e.item.session.id })
-                            is HistoryEntry.Activity -> ActivityRow(e.event, { editEvent = e.event }, { deleteEvent = e.event.id })
-                        }
-                    }
+        return
+    }
+    val grouped = entries.groupBy { e -> TimeUtils.parseDate(e.localDate)?.withDayOfMonth(1) ?: LocalDate.MIN }
+    LazyColumn(
+        modifier,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        grouped.forEach { (month, list) ->
+            item(key = "m-$month") { SectionTitle(if (month == LocalDate.MIN) "ללא תאריך" else monthYear(month)) }
+            items(list, key = { e -> when (e) { is HistoryEntry.Workout -> "w-" + e.item.session.id; is HistoryEntry.Activity -> "a-" + e.event.id } }) { e ->
+                when (e) {
+                    is HistoryEntry.Workout -> WorkoutRow(e, { onOpenSession(e.item.session.id) }, { onEditSession(e.item.session.id) }, { onDeleteWorkout(e.item.session.id) })
+                    is HistoryEntry.Activity -> ActivityRow(e.event, { onEditEvent(e.event) }, { onDeleteEvent(e.event.id) })
                 }
             }
         }
-    }
-
-    if (addPast) {
-        AddPastWorkoutSheet(
-            plan = state.activePlan,
-            onCreate = { pwId, title, start, dur -> addPast = false; vm.createPast(pwId, title, start, dur, onEditSession) },
-            onDismiss = { addPast = false },
-        )
-    }
-    editEvent?.let { ev ->
-        ActivityDialog(ev, onSave = { vm.saveEvent(it); editEvent = null }, onDismiss = { editEvent = null })
-    }
-    deleteWorkout?.let { id ->
-        ConfirmDialog("למחוק את האימון?", "האימון וכל הסטים שלו יימחקו לצמיתות.", "מחק", destructive = true,
-            onConfirm = { vm.deleteWorkout(id); deleteWorkout = null }, onDismiss = { deleteWorkout = null })
-    }
-    deleteEvent?.let { id ->
-        ConfirmDialog("למחוק את הרשומה?", "הרשומה תימחק לצמיתות.", "מחק", destructive = true,
-            onConfirm = { vm.deleteEvent(id); deleteEvent = null }, onDismiss = { deleteEvent = null })
     }
 }
 
@@ -195,15 +155,20 @@ private fun ActivityRow(ev: ActivityEvent, onEdit: () -> Unit, onDelete: () -> U
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun AddPastWorkoutSheet(
+internal fun AddPastWorkoutSheet(
     plan: app.liftos.domain.model.PlanDetail?,
     onCreate: (String?, String, Long, Int) -> Unit,
     onDismiss: () -> Unit,
+    initialWorkoutId: String? = null,
+    initialDate: LocalDate? = null,
 ) {
     val zone = remember { java.time.ZoneId.systemDefault() }
-    var workoutId by remember { mutableStateOf<String?>(plan?.workouts?.firstOrNull()?.workout?.id) }
-    var title by remember { mutableStateOf(plan?.workouts?.firstOrNull()?.workout?.name ?: "אימון") }
-    var date by remember { mutableStateOf(LocalDate.now(zone).minusDays(1)) }
+    val firstWorkout = remember(plan, initialWorkoutId) {
+        plan?.workouts?.firstOrNull { it.workout.id == initialWorkoutId }?.workout ?: plan?.workouts?.firstOrNull()?.workout
+    }
+    var workoutId by remember { mutableStateOf<String?>(firstWorkout?.id) }
+    var title by remember { mutableStateOf(firstWorkout?.name ?: "אימון") }
+    var date by remember { mutableStateOf(initialDate ?: LocalDate.now(zone).minusDays(1)) }
     var hour by remember { mutableStateOf(18) }
     var minute by remember { mutableStateOf(0) }
     var duration by remember { mutableStateOf<Int?>(60) }
@@ -241,46 +206,4 @@ private fun AddPastWorkoutSheet(
     }
     if (pickDate) DatePickerSheet(date, onDismiss = { pickDate = false }) { date = it }
     if (pickTime) TimePickerSheet(hour, minute, onDismiss = { pickTime = false }) { h, m -> hour = h; minute = m }
-}
-
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-@Composable
-private fun ActivityDialog(ev: ActivityEvent, onSave: (ActivityEvent) -> Unit, onDismiss: () -> Unit) {
-    val zone = remember { java.time.ZoneId.systemDefault() }
-    var type by remember { mutableStateOf(ev.type) }
-    var title by remember { mutableStateOf(ev.title) }
-    var notes by remember { mutableStateOf(ev.notes) }
-    var duration by remember { mutableStateOf(ev.durationMin) }
-    var date by remember { mutableStateOf(TimeUtils.localDate(ev.startsAt, zone)) }
-    var pickDate by remember { mutableStateOf(false) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (ev.id.isBlank()) "פעילות חדשה" else "עריכת פעילות") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    ActivityType.entries.forEach { t -> FilterChip(type == t, { type = t }, { Text(t.labelHe) }) }
-                }
-                OutlinedTextField(title, { title = it }, label = { Text("כותרת") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                TextButton(onClick = { pickDate = true }) { Text("תאריך: ${Formatters.date(date)}") }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("משך (דקות)", Modifier.weight(1f))
-                    IntField(duration, { duration = it }, Modifier.width(96.dp))
-                }
-                OutlinedTextField(notes, { notes = it }, label = { Text("הערות") }, minLines = 2, modifier = Modifier.fillMaxWidth())
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                val startsAt = TimeUtils.toEpochMs(date, 12, 0, zone).let { base ->
-                    // keep the original time of day when only editing
-                    val orig = java.time.Instant.ofEpochMilli(ev.startsAt).atZone(zone)
-                    TimeUtils.toEpochMs(date, orig.hour, orig.minute, zone).takeIf { ev.id.isNotBlank() } ?: base
-                }
-                onSave(ev.copy(type = type, title = title.trim(), notes = notes.trim(), durationMin = duration, startsAt = startsAt))
-            }) { Text("שמור") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("ביטול") } },
-    )
-    if (pickDate) DatePickerSheet(date, onDismiss = { pickDate = false }) { date = it }
 }
