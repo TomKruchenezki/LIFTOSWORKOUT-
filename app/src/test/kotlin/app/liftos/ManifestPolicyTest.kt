@@ -27,7 +27,12 @@ class ManifestPolicyTest {
 
     @Test
     fun `the app asks only for the permissions the timer needs and never for internet or storage`() {
-        val requested = packageInfo(PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty().toSet()
+        val all = packageInfo(PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty().toSet()
+        // AndroidX adds one private signature permission named after the package (DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION):
+        // it only protects the app's own broadcast receivers from other apps and is not shown to the user.
+        val own = all.filter { it.startsWith("app.liftos.") }
+        assertEquals(listOf("app.liftos.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"), own)
+        val requested = all - own.toSet()
         assertEquals(
             setOf(
                 Manifest.permission.POST_NOTIFICATIONS,
