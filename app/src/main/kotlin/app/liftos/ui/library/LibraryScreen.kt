@@ -37,7 +37,7 @@ import app.liftos.ui.components.EmptyState
 import app.liftos.ui.components.ScreenTopBar
 
 @Composable
-fun LibraryScreen(container: AppContainer, onOpen: (String) -> Unit, onCreate: () -> Unit) {
+fun LibraryScreen(container: AppContainer, onBack: () -> Unit, onOpen: (String) -> Unit, onCreate: () -> Unit) {
     val all by container.exercises.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
     var filter by remember { mutableStateOf(ExerciseFilter()) }
     val results = remember(all, filter) { ExerciseSearch.apply(all, filter) }
@@ -45,7 +45,7 @@ fun LibraryScreen(container: AppContainer, onOpen: (String) -> Unit, onCreate: (
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
-            ScreenTopBar("ספריית תרגילים", actions = {
+            ScreenTopBar("ספריית תרגילים", onBack = onBack, actions = {
                 IconButton(onClick = onCreate) { Icon(Icons.Rounded.Add, contentDescription = "תרגיל חדש") }
             })
         },

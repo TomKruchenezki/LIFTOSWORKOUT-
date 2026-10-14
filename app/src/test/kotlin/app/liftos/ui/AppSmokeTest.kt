@@ -81,9 +81,12 @@ class AppSmokeTest {
         compose.onNodeWithText("תוכניות").performClick()
         waitForText("4 ימים בשבוע", substring = true)
 
-        compose.onNodeWithText("תרגילים").performClick()
-        waitForText("ספריית תרגילים")
+        compose.onNodeWithContentDescription("ספריית תרגילים").performClick()
         waitForText("104 תרגילים")
+        compose.onNodeWithContentDescription("חזרה").performClick()
+
+        compose.onNodeWithText("התקדמות").performClick()
+        waitForText("עוד אין נתוני אימונים")
 
         compose.onNodeWithText("יומן").performClick()
         waitForText("עוד אין אימונים ביומן")
@@ -95,7 +98,8 @@ class AppSmokeTest {
     @Test
     fun library_search_filters_the_list() {
         waitForText("התחל אימון")
-        compose.onNodeWithText("תרגילים").performClick()
+        compose.onNodeWithText("תוכניות").performClick()
+        compose.onNodeWithContentDescription("ספריית תרגילים").performClick()
         waitForText("104 תרגילים")
         compose.onNode(hasSetTextAction()).performTextInput("סקוואט")
         waitForText("(מסונן)", substring = true)

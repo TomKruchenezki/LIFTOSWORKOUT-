@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
-import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.MonitorWeight
@@ -23,12 +23,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,7 +48,13 @@ import app.liftos.di.AppContainer
 import app.liftos.domain.logic.Formatters
 import app.liftos.domain.model.AppSettings
 import app.liftos.service.WorkoutService
+import app.liftos.ui.analytics.AnalyticsNav
+import app.liftos.ui.analytics.AnalyticsScreen
+import app.liftos.ui.analytics.ExerciseAnalyticsScreen
+import app.liftos.ui.analytics.RecordsScreen
 import app.liftos.ui.body.BodyScreen
+import app.liftos.ui.goals.GoalsScreen
+import app.liftos.ui.recovery.RecoveryScreen
 import app.liftos.ui.history.HistoryScreen
 import app.liftos.ui.home.HomeNav
 import app.liftos.ui.home.HomeScreen
@@ -66,7 +75,7 @@ private data class Tab(val route: String, val label: String, val icon: ImageVect
 private val tabs = listOf(
     Tab(Routes.HOME, "בית", Icons.Rounded.Home),
     Tab(Routes.PLANS, "תוכניות", Icons.Rounded.CalendarMonth),
-    Tab(Routes.LIBRARY, "תרגילים", Icons.Rounded.FitnessCenter),
+    Tab(Routes.PROGRESS, "התקדמות", Icons.Rounded.Insights),
     Tab(Routes.HISTORY, "יומן", Icons.Rounded.History),
     Tab(Routes.BODY, "גוף", Icons.Rounded.MonitorWeight),
 )
@@ -84,11 +93,18 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
         if (active != null) WorkoutService.start(context)
     }
 
+    val snackbar = remember { SnackbarHostState() }
+    // A goal that gets reached is celebrated wherever the user happens to be.
+    LaunchedEffect(Unit) {
+        container.goalTracker.achieved.collect { snackbar.showSnackbar("יעד הושג: ${it.title}") }
+    }
+
     val showTabs = route in Routes.topLevel
     val onWorkoutScreen = route == Routes.WORKOUT
 
     Scaffold(
         contentWindowInsets = WindowInsets.navigationBars,
+        snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             Column {
                 val a = active
@@ -134,7 +150,12 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                 )
             }
             composable(Routes.PLANS) {
-                PlansScreen(container, onOpenPlan = { nav.navigate(Routes.plan(it)) }, onOpenSettings = { nav.navigate(Routes.SETTINGS) })
+                PlansScreen(
+                    container,
+                    onOpenPlan = { nav.navigate(Routes.plan(it)) },
+                    onOpenLibrary = { nav.navigate(Routes.LIBRARY) },
+                    onOpenSettings = { nav.navigate(Routes.SETTINGS) },
+                )
             }
             composable(Routes.PLAN) { entry ->
                 PlanDetailScreen(
@@ -155,6 +176,7 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
             composable(Routes.LIBRARY) {
                 LibraryScreen(
                     container,
+                    onBack = { nav.popBackStack() },
                     onOpen = { nav.navigate(Routes.exercise(it)) },
                     onCreate = { nav.navigate(Routes.exerciseEdit(Routes.NEW)) },
                 )
@@ -188,6 +210,42 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                     onOpenSession = { nav.navigate(Routes.summary(it)) },
                     onEditSession = { nav.navigate(Routes.workout(it)) },
                 )
+            }
+            composable(Routes.PROGRESS) {
+                AnalyticsScreen(
+                    container,
+                    AnalyticsNav(
+                        openExercise = { nav.navigate(Routes.exerciseAnalytics(it)) },
+                        openSession = { nav.navigate(Routes.summary(it)) },
+                        openRecords = { nav.navigate(Routes.RECORDS) },
+                        openGoals = { nav.navigate(Routes.GOALS) },
+                        openRecovery = { nav.navigate(Routes.RECOVERY) },
+                        openSettings = { nav.navigate(Routes.SETTINGS) },
+                    ),
+                )
+            }
+            composable(Routes.EXERCISE_ANALYTICS) { entry ->
+                ExerciseAnalyticsScreen(
+                    container,
+                    exerciseKey = entry.arguments?.getString("key").orEmpty(),
+                    onBack = { nav.popBackStack() },
+                    onOpenSession = { nav.navigate(Routes.summary(it)) },
+                    onOpenLibraryEntry = { nav.navigate(Routes.exercise(it)) },
+                )
+            }
+            composable(Routes.RECORDS) {
+                RecordsScreen(
+                    container,
+                    onBack = { nav.popBackStack() },
+                    onOpenSession = { nav.navigate(Routes.summary(it)) },
+                    onOpenExercise = { nav.navigate(Routes.exerciseAnalytics(it)) },
+                )
+            }
+            composable(Routes.GOALS) {
+                GoalsScreen(container, onBack = { nav.popBackStack() }, onOpenExercise = { nav.navigate(Routes.exerciseAnalytics(it)) })
+            }
+            composable(Routes.RECOVERY) {
+                RecoveryScreen(container, onBack = { nav.popBackStack() }, onOpenSession = { nav.navigate(Routes.summary(it)) })
             }
             composable(Routes.BODY) { BodyScreen(container) }
             composable(Routes.WORKOUT) { entry ->

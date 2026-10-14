@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -121,7 +122,8 @@ class AppFlowsTest {
     @Test
     fun library_row_opens_the_exercise_page_with_honest_video_search() {
         waitForText("התחל אימון")
-        compose.onNodeWithText("תרגילים").performClick()
+        compose.onNodeWithText("תוכניות").performClick()
+        compose.onNodeWithContentDescription("ספריית תרגילים").performClick()
         waitForText("104 תרגילים")
         compose.onNode(hasSetTextAction()).performTextInput("פלאנק")
         waitForText("(מסונן)", substring = true)

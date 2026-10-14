@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AssistChip
@@ -75,7 +76,7 @@ class PlansViewModel(private val c: AppContainer) : ViewModel() {
 }
 
 @Composable
-fun PlansScreen(container: AppContainer, onOpenPlan: (String) -> Unit, onOpenSettings: () -> Unit) {
+fun PlansScreen(container: AppContainer, onOpenPlan: (String) -> Unit, onOpenLibrary: () -> Unit, onOpenSettings: () -> Unit) {
     val vm = appViewModel { PlansViewModel(container) }
     val state by vm.state.collectAsStateWithLifecycle()
     var creating by remember { mutableStateOf(false) }
@@ -85,6 +86,7 @@ fun PlansScreen(container: AppContainer, onOpenPlan: (String) -> Unit, onOpenSet
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             ScreenTopBar("תוכניות אימון", actions = {
+                IconButton(onClick = onOpenLibrary) { Icon(Icons.Rounded.FitnessCenter, contentDescription = "ספריית תרגילים") }
                 IconButton(onClick = onOpenSettings) { Icon(Icons.Rounded.Settings, contentDescription = "הגדרות") }
             })
         },

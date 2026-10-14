@@ -8,7 +8,11 @@ object Routes {
     const val LIBRARY = "library"
     const val HISTORY = "history"
     const val BODY = "body"
+    const val PROGRESS = "progress"
     const val SETTINGS = "settings"
+    const val RECORDS = "records"
+    const val GOALS = "goals"
+    const val RECOVERY = "recovery"
 
     const val PLAN = "plan/{planId}"
     const val PLAN_WORKOUT = "planWorkout/{workoutId}"
@@ -16,6 +20,7 @@ object Routes {
     const val SUMMARY = "summary/{sessionId}"
     const val EXERCISE = "exercise/{exerciseId}"
     const val EXERCISE_EDIT = "exerciseEdit/{exerciseId}"
+    const val EXERCISE_ANALYTICS = "exerciseAnalytics/{key}"
 
     const val NEW = "new"
 
@@ -25,6 +30,7 @@ object Routes {
     fun summary(id: String) = "summary/${Uri.encode(id)}"
     fun exercise(id: String) = "exercise/${Uri.encode(id)}"
     fun exerciseEdit(id: String) = "exerciseEdit/${Uri.encode(id)}"
+    fun exerciseAnalytics(key: String) = "exerciseAnalytics/${Uri.encode(key)}"
 
-    val topLevel = setOf(HOME, PLANS, LIBRARY, HISTORY, BODY)
+    val topLevel = setOf(HOME, PLANS, PROGRESS, HISTORY, BODY)
 }
