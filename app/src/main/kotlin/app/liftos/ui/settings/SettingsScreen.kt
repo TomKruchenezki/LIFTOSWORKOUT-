@@ -137,6 +137,14 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
                 }
             }
 
+            RemindersSection(settings.reminders) { r ->
+                // Asking at the moment a reminder is switched on is the natural time to explain the permission.
+                if (r.anyScheduled && !settings.reminders.anyScheduled && Build.VERSION.SDK_INT >= 33 && !Notifications.canPostNotifications(context)) {
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                update { s -> s.copy(reminders = r) }
+            }
+
             BackupSection(container, ::say)
 
             SectionTitle("אודות ופרטיות")

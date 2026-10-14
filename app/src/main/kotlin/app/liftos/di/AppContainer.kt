@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
@@ -97,6 +99,12 @@ class AppContainer(
         }
         appScope.launch {
             settings.observe().collect { latestSettings = it }
+        }
+        // Reminder alarms follow the settings (and are re-created at every app start).
+        appScope.launch {
+            settings.observe().map { it.reminders }.distinctUntilChanged().collect {
+                runCatching { app.liftos.service.ReminderScheduler.rescheduleAll(app, this@AppContainer) }
+            }
         }
     }
 
