@@ -102,7 +102,15 @@ class AppFlowsTest {
         compose.onNodeWithText("סיים ושמור").performClick()
         waitForText("סיכום אימון")
         waitForText("480", substring = true)
-        waitForText("העתק דוח לניתוח ב-ChatGPT")
+        waitForText("נתח את האימון עם AI")
+
+        // The AI screen shows exactly the report that would be copied: built from the real workout.
+        compose.tap("analyze with AI button") { compose.onNodeWithText("נתח את האימון עם AI") }
+        waitForText("תצוגה מקדימה של הדוח")
+        waitForText("דוח אימון מתוך LiftOS", substring = true)
+        waitForText("האפליקציה לא שולחת שום מידע", substring = true)
+        compose.onAllNodesWithContentDescription("חזרה").onLast().performClick()
+        waitForText("סיכום אימון")
 
         val history = runBlocking { app.container.workouts.observeHistory().first() }
         assertEquals(1, history.size)

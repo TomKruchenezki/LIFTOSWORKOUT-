@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material.icons.rounded.Insights
@@ -63,6 +64,7 @@ class AnalyticsNav(
     val openRecords: () -> Unit,
     val openGoals: () -> Unit,
     val openRecovery: () -> Unit,
+    val openAi: () -> Unit,
     val openSettings: () -> Unit,
 )
 
@@ -209,9 +211,10 @@ fun AnalyticsScreen(container: AppContainer, nav: AnalyticsNav) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ShortcutRow(nav: AnalyticsNav, activeGoals: Int) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         AssistChip(
             onClick = nav.openRecords,
             label = { Text("שיאים אישיים") },
@@ -226,6 +229,11 @@ private fun ShortcutRow(nav: AnalyticsNav, activeGoals: Int) {
             onClick = nav.openRecovery,
             label = { Text("התאוששות") },
             leadingIcon = { Icon(Icons.Rounded.MonitorHeart, contentDescription = null) },
+        )
+        AssistChip(
+            onClick = nav.openAi,
+            label = { Text("נתח עם AI") },
+            leadingIcon = { Icon(Icons.Rounded.AutoAwesome, contentDescription = null) },
         )
     }
 }

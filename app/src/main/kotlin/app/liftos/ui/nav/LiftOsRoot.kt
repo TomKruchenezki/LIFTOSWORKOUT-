@@ -53,6 +53,7 @@ import app.liftos.ui.analytics.AnalyticsScreen
 import app.liftos.ui.analytics.ExerciseAnalyticsScreen
 import app.liftos.ui.analytics.RecordsScreen
 import app.liftos.ui.calendar.JournalScreen
+import app.liftos.ui.ai.AiExportScreen
 import app.liftos.ui.body.BodyScreen
 import app.liftos.ui.goals.GoalsScreen
 import app.liftos.ui.photos.PhotoCompareScreen
@@ -222,6 +223,7 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                         openRecords = { nav.navigate(Routes.RECORDS) },
                         openGoals = { nav.navigate(Routes.GOALS) },
                         openRecovery = { nav.navigate(Routes.RECOVERY) },
+                        openAi = { nav.navigate(Routes.AI_EXPORT) },
                         openSettings = { nav.navigate(Routes.SETTINGS) },
                     ),
                 )
@@ -250,6 +252,12 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                 RecoveryScreen(container, onBack = { nav.popBackStack() }, onOpenSession = { nav.navigate(Routes.summary(it)) })
             }
             composable(Routes.BODY) { BodyScreen(container, onOpenPhotos = { nav.navigate(Routes.PHOTOS) }) }
+            composable(Routes.AI_EXPORT) {
+                AiExportScreen(container, sessionId = null, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.AI_EXPORT_SESSION) { entry ->
+                AiExportScreen(container, sessionId = entry.arguments?.getString("sessionId"), onBack = { nav.popBackStack() })
+            }
             composable(Routes.PHOTOS) {
                 PhotosScreen(container, onBack = { nav.popBackStack() }, onCompare = { a, b -> nav.navigate(Routes.photoCompare(a, b)) })
             }
@@ -280,6 +288,7 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
                     sessionId = entry.arguments?.getString("sessionId").orEmpty(),
                     onBack = { nav.popBackStack() },
                     onEdit = { nav.navigate(Routes.workout(it)) },
+                    onAnalyze = { nav.navigate(Routes.aiExport(it)) },
                 )
             }
             composable(Routes.SETTINGS) {

@@ -11,6 +11,12 @@
     <!-- Progress photos use the system camera app (no CAMERA permission); the app also works on devices without one. -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <!-- Lets the app check whether the ChatGPT / Claude apps are installed (to open them after a report is copied). -->
+    <queries>
+        <package android:name="com.openai.chatgpt" />
+        <package android:name="com.anthropic.claude" />
+    </queries>
+
     <application
         android:name=".LiftOsApp"
         android:allowBackup="false"

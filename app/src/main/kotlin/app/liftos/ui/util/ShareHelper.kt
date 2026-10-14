@@ -35,7 +35,14 @@ object ShareHelper {
 
     /** Writes [content] to a cache file and offers it through the Android Share Sheet (Drive, mail, ...). */
     fun shareFile(context: Context, fileName: String, mime: String, content: String, utf8Bom: Boolean = false) {
-        val uri: Uri = ExportFiles.write(context, fileName, content, utf8Bom)
+        shareUri(context, fileName, mime, ExportFiles.write(context, fileName, content, utf8Bom))
+    }
+
+    fun shareBytes(context: Context, fileName: String, mime: String, bytes: ByteArray) {
+        shareUri(context, fileName, mime, ExportFiles.writeBytes(context, fileName, bytes))
+    }
+
+    private fun shareUri(context: Context, fileName: String, mime: String, uri: Uri) {
         val send = Intent(Intent.ACTION_SEND).apply {
             type = mime
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -43,6 +50,20 @@ object ShareHelper {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(Intent.createChooser(send, fileName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
+    /**
+     * Opens another installed app (for example the ChatGPT or Claude app) so the user can paste a report that was
+     * already copied. Returns false when the app is not installed; nothing is sent by this call.
+     */
+    fun openApp(context: Context, packageName: String): Boolean {
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return false
+        return try {
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 
     /** Opens a web link in the browser / YouTube app. Returns false if nothing can handle it. */

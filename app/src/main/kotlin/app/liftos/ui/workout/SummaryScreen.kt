@@ -13,8 +13,7 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.Checkbox
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,9 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.liftos.di.AppContainer
-import app.liftos.domain.export.CsvExporter
-import app.liftos.domain.export.SessionExportFile
-import app.liftos.domain.export.SessionJson
 import app.liftos.domain.export.TextReport
 import app.liftos.domain.logic.Formatters
 import app.liftos.domain.logic.OneRepMax
@@ -71,6 +67,7 @@ fun SummaryScreen(
     sessionId: String,
     onBack: () -> Unit,
     onEdit: (String) -> Unit,
+    onAnalyze: (String) -> Unit,
 ) {
     val vm = appViewModel(key = "summary-$sessionId") { SummaryViewModel(container, sessionId) }
     val ui by vm.ui.collectAsStateWithLifecycle()
@@ -78,7 +75,6 @@ fun SummaryScreen(
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var confirmDelete by remember { mutableStateOf(false) }
-    var attachBody by remember { mutableStateOf(false) }
 
     when (val state = ui) {
         SummaryUi.Loading -> LoadingBox()
@@ -190,44 +186,19 @@ fun SummaryScreen(
                         }
                     }
 
-                    SectionTitle("שיתוף וייצוא")
+                    SectionTitle("ניתוח ושיתוף")
                     LiftCard(Modifier.fillMaxWidth()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(checked = attachBody, onCheckedChange = { attachBody = it })
-                            Text("צרף את מדדי הגוף האחרונים שלי לדוח")
-                        }
+                        BigButton("נתח את האימון עם AI", icon = Icons.Rounded.AutoAwesome, onClick = { onAnalyze(session.id) })
                         Spacer(Modifier.height(6.dp))
-                        BigButton("העתק דוח לניתוח ב-ChatGPT", icon = Icons.Rounded.ContentCopy, onClick = {
-                            scope.launch {
-                                val body = if (attachBody) vm.bodySnapshot() else null
-                                val report = TextReport.aiReport(detail, state.previous, body)
-                                ShareHelper.copy(context, "דוח אימון LiftOS", report, sensitive = attachBody)
-                                snackbar.showSnackbar("הדוח הועתק ללוח. הדבק אותו בשיחה עם ChatGPT או Claude. שום מידע לא נשלח מהאפליקציה.")
-                            }
+                        Text(
+                            "מכין דוח לבדיקה, להעתקה או לשיתוף (גם PDF, JSON ו-CSV). האפליקציה לא שולחת אותו לשום שירות.",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        SoftButton("העתק סיכום קצר", modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.ContentCopy, onClick = {
+                            ShareHelper.copy(context, "סיכום אימון", TextReport.workout(detail, state.previous))
+                            scope.launch { snackbar.showSnackbar("הסיכום הועתק ללוח") }
                         })
-                        Spacer(Modifier.height(10.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SoftButton("העתק סיכום", modifier = Modifier.weight(1f), icon = Icons.Rounded.ContentCopy, onClick = {
-                                ShareHelper.copy(context, "סיכום אימון", TextReport.workout(detail, state.previous))
-                                scope.launch { snackbar.showSnackbar("הסיכום הועתק ללוח") }
-                            })
-                            SoftButton("שתף", modifier = Modifier.weight(1f), icon = Icons.Rounded.Share, onClick = {
-                                scope.launch {
-                                    val body = if (attachBody) vm.bodySnapshot() else null
-                                    ShareHelper.shareText(context, "דוח אימון", TextReport.aiReport(detail, state.previous, body))
-                                }
-                            })
-                        }
-                        Spacer(Modifier.height(10.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SoftButton("ייצא JSON", modifier = Modifier.weight(1f), onClick = {
-                                val json = SessionJson.encode(SessionExportFile(exportedAt = System.currentTimeMillis(), workout = detail, previous = state.previous))
-                                ShareHelper.shareFile(context, "liftos-workout-${session.localDate}.json", "application/json", json)
-                            })
-                            SoftButton("ייצא CSV", modifier = Modifier.weight(1f), onClick = {
-                                ShareHelper.shareFile(context, "liftos-workout-${session.localDate}.csv", "text/csv", CsvExporter.sessions(listOf(detail)), utf8Bom = true)
-                            })
-                        }
                     }
                     Spacer(Modifier.height(16.dp))
                 }
