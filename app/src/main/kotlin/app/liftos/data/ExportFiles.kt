@@ -18,12 +18,18 @@ object ExportFiles {
     }
 
     fun writeBytes(context: Context, fileName: String, bytes: ByteArray): Uri {
+        val (file, uri) = newFile(context, fileName)
+        file.outputStream().use { it.write(bytes) }
+        return uri
+    }
+
+    /** An empty cache file (and its FileProvider uri) for a caller that streams a large export into it. */
+    fun newFile(context: Context, fileName: String): Pair<File, Uri> {
         val dir = File(context.cacheDir, DIR).apply { mkdirs() }
         // Keep the cache tidy: drop exports older than a day.
         dir.listFiles()?.filter { System.currentTimeMillis() - it.lastModified() > 24 * 3600 * 1000L }?.forEach { it.delete() }
         val safeName = fileName.replace(Regex("[^A-Za-z0-9._-]"), "_")
         val file = File(dir, safeName)
-        file.outputStream().use { it.write(bytes) }
-        return FileProvider.getUriForFile(context, authority(context), file)
+        return file to FileProvider.getUriForFile(context, authority(context), file)
     }
 }

@@ -67,12 +67,6 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
-    val lastBackup by container.devicePrefs.lastBackupAt.collectAsStateWithLifecycle(initialValue = null)
-    var preview by remember { mutableStateOf<ImportPreview?>(null) }
-    var mode by remember { mutableStateOf(ImportMode.MERGE) }
-    var confirmReplace by remember { mutableStateOf(false) }
-    var busy by remember { mutableStateOf(false) }
-
     fun update(change: (AppSettings) -> AppSettings) {
         scope.launch { container.settings.update(change) }
     }
@@ -81,34 +75,7 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
         scope.launch { snackbar.showSnackbar(text) }
     }
 
-    val saveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if (uri != null) scope.launch {
-            try {
-                container.backup.writeText(uri, container.backup.exportJson())
-                container.backup.markExported()
-                snackbar.showSnackbar("הגיבוי נשמר בהצלחה")
-            } catch (e: Exception) {
-                snackbar.showSnackbar("שמירת הגיבוי נכשלה: ${e.message}")
-            }
-        }
-    }
-    val openLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) scope.launch {
-            busy = true
-            try {
-                val text = container.backup.readText(uri)
-                preview = container.backup.preview(text)
-                mode = ImportMode.MERGE
-            } catch (e: Exception) {
-                snackbar.showSnackbar("קריאת הקובץ נכשלה: ${e.message}")
-            } finally {
-                busy = false
-            }
-        }
-    }
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-
-    fun backupName() = "liftos-backup-${LocalDate.now()}.json"
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -170,53 +137,7 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
                 }
             }
 
-            SectionTitle("גיבוי וייצוא נתונים")
-            LiftCard(Modifier.fillMaxWidth()) {
-                val last = lastBackup
-                Text(
-                    if (last == null) "עוד לא ייצאת גיבוי. מומלץ לגבות מדי פעם ולשמור עותק מחוץ לטלפון." else "גיבוי אחרון: ${Formatters.date(java.time.Instant.ofEpochMilli(last).atZone(java.time.ZoneId.systemDefault()).toLocalDate())}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (last == null) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.height(10.dp))
-                SoftButton("שמור גיבוי מלא לקובץ (JSON)", onClick = { saveLauncher.launch(backupName()) }, icon = Icons.Rounded.Download, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(8.dp))
-                SoftButton("שתף גיבוי (Drive, מייל ועוד)", icon = Icons.Rounded.Share, modifier = Modifier.fillMaxWidth(), onClick = {
-                    scope.launch {
-                        try {
-                            ShareHelper.shareFile(context, backupName(), "application/json", container.backup.exportJson())
-                            container.backup.markExported()
-                        } catch (e: Exception) {
-                            snackbar.showSnackbar("שיתוף הגיבוי נכשל: ${e.message}")
-                        }
-                    }
-                })
-                Spacer(Modifier.height(8.dp))
-                SoftButton("שחזר או ייבא מקובץ", icon = Icons.Rounded.Upload, enabled = !busy, modifier = Modifier.fillMaxWidth(), onClick = {
-                    openLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream", "*/*"))
-                })
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SoftButton("אימונים ל-CSV", modifier = Modifier.weight(1f), onClick = {
-                        scope.launch {
-                            val all = container.workouts.observeHistory()
-                            val details = mutableListOf<app.liftos.domain.model.WorkoutDetail>()
-                            all.first().forEach { item -> container.workouts.getDetail(item.session.id)?.let { details += it } }
-                            ShareHelper.shareFile(context, "liftos-workouts-${LocalDate.now()}.csv", "text/csv", CsvExporter.sessions(details), utf8Bom = true)
-                        }
-                    })
-                    SoftButton("מדידות ל-CSV", modifier = Modifier.weight(1f), onClick = {
-                        scope.launch {
-                            ShareHelper.shareFile(context, "liftos-measurements-${LocalDate.now()}.csv", "text/csv", CsvExporter.measurements(container.measurements.observeAllOnce()), utf8Bom = true)
-                        }
-                    })
-                }
-                Text(
-                    "הגיבוי נשמר כקובץ JSON עם גרסת סכמה מפורשת. אפשר לבחור בו מ-Google Drive דרך בורר הקבצים של אנדרואיד. קובץ הגיבוי מכיל את כל הנתונים האישיים שלך, שמור אותו במקום בטוח.",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 10.dp),
-                )
-            }
+            BackupSection(container, ::say)
 
             SectionTitle("אודות ופרטיות")
             LiftCard(Modifier.fillMaxWidth()) {
@@ -228,55 +149,6 @@ fun SettingsScreen(container: AppContainer, settings: AppSettings, onBack: () ->
             }
             Spacer(Modifier.height(24.dp))
         }
-    }
-
-    // ---- import flow --------------------------------------------------------------------------------------
-    val p = preview
-    if (p != null && !confirmReplace) {
-        ImportPreviewDialog(
-            preview = p, mode = mode, onMode = { mode = it },
-            onConfirm = {
-                if (mode == ImportMode.REPLACE_ALL) confirmReplace = true else scope.launch { runImport(container, p, mode, ::say); preview = null }
-            },
-            onDismiss = { preview = null },
-        )
-    }
-    if (p is ImportPreview.Ready && confirmReplace) {
-        AlertDialog(
-            onDismissRequest = { confirmReplace = false },
-            title = { Text("להחליף את כל הנתונים?") },
-            text = {
-                Text(
-                    "כל האימונים, התוכניות והמדידות הקיימים במכשיר יימחקו ויוחלפו בתוכן הגיבוי. " +
-                        "לפני ההחלפה נשמר אוטומטית עותק בטיחות של המצב הנוכחי באחסון הפרטי של האפליקציה. " +
-                        "מומלץ לשמור גם גיבוי חיצוני עכשיו.",
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmReplace = false
-                    scope.launch { runImport(container, p, ImportMode.REPLACE_ALL, ::say); preview = null }
-                }) { Text("החלף הכול", color = MaterialTheme.colorScheme.error) }
-            },
-            dismissButton = {
-                Column {
-                    TextButton(onClick = { saveLauncher.launch(backupName()) }) { Text("שמור קודם גיבוי של המצב הנוכחי") }
-                    TextButton(onClick = { confirmReplace = false }) { Text("חזור") }
-                }
-            },
-        )
-    }
-}
-
-private suspend fun runImport(container: AppContainer, preview: ImportPreview, mode: ImportMode, say: (String) -> Unit) {
-    if (preview !is ImportPreview.Ready) return
-    try {
-        val r = container.backup.import(preview, mode)
-        val s = r.imported
-        say("הייבוא הושלם: ${s.completedSessions} אימונים, ${s.plans} תוכניות, ${s.measurements} מדידות" +
-            if (r.skippedActiveSessions > 0) " (דולג על אימון פעיל מהקובץ)" else "")
-    } catch (e: Exception) {
-        say("הייבוא נכשל ולא בוצע שינוי בנתונים: ${e.message}")
     }
 }
 
@@ -304,62 +176,5 @@ private fun StepperRow(title: String, seconds: Int, min: Int, max: Int, step: In
         FilledTonalIconButton(onClick = { onChange((seconds - step).coerceAtLeast(min)) }) { Text("−") }
         Text(ltr(Formatters.duration(seconds * 1000L)), Modifier.width(64.dp), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         FilledTonalIconButton(onClick = { onChange((seconds + step).coerceAtMost(max)) }) { Text("+") }
-    }
-}
-
-@Composable
-private fun ImportPreviewDialog(
-    preview: ImportPreview,
-    mode: ImportMode,
-    onMode: (ImportMode) -> Unit,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    when (preview) {
-        is ImportPreview.Failure -> AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("לא ניתן לייבא את הקובץ") },
-            text = { Text(preview.message) },
-            confirmButton = { TextButton(onClick = onDismiss) { Text("סגור") } },
-        )
-        is ImportPreview.Ready -> AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(if (preview.canImport) "תצוגה מקדימה של הייבוא" else "הקובץ לא עבר אימות") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        if (preview.source == BackupSource.FLOOT) "מקור: ייצוא מהאפליקציה הקודמת (המרה אוטומטית, ללא אימות מול קובץ אמיתי)" else "מקור: גיבוי LiftOS",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    val s = preview.summary
-                    Text("אימונים: ${s.completedSessions}${if (s.sessions > s.completedSessions) " (+${s.sessions - s.completedSessions} פעילים)" else ""}")
-                    Text("תוכניות: ${s.plans} (${s.plannedWorkouts} ימי אימון)")
-                    Text("מדידות גוף: ${s.measurements}")
-                    Text("פעילויות ביומן: ${s.events}")
-                    Text("תרגילים אישיים: ${s.customExercises}")
-                    if (s.firstSessionDate != null) Text("טווח אימונים: ${s.firstSessionDate} עד ${s.lastSessionDate}", style = MaterialTheme.typography.bodySmall)
-                    preview.report.errors.take(4).forEach { Text("שגיאה: $it", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
-                    preview.warnings.take(4).forEach { Text("שים לב: $it", color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
-                    if (preview.canImport) {
-                        Spacer(Modifier.height(6.dp))
-                        ModeRow("מזג: הוסף רק מה שחסר (לא מוחק ולא דורס)", mode == ImportMode.MERGE) { onMode(ImportMode.MERGE) }
-                        ModeRow("החלף: מחק את הנתונים הקיימים ושחזר מהקובץ", mode == ImportMode.REPLACE_ALL) { onMode(ImportMode.REPLACE_ALL) }
-                    }
-                }
-            },
-            confirmButton = {
-                if (preview.canImport) TextButton(onClick = onConfirm) { Text(if (mode == ImportMode.MERGE) "מזג" else "המשך") }
-                else TextButton(onClick = onDismiss) { Text("סגור") }
-            },
-            dismissButton = { if (preview.canImport) TextButton(onClick = onDismiss) { Text("ביטול") } },
-        )
-    }
-}
-
-@Composable
-private fun ModeRow(text: String, selected: Boolean, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = selected, onClick = onClick)
-        Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
     }
 }

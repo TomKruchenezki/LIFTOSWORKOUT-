@@ -8,8 +8,10 @@ import app.liftos.data.prefs.DevicePrefs
 import app.liftos.data.repo.ActivityRepository
 import app.liftos.data.repo.BackupRepository
 import app.liftos.data.repo.ExerciseRepository
+import app.liftos.data.repo.GoalRepository
 import app.liftos.data.repo.LibraryLoader
 import app.liftos.data.repo.MeasurementRepository
+import app.liftos.data.repo.PhotoRepository
 import app.liftos.data.repo.PlanRepository
 import app.liftos.data.repo.Seeder
 import app.liftos.data.repo.SettingsRepository
@@ -54,6 +56,8 @@ class TestEnv(
     val workouts = WorkoutRepository(db, time, zones, ids)
     val measurements = MeasurementRepository(db, time, zones, ids)
     val activities = ActivityRepository(db, time, zones, ids)
+    val goals = GoalRepository(db, time, ids)
+    val photos = PhotoRepository(context, db, time, zones, ids)
     val seeder = Seeder(db, LibraryLoader(context), prefs, time, ids)
     val backup = BackupRepository(context, db, seeder, prefs, time, "test")
 

@@ -42,7 +42,7 @@ object ShareHelper {
         shareUri(context, fileName, mime, ExportFiles.writeBytes(context, fileName, bytes))
     }
 
-    private fun shareUri(context: Context, fileName: String, mime: String, uri: Uri) {
+    fun shareUri(context: Context, fileName: String, mime: String, uri: Uri) {
         val send = Intent(Intent.ACTION_SEND).apply {
             type = mime
             putExtra(Intent.EXTRA_STREAM, uri)

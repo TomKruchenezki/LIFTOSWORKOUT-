@@ -45,6 +45,8 @@ sealed interface ImportPreview {
         val archiveUri: Uri? = null,
         /** File names of the photos that are present inside the archive. */
         val archivePhotos: Set<String> = emptySet(),
+        /** What a MERGE import would add (the rest already exists on this device, matched by id). */
+        val mergeNew: BackupSummary = report.summary,
     ) : ImportPreview {
         val canImport: Boolean get() = report.isValid
         val warnings: List<String> get() = parseWarnings + report.warnings
@@ -214,7 +216,9 @@ class BackupRepository(
             is ParseResult.Failure -> ImportPreview.Failure(parsed.message)
             is ParseResult.Success -> {
                 val known = library.map { it.id }.toSet()
-                ImportPreview.Ready(parsed.file, parsed.source, parsed.warnings, BackupValidator.validate(parsed.file, known))
+                val report = BackupValidator.validate(parsed.file, known)
+                val mergeNew = if (report.isValid) BackupSummary.of(BackupMerge.delta(report.cleaned, existingIds())) else report.summary
+                ImportPreview.Ready(parsed.file, parsed.source, parsed.warnings, report, mergeNew = mergeNew)
             }
         }
     }
@@ -278,25 +282,28 @@ class BackupRepository(
     }
 
     /** Adds only what is missing. Returns (active workouts left out, photos that were added). */
+    /** The ids of everything already stored, used to tell new items from duplicates. */
+    private suspend fun existingIds() = ExistingIds(
+        exercises = db.exerciseDao().allIds().toSet(),
+        plans = db.planDao().planIds().toSet(),
+        plannedWorkouts = db.planDao().workoutIds().toSet(),
+        plannedExercises = db.planDao().plannedExerciseIds().toSet(),
+        sessions = db.sessionDao().sessionIds().toSet(),
+        sessionExercises = db.sessionDao().sessionExerciseIds().toSet(),
+        sets = db.sessionDao().setIds().toSet(),
+        measurements = db.measurementDao().ids().toSet(),
+        events = db.activityDao().ids().toSet(),
+        customMetrics = db.customMetricDao().ids().toSet(),
+        plannedOverrides = db.calendarDao().overrideIds().toSet(),
+        goals = db.goalDao().ids().toSet(),
+        goalChanges = db.goalDao().changeIds().toSet(),
+        photos = db.photoDao().ids().toSet(),
+        exercisePrefs = db.progressionDao().prefKeys().toSet(),
+        progressionDecisions = db.progressionDao().decisionIds().toSet(),
+    )
+
     private suspend fun merge(data: BackupData): Pair<Int, List<ProgressPhoto>> {
-        val existing = ExistingIds(
-            exercises = db.exerciseDao().allIds().toSet(),
-            plans = db.planDao().planIds().toSet(),
-            plannedWorkouts = db.planDao().workoutIds().toSet(),
-            plannedExercises = db.planDao().plannedExerciseIds().toSet(),
-            sessions = db.sessionDao().sessionIds().toSet(),
-            sessionExercises = db.sessionDao().sessionExerciseIds().toSet(),
-            sets = db.sessionDao().setIds().toSet(),
-            measurements = db.measurementDao().ids().toSet(),
-            events = db.activityDao().ids().toSet(),
-            customMetrics = db.customMetricDao().ids().toSet(),
-            plannedOverrides = db.calendarDao().overrideIds().toSet(),
-            goals = db.goalDao().ids().toSet(),
-            goalChanges = db.goalDao().changeIds().toSet(),
-            photos = db.photoDao().ids().toSet(),
-            exercisePrefs = db.progressionDao().prefKeys().toSet(),
-            progressionDecisions = db.progressionDao().decisionIds().toSet(),
-        )
+        val existing = existingIds()
         val delta = BackupMerge.delta(data, existing)
         // An in-progress workout from another device would clash with the local one; skip it.
         val activeIds = delta.sessions.filter { it.status == SessionStatus.ACTIVE }.map { it.id }.toSet()

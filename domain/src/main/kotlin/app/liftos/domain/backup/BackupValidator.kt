@@ -92,7 +92,7 @@ object BackupValidator {
         d.sets.forEach { s -> checkSet(s, errors) }
         d.photos.forEach { p ->
             if (p.takenAt !in MIN_EPOCH..MAX_EPOCH) errors += "תאריך צילום לא סביר (${p.localDate})."
-            if (p.fileName.isBlank() || p.fileName.contains("/") || p.fileName.contains("..")) {
+            if (p.fileName.isBlank() || p.fileName.contains("/") || p.fileName.contains("\\") || p.fileName.contains("..")) {
                 errors += "שם קובץ תמונה לא תקין: '${p.fileName}'."
             }
         }
