@@ -140,7 +140,7 @@ class AppFlowsTest {
         waitForText("התחל אימון")
         compose.onNodeWithText("גוף").performClick()
         waitForText("עוד אין מדידות")
-        compose.onNodeWithText("מדידה חדשה").performClick()
+        compose.tap("new measurement button") { compose.onNodeWithText("מדידה חדשה") }
         waitForText("אפשר למלא רק את מה שמדדת הפעם.")
         compose.onNodeWithText("משקל").performTextInput("82.5")
         compose.tap("save measurement", scrollFirst = true) { compose.onNodeWithText("שמור מדידה") }
