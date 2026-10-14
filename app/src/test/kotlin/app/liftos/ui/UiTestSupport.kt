@@ -6,10 +6,19 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasScrollToNodeAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 
 /**
  * Screen size of a modern phone (the target device is a Galaxy S26 Ultra), so the tests do not
@@ -85,4 +94,29 @@ fun ComposeContentTestRule.tapUntilShown(
             if (attempt == attempts - 1) throw AssertionError("Tapped $what $attempts times but \"$expected\" never appeared | SCREEN: ${screenDump()}", e)
         }
     }
+}
+
+/**
+ * Lazy lists only compose the rows near the screen: scrolls the first list that supports it until a node with [text]
+ * exists, then waits for it to be there.
+ */
+fun ComposeContentTestRule.scrollListTo(text: String, substring: Boolean = true) {
+    onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(text, substring = substring))
+    waitForText(text, substring)
+}
+
+/** A plain scrolling page composes everything but only a touch inside the screen is delivered: swipe up until [text] is visible. */
+fun ComposeContentTestRule.swipeUntilDisplayed(text: String, attempts: Int = 6) {
+    repeat(attempts) {
+        val shown = try {
+            onAllNodesWithText(text).onFirst().assertIsDisplayed()
+            true
+        } catch (_: AssertionError) {
+            false
+        }
+        if (shown) return
+        onRoot().performTouchInput { swipeUp() }
+        waitForIdle()
+    }
+    throw AssertionError("\"$text\" never became visible | SCREEN: ${screenDump()}")
 }

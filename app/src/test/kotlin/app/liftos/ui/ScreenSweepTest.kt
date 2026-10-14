@@ -8,9 +8,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsAtLeast
-import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -19,7 +17,6 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -241,6 +238,8 @@ class ScreenSweepTest {
         assertShown("משקל עבודה ממוצע", substring = true)
         assertShown("נפח לכל סט:", substring = true)
         assertShown("חזרות בכל משקל")
+        // Five workouts with 3 sets at the top of the range each time: the engine has enough to make a suggestion.
+        assertShown("הצעה לאימון הבא")
     }
 
     // ---- journal ----------------------------------------------------------------------------------------
@@ -317,15 +316,17 @@ class ScreenSweepTest {
         compose.tap("first workout row") { compose.onAllNodesWithText("Upper A", substring = true).onFirst() }
         waitForText("סיכום אימון")
         compose.tap("edit workout button") { compose.onNodeWithContentDescription("ערוך אימון") }
-        waitForText("סיום עריכה")
+        // The edit screen is a lazy list; the button that closes edit mode is its last row.
+        compose.scrollListTo("סיום עריכה")
     }
 
     @Test
     fun the_plan_shortcut_on_home_opens_the_plan() {
         show()
         waitForText("התחל אימון")
+        compose.swipeUntilDisplayed("4 ימים בשבוע - פלג עליון / תחתון")
         tapText("plan chip", "4 ימים בשבוע - פלג עליון / תחתון", first = true)
-        waitForText("הוסף יום אימון")
+        waitForText("סידור השבוע")
     }
 
     // ---- body -------------------------------------------------------------------------------------------
@@ -348,10 +349,7 @@ class ScreenSweepTest {
     }
 
     /** The body screen is a lazy list: items below the fold do not exist until the list is scrolled to them. */
-    private fun scrollBodyListTo(text: String) {
-        compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(text, substring = true))
-        waitForText(text, substring = true)
-    }
+    private fun scrollBodyListTo(text: String) = compose.scrollListTo(text)
 
     private fun tapTextContaining(what: String, text: String) =
         compose.tap(what) { compose.onAllNodesWithText(text, substring = true).onFirst() }
