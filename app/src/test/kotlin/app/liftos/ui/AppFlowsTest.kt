@@ -193,7 +193,7 @@ class AppFlowsTest {
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(1_000)
         if (!compose.containsText("למחוק את כל הנתונים?")) {
-            throw AssertionError("The delete-all dialog did not open | SCREEN: ${compose.screenDump(120)}")
+            throw AssertionError("The delete-all dialog did not open | END OF SCREEN: ${compose.screenDump(400).takeLast(1_400)}")
         }
         compose.onNodeWithText("מחק הכול").assertIsNotEnabled()
         compose.onNode(hasSetTextAction()).performTextInput("מחק")
