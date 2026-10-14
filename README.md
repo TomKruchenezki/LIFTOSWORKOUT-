@@ -5,6 +5,7 @@
 
 * Kotlin, Jetpack Compose, Material 3, Room (SQLite), Coroutines/StateFlow, Navigation Compose, DataStore
 * שני מודולים: `:domain` (לוגיקה טהורה, נבדקת על ה-JVM) ו-`:app` (Android)
+* מצב הגרסה, מסד הנתונים, הגיבוי והסיכונים הפתוחים (לקריאה ראשונה בכל שיחה חדשה): [PROJECT_STATE.md](PROJECT_STATE.md)
 * משוב משימוש אמיתי על המכשיר: [FEEDBACK.md](FEEDBACK.md)
 * בדיקת קבלה סופית: [FINAL_ACCEPTANCE_REPORT.md](FINAL_ACCEPTANCE_REPORT.md) · [FINAL_REQUIREMENTS_AUDIT.md](FINAL_REQUIREMENTS_AUDIT.md)
 * פרטים: [FEATURES.md](FEATURES.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [DATA_MODEL.md](DATA_MODEL.md) · [TESTING.md](TESTING.md) · [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) · [CHANGELOG.md](CHANGELOG.md) · [CLAUDE.md](CLAUDE.md)

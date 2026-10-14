@@ -2,6 +2,7 @@
 
 Read this first in every new session. It keeps decisions and context between conversations.
 Update it whenever a decision changes. The owner writes in Hebrew; UI strings and user-facing docs are Hebrew.
+**Also read `PROJECT_STATE.md`** (installed version/commit, DB state, backup mechanism, data-safety rules, open technical points) and the "Trial period" section below.
 **Also read `FEEDBACK.md`** (real-device trial notes from the owner: severity, status, what was fixed). Add new notes to it, keep ids `F-001`..., never delete a note (change its status), and treat anything not observed on the device as unverified.
 
 ## What this is
@@ -87,6 +88,18 @@ Part 1 (0.1.0), Part 2 (0.2.0) and the final acceptance audit (0.2.1) are implem
 `FINAL_REQUIREMENTS_AUDIT.md`: 231 PASS, 13 PARTIAL, 0 FAIL, 0 MISSING, 7 BLOCKED, 6 FUTURE). Not done / not verified: ANY real-device or emulator testing,
 PDF drawing, camera/gallery/file picker, notification delivery and background timer on a Samsung device, Floot import against a real file, R8 runtime,
 distribution signing (the release APK is signed with the shared debug key). See `FEATURES.md`, `TESTING.md`, `DEVELOPMENT_PLAN.md`, `CHANGELOG.md`.
+
+### Trial period (started Oct 2026) - READ BEFORE DOING ANYTHING
+- The owner installed **0.2.1** (commit `e9aa61f773ea9c476d1f121d4221da70ebf6a2c3`, CI run `38565145090`) on the S26 Ultra and will use it for ~10-14 days of real workouts.
+  **No code changes, no DB migrations, no new APK without an explicit request from the owner.** Documentation-only commits are fine (use `[skip ci]`, so the CI run
+  that produced the installed APK stays the latest relevant one). Do not merge or change branches without being asked.
+- **The device holds real data.** Never delete/reset/restore anything while testing; never publish an APK with a different signature or a lower `versionCode`.
+- Read `PROJECT_STATE.md` first: exact version/commit/APK hashes, DB state, backup mechanism, known limits, the data-safety Q&A and four open technical
+  points to check later (T-1 signing, T-2 non-atomic photo restore, T-3 secondary muscles not snapshotted, T-4 ZIP photo size limits). They are review findings,
+  **not bugs proven on the device**; do not "fix" them during the trial. They are inputs for the 0.3.0 plan.
+- Device feedback goes to `FEEDBACK.md` (ids `F-001`..., severity, status). When the owner returns, read it, verify what can be verified from code/tests, and only then plan 0.3.0.
+- The git tag `v0.2.1-trial` could not be created from the sandbox (tag push and the GitHub tag API are blocked by the proxy). The commit is recorded in `PROJECT_STATE.md`;
+  the owner can create the tag with the commands written there.
 
 ### Audit lessons (0.2.1) - read before touching tests or CI
 - **Never claim PASS from code reading alone.** The audit matrix has one row per atomic behavior; a skipped test is not evidence (CI prints skipped tests by name).
