@@ -42,7 +42,7 @@ class MeasurementTest {
     @Test
     fun `all metrics are stored and a note only entry is allowed`() = runBlocking {
         val full = env.measurements.add(
-            MeasurementInput(82.4, 91.0, 104.5, 36.0, 60.0, 99.0, 39.0, 18.5, "אחרי אימון"), ms(2026, 10, 2),
+            MeasurementInput(weightKg = 82.4, waistCm = 91.0, chestCm = 104.5, armCm = 36.0, thighCm = 60.0, hipsCm = 99.0, neckCm = 39.0, bodyFatPct = 18.5, notes = "אחרי אימון"), ms(2026, 10, 2),
         )
         val m = env.measurements.get(full)!!
         assertEquals(listOf(82.4, 91.0, 104.5, 36.0, 60.0, 99.0, 39.0, 18.5), listOf(m.weightKg, m.waistCm, m.chestCm, m.armCm, m.thighCm, m.hipsCm, m.neckCm, m.bodyFatPct))
