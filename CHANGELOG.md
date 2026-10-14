@@ -15,7 +15,7 @@
 * שורת סט מסומן מתחלפת בדהייה עדינה.
 
 ### נוסף (בדיקות והוכחות)
-* בדיקות: `WorkoutReportExtrasTest`, `DefaultPlanTableTest` (טבלת הפרומפט מוקלדת ידנית), `ServiceBehaviorTest` (התראת סיום מנוחה פעם אחת, הרשאה, הגדרה, התראה מתמשכת, Alarm גיבוי, תזכורות), `AnalyticsLiveUpdateTest`, `HomeDataTest`, `ShareIntentsTest`, `ManifestPolicyTest`, `PhotoPipelineTest` (הקטנה, EXIF, פרטיות), `ScreenSweepTest` (כל המסכים עם נתונים, RTL, גופן x2, גדלי כפתורים), `ScenarioATest` (20 שלבים), `ScenarioETest` (10 שלבים).
+* בדיקות: `WorkoutReportExtrasTest`, `DefaultPlanTableTest` (טבלת הפרומפט מוקלדת ידנית), `ServiceBehaviorTest` (התראת סיום מנוחה פעם אחת, הרשאה, הגדרה, התראה מתמשכת, Alarm גיבוי, תזכורות), `AnalyticsLiveUpdateTest`, `HomeDataTest`, `ShareIntentsTest`, `ManifestPolicyTest`, `PhotoPipelineTest` (הקטנה, EXIF, פרטיות), `ScreenSweepTest` (כל המסכים עם נתונים, RTL, גופן x2, ערכה בהירה, גדלי כפתורים), `ThemeTest`, `ScenarioATest` (20 שלבים), `ScenarioETest` (10 שלבים), `PdfExportAttemptTest` (דולג - `PdfDocument` לא זמין). סה"כ 446 בדיקות (445 עברו, 1 דולגה).
 * CI: מדפיס Commit, SHA-256, חבילה, גרסה והרשאות של ה-APK; שלב "Test gate" מכשיל את הריצה אם **כל** בדיקה נכשלה (גם בדיקות ממשק, שרצות בשלב נפרד שמותר לו להיכשל).
 * גרסה 0.2.1 (versionCode 3).
 

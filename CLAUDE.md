@@ -81,6 +81,20 @@ Owner timezone Asia/Jerusalem. Product rules: every button must work, real data 
 - Tests: JVM tests in `domain/src/test`; Robolectric Room tests in `app/src/test` (`TestEnv` builds all repositories).
 
 ## Status
-Part 1 (0.1.0) and Part 2 (0.2.0) are implemented and green in CI. Not done / not verified: real-device testing, Floot import against a real file,
-R8 release runtime, camera/gallery/PDF rendering/notification delivery on a device. See `FEATURES.md` (honest per-feature table), `TESTING.md`,
-`DEVELOPMENT_PLAN.md` (what is next) and `CHANGELOG.md`.
+Part 1 (0.1.0), Part 2 (0.2.0) and the final acceptance audit (0.2.1) are implemented and green in CI (run 38565145090, commit `e9aa61f`:
+446 tests, 445 passed, 1 skipped = PDF drawing). Final verdict in `FINAL_ACCEPTANCE_REPORT.md`: **READY WITH LIMITATIONS** (257 atomic requirements in
+`FINAL_REQUIREMENTS_AUDIT.md`: 231 PASS, 13 PARTIAL, 0 FAIL, 0 MISSING, 7 BLOCKED, 6 FUTURE). Not done / not verified: ANY real-device or emulator testing,
+PDF drawing, camera/gallery/file picker, notification delivery and background timer on a Samsung device, Floot import against a real file, R8 runtime,
+distribution signing (the release APK is signed with the shared debug key). See `FEATURES.md`, `TESTING.md`, `DEVELOPMENT_PLAN.md`, `CHANGELOG.md`.
+
+### Audit lessons (0.2.1) - read before touching tests or CI
+- **Never claim PASS from code reading alone.** The audit matrix has one row per atomic behavior; a skipped test is not evidence (CI prints skipped tests by name).
+- CI: the UI step may fail without stopping the APK build, so the last step `Test gate` fails the run on ANY test failure. A push cancels the run in progress;
+  with the Gradle cache a run takes ~4 min. `gh api` works for run/job/artifact metadata, but log and artifact *downloads* go to a blocked blob host (403): read logs
+  with `mcp__github__get_job_logs` (`tail_lines` 90-130 to include totals and APK facts) and take the APK SHA-256 from the "APK facts" step.
+- Compose-on-Robolectric traps seen: an element below the fold is composed but not clickable (use `swipeUntilDisplayed`), lazy lists only compose near-screen rows
+  (use `scrollListTo`), a swipe that starts at the very bottom edge begins on the navigation bar, `LocalLayoutDirection` must be read *inside* `LiftOsTheme`,
+  `createComposeRule().setContent` can run once per test, a bottom sheet / dialog with a text field never reaches idle. `javap -cp shadows-framework.jar` on the
+  Robolectric jar (Maven Central) is the quickest way to check a shadow API before writing a test.
+- The merged manifest carries one app-private AndroidX permission (`app.liftos.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`); `ManifestPolicyTest` names it explicitly.
+- The release APK's SHA-256 changes between builds of identical sources; the debug APK's does not.
