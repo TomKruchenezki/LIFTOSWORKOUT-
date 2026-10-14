@@ -142,7 +142,8 @@ class AppFlowsTest {
         waitForText("התחל אימון")
         compose.onNodeWithText("גוף").performClick()
         waitForText("עוד אין מדידות")
-        compose.tap("new measurement button") { compose.onNodeWithText("מדידה חדשה") }
+        // The extended FAB exposes its label only in the unmerged semantics tree.
+        compose.tap("new measurement button") { compose.onNodeWithText("מדידה חדשה", useUnmergedTree = true) }
         waitForText("אפשר למלא רק את מה שמדדת הפעם.")
         compose.onNodeWithText("משקל").performTextInput("82.5")
         compose.tap("save measurement", scrollFirst = true) { compose.onNodeWithText("שמור מדידה") }

@@ -55,6 +55,8 @@ import app.liftos.ui.analytics.RecordsScreen
 import app.liftos.ui.calendar.JournalScreen
 import app.liftos.ui.body.BodyScreen
 import app.liftos.ui.goals.GoalsScreen
+import app.liftos.ui.photos.PhotoCompareScreen
+import app.liftos.ui.photos.PhotosScreen
 import app.liftos.ui.recovery.RecoveryScreen
 import app.liftos.ui.home.HomeNav
 import app.liftos.ui.home.HomeScreen
@@ -247,7 +249,18 @@ fun LiftOsRoot(container: AppContainer, settings: AppSettings) {
             composable(Routes.RECOVERY) {
                 RecoveryScreen(container, onBack = { nav.popBackStack() }, onOpenSession = { nav.navigate(Routes.summary(it)) })
             }
-            composable(Routes.BODY) { BodyScreen(container) }
+            composable(Routes.BODY) { BodyScreen(container, onOpenPhotos = { nav.navigate(Routes.PHOTOS) }) }
+            composable(Routes.PHOTOS) {
+                PhotosScreen(container, onBack = { nav.popBackStack() }, onCompare = { a, b -> nav.navigate(Routes.photoCompare(a, b)) })
+            }
+            composable(Routes.PHOTO_COMPARE) { entry ->
+                PhotoCompareScreen(
+                    container,
+                    idA = entry.arguments?.getString("a").orEmpty(),
+                    idB = entry.arguments?.getString("b").orEmpty(),
+                    onBack = { nav.popBackStack() },
+                )
+            }
             composable(Routes.WORKOUT) { entry ->
                 WorkoutScreen(
                     container,

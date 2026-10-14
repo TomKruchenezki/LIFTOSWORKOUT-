@@ -3,6 +3,9 @@ package app.liftos.ui.body
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,87 +14,72 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
-import app.liftos.data.repo.MeasurementInput
 import app.liftos.di.AppContainer
-import app.liftos.domain.logic.BodyTrends
+import app.liftos.domain.analytics.ChartPoint
+import app.liftos.domain.analytics.DateRange
+import app.liftos.domain.analytics.Period
+import app.liftos.domain.analytics.PeriodPreset
+import app.liftos.domain.body.BodyAnalytics
+import app.liftos.domain.body.ValueChange
+import app.liftos.domain.goals.BodyField
 import app.liftos.domain.logic.Formatters
 import app.liftos.domain.logic.TimeUtils
 import app.liftos.domain.model.BodyMeasurement
-import app.liftos.ui.components.BigButton
+import app.liftos.domain.model.CustomMetric
 import app.liftos.ui.components.ChipRow
 import app.liftos.ui.components.ConfirmDialog
-import app.liftos.ui.components.DatePickerSheet
-import app.liftos.ui.components.DatedLineChart
-import app.liftos.ui.components.DecimalTextField
 import app.liftos.ui.components.EmptyState
+import app.liftos.ui.components.InteractiveChart
 import app.liftos.ui.components.LiftCard
+import app.liftos.ui.components.LoadingBox
+import app.liftos.ui.components.PeriodSelector
 import app.liftos.ui.components.ScreenTopBar
 import app.liftos.ui.components.SectionTitle
-import app.liftos.ui.components.TimePickerSheet
+import app.liftos.ui.components.SoftButton
 import app.liftos.ui.components.appViewModel
 import app.liftos.ui.util.dateLine
-import app.liftos.ui.util.kg
 import app.liftos.ui.util.ltr
-import app.liftos.ui.util.signedKg
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class BodyViewModel(private val c: AppContainer) : ViewModel() {
-    val measurements: StateFlow<List<BodyMeasurement>?> = c.measurements.observeAll().map<List<BodyMeasurement>, List<BodyMeasurement>?> { it }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-
-    fun save(id: String?, input: MeasurementInput, measuredAt: Long) {
-        viewModelScope.launch { if (id == null) c.measurements.add(input, measuredAt) else c.measurements.update(id, input, measuredAt) }
-    }
-
-    fun delete(id: String) = viewModelScope.launch { c.measurements.delete(id) }
-}
-
-private enum class Range(val label: String, val days: Long?) {
-    D30("30 יום", 30), M3("3 חודשים", 90), M6("6 חודשים", 180), Y1("שנה", 365), ALL("הכול", null)
-}
+/** One thing that can be charted: a built-in body field or one of the user's own metrics. */
+private data class SeriesDef(val key: String, val label: String, val unit: String, val field: BodyField?, val metricId: String?)
 
 @Composable
-fun BodyScreen(container: AppContainer) {
+fun BodyScreen(container: AppContainer, onOpenPhotos: () -> Unit = {}) {
     val vm = appViewModel { BodyViewModel(container) }
     val list by vm.measurements.collectAsStateWithLifecycle()
+    val metrics by vm.metrics.collectAsStateWithLifecycle()
+    val photoCount by vm.photoCount.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<BodyMeasurement?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<BodyMeasurement?>(null) }
-    var range by remember { mutableStateOf<Range?>(Range.M3) }
+    var comparing by remember { mutableStateOf(false) }
+    var managingMetrics by remember { mutableStateOf(false) }
+    var seriesKey by rememberSaveable { mutableStateOf(BodyField.WEIGHT.key) }
+    var period by remember { mutableStateOf(Period(PeriodPreset.DAYS_90)) }
+    val today = remember { LocalDate.now() }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -108,12 +96,12 @@ fun BodyScreen(container: AppContainer) {
     ) { padding ->
         val items = list
         if (items == null) {
-            app.liftos.ui.components.LoadingBox(Modifier.padding(padding))
+            LoadingBox(Modifier.padding(padding))
             return@Scaffold
         }
         LazyColumn(
             Modifier.padding(padding),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (items.isEmpty()) {
@@ -125,20 +113,37 @@ fun BodyScreen(container: AppContainer) {
                     )
                 }
             } else {
-                item { WeightSection(items, range, onRange = { range = it }) }
+                item {
+                    SeriesSection(
+                        all = items, metrics = metrics, selectedKey = seriesKey, onSelect = { seriesKey = it },
+                        period = period, onPeriod = { period = it }, today = today,
+                    )
+                }
+                item { PeriodComparison(items, seriesKey, today) }
+            }
+            item {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (items.size >= 2) SoftButton("השוואת מדידות", onClick = { comparing = true })
+                    SoftButton("שדות מותאמים", onClick = { managingMetrics = true })
+                    SoftButton(if (photoCount > 0) "תמונות התקדמות ($photoCount)" else "תמונות התקדמות", onClick = onOpenPhotos)
+                }
+            }
+            if (items.isNotEmpty()) {
                 item { SectionTitle("כל המדידות") }
+                val names = metrics.associate { it.id to it }
                 items(items, key = { it.id }) { m ->
-                    MeasurementCard(m, onEdit = { editing = m }, onDelete = { deleting = m })
+                    MeasurementCard(m, names, onEdit = { editing = m }, onDelete = { deleting = m })
                 }
             }
         }
     }
 
+    val all = list.orEmpty()
     if (creating) {
-        MeasurementSheet(null, onSave = { input, at -> vm.save(null, input, at); creating = false }, onDismiss = { creating = false })
+        MeasurementSheet(null, all, metrics, onSave = { input, at -> vm.save(null, input, at); creating = false }, onDismiss = { creating = false })
     }
     editing?.let { m ->
-        MeasurementSheet(m, onSave = { input, at -> vm.save(m.id, input, at); editing = null }, onDismiss = { editing = null })
+        MeasurementSheet(m, all, metrics, onSave = { input, at -> vm.save(m.id, input, at); editing = null }, onDismiss = { editing = null })
     }
     deleting?.let { m ->
         ConfirmDialog(
@@ -146,54 +151,146 @@ fun BodyScreen(container: AppContainer) {
             onConfirm = { vm.delete(m.id); deleting = null }, onDismiss = { deleting = null },
         )
     }
+    if (comparing) MeasurementCompareSheet(all, metrics, onDismiss = { comparing = false })
+    if (managingMetrics) {
+        MetricsSheet(
+            metrics = metrics,
+            onAdd = vm::addMetric,
+            onRename = vm::renameMetric,
+            onRemove = vm::removeMetric,
+            onRestore = vm::restoreMetric,
+            onDismiss = { managingMetrics = false },
+        )
+    }
 }
 
+// ---- chart section ---------------------------------------------------------------------------------------------
+
 @Composable
-private fun WeightSection(all: List<BodyMeasurement>, range: Range?, onRange: (Range?) -> Unit) {
-    val today = LocalDate.now()
-    val weighed = remember(all) {
-        all.mapNotNull { m -> m.weightKg?.let { w -> TimeUtils.parseDate(m.localDate)?.let { BodyTrends.Point(it, w) } } }
-    }
-    val c7 = remember(all) { BodyTrends.weightChange(all, 7) }
-    val c30 = remember(all) { BodyTrends.weightChange(all, 30) }
-    LiftCard(Modifier.fillMaxWidth()) {
-        Text("משקל גוף", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        val latest = all.firstOrNull { it.weightKg != null }
-        if (latest == null) {
-            Text("עוד לא תועד משקל", style = MaterialTheme.typography.titleMedium)
-            return@LiftCard
-        }
-        Text(kg(latest.weightKg), style = MaterialTheme.typography.headlineMedium)
-        val d = TimeUtils.parseDate(latest.localDate)
-        Text(d?.let { dateLine(it) } ?: latest.localDate, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (c7 != null || c30 != null) {
-            Spacer(Modifier.height(6.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                c7?.let { Text("7 ימים: ${signedKg(it.deltaKg)}") }
-                c30?.let { Text("30 ימים: ${signedKg(it.deltaKg)}") }
+private fun SeriesSection(
+    all: List<BodyMeasurement>,
+    metrics: List<CustomMetric>,
+    selectedKey: String,
+    onSelect: (String) -> Unit,
+    period: Period,
+    onPeriod: (Period) -> Unit,
+    today: LocalDate,
+) {
+    val defs = remember(all, metrics) {
+        buildList {
+            BodyField.entries.forEach { f ->
+                if (f == BodyField.WEIGHT || all.any { f.valueOf(it) != null }) add(SeriesDef(f.key, f.labelHe, f.unit, f, null))
+            }
+            metrics.filter { !it.isArchived || all.any { m -> it.id in m.customValues } }.forEach { cm ->
+                if (all.any { cm.id in it.customValues }) add(SeriesDef("custom:${cm.id}", cm.name, cm.unit, null, cm.id))
             }
         }
+    }
+    val def = defs.firstOrNull { it.key == selectedKey } ?: defs.first()
+    val points = remember(all, def) {
+        if (def.field != null) BodyAnalytics.series(all, def.field) else BodyAnalytics.customSeries(all, def.metricId!!)
+    }
+    val range = remember(period, points, today) { period.resolve(today, points.firstOrNull()?.date) }
+    val shown = remember(points, range) { points.filter { it.date in range } }
+    val unit = def.unit
+
+    LiftCard(Modifier.fillMaxWidth()) {
+        Text("מגמות", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(4.dp))
+        ChipRow(defs, def, { it.label }, { it?.let { d -> onSelect(d.key) } }, allowClear = false, modifier = Modifier.padding(horizontal = 0.dp))
         Spacer(Modifier.height(8.dp))
-        ChipRow(Range.entries, range, { it.label }, onRange, allowClear = false)
-        val cutoff = range?.days?.let { today.minusDays(it) }
-        val shown = if (cutoff == null) weighed else weighed.filter { !it.date.isBefore(cutoff) }
+
+        val latest = points.lastOrNull()
+        if (latest == null) {
+            Text("עוד לא הוזן ערך עבור ${def.label}", style = MaterialTheme.typography.titleMedium)
+            return@LiftCard
+        }
+        Text("${ltr(Formatters.number(latest.value, 1))} $unit", style = MaterialTheme.typography.headlineMedium)
+        Text(dateLine(latest.date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+        Spacer(Modifier.height(8.dp))
+        PeriodSelector(period, today, onPeriod)
+        Spacer(Modifier.height(8.dp))
+
+        val chart = remember(shown, unit) {
+            shown.map { p ->
+                val cond = if (p.conditions.isEmpty()) "" else " · " + p.conditions.joinToString(", ") { it.labelHe }
+                ChartPoint(p.date, p.value, "${Formatters.number(p.value, 1)} $unit", Formatters.date(p.date) + cond)
+            }
+        }
+        val trend = remember(points, range, unit) {
+            BodyAnalytics.movingAverage(points, 7).filter { it.date in range }
+                .map { ChartPoint(it.date, it.value, "ממוצע נע (7 ימים): ${Formatters.number(it.value, 1)} $unit") }
+        }
+        InteractiveChart(
+            points = chart,
+            trend = trend,
+            emptyMessage = "נדרשות לפחות שתי מדידות בטווח הזה כדי להציג גרף.",
+            description = "גרף ${def.label}",
+        )
         if (shown.size >= 2) {
             Spacer(Modifier.height(8.dp))
-            // The 7-day moving average is computed on all data so the line is right at the left edge of the window.
-            val trend = BodyTrends.movingAverage(weighed, 7).filter { t -> shown.any { it.date == t.date } }
-            DatedLineChart(points = shown, trend = trend, unit = "ק״ג")
+            val change = ValueChange(shown.first().value, shown.last().value)
+            val pct = change.percent?.let { " (${signed(it, 1)}%)" }.orEmpty()
             Text(
-                "הנקודות הן שקילות בודדות והקו הירוק הוא ממוצע נע של 7 ימים. שינויים קצרי טווח (נוזלים, ארוחות, קריאטין) לא בהכרח מעידים על שומן או שריר.",
+                "בטווח שנבחר: ${signed(change.delta, 1)} $unit$pct · מינימום ${ltr(Formatters.number(shown.minOf { it.value }, 1))} · מקסימום ${ltr(Formatters.number(shown.maxOf { it.value }, 1))} · ממוצע ${ltr(Formatters.number(shown.map { it.value }.average(), 1))}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            if (shown.any { it.conditions.isNotEmpty() }) {
+                Text(
+                    "חלק מהנקודות מסומנות בנסיבות המדידה (למשל אחרי ארוחה): לחיצה על נקודה מציגה אותן.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        if (def.field != null) {
+            Spacer(Modifier.height(8.dp))
+            val t = remember(all, def.field, today) { BodyAnalytics.trend(all, def.field, today) }
+            Text("מגמה ב-28 הימים האחרונים", style = MaterialTheme.typography.labelMedium)
+            Text(t.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        } else {
+            Text(
+                BodyAnalytics.CAVEAT,
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+private fun signed(v: Double, decimals: Int): String {
+    val n = Formatters.number(v, decimals)
+    return ltr(if (v > 0) "+$n" else n.replace("-", "−"))
+}
+
+/** Average of the last 30 days against the 30 days before them, for the selected built-in field. */
+@Composable
+private fun PeriodComparison(all: List<BodyMeasurement>, seriesKey: String, today: LocalDate) {
+    val field = BodyField.fromKey(seriesKey) ?: return
+    val current = DateRange.lastDays(30, today)
+    val result = remember(all, field, today) { BodyAnalytics.comparePeriods(all, field, current.previous(), current) }
+    LiftCard(Modifier.fillMaxWidth()) {
+        Text("30 הימים האחרונים מול 30 הימים שלפניהם", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(field.labelHe, style = MaterialTheme.typography.titleMedium)
+        val change = result.change
+        if (change == null || result.a.count < 2 || result.b.count < 2) {
+            Text(
+                "אין מספיק מדידות בשתי התקופות (נדרשות לפחות שתיים בכל אחת): ${result.a.count} לפני, ${result.b.count} אחרי.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {
-            Text("נדרשות לפחות שתי שקילות בטווח הזה כדי להציג גרף.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val pct = change.percent?.let { " (${signed(it, 1)}%)" }.orEmpty()
+            Text(
+                "ממוצע לפני ${ltr(Formatters.number(change.from, 1))} (${result.a.count} מדידות), ממוצע אחרי ${ltr(Formatters.number(change.to, 1))} (${result.b.count} מדידות): ${signed(change.delta, 1)} ${field.unit}$pct",
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }
 
+// ---- the list ----------------------------------------------------------------------------------------------------
+
 @Composable
-private fun MeasurementCard(m: BodyMeasurement, onEdit: () -> Unit, onDelete: () -> Unit) {
+private fun MeasurementCard(m: BodyMeasurement, names: Map<String, CustomMetric>, onEdit: () -> Unit, onDelete: () -> Unit) {
     var menu by remember { mutableStateOf(false) }
     val d = TimeUtils.parseDate(m.localDate)
     LiftCard(Modifier.fillMaxWidth(), onClick = onEdit, contentPadding = 12.dp) {
@@ -201,16 +298,13 @@ private fun MeasurementCard(m: BodyMeasurement, onEdit: () -> Unit, onDelete: ()
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(d?.let { dateLine(it) } ?: m.localDate, style = MaterialTheme.typography.titleSmall)
                 val parts = buildList {
-                    m.weightKg?.let { add("משקל ${ltr(Formatters.number(it))}") }
-                    m.waistCm?.let { add("מותניים ${ltr(Formatters.number(it))}") }
-                    m.chestCm?.let { add("חזה ${ltr(Formatters.number(it))}") }
-                    m.armCm?.let { add("זרוע ${ltr(Formatters.number(it))}") }
-                    m.thighCm?.let { add("ירך ${ltr(Formatters.number(it))}") }
-                    m.hipsCm?.let { add("אגן ${ltr(Formatters.number(it))}") }
-                    m.neckCm?.let { add("צוואר ${ltr(Formatters.number(it))}") }
-                    m.bodyFatPct?.let { add("שומן ${ltr(Formatters.number(it))}%") }
+                    BodyField.entries.forEach { f -> f.valueOf(m)?.let { add("${shortLabel(f)} ${ltr(Formatters.number(it))}${if (f == BodyField.BODY_FAT) "%" else ""}") } }
+                    m.customValues.forEach { (id, v) -> add("${names[id]?.name ?: "שדה"} ${ltr(Formatters.number(v))}") }
                 }
                 if (parts.isNotEmpty()) Text(parts.joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
+                if (m.conditions.isNotEmpty()) {
+                    Text(m.conditions.joinToString(" · ") { it.labelHe }, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                }
                 if (m.notes.isNotBlank()) Text(m.notes, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Box {
@@ -224,64 +318,14 @@ private fun MeasurementCard(m: BodyMeasurement, onEdit: () -> Unit, onDelete: ()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MeasurementSheet(existing: BodyMeasurement?, onSave: (MeasurementInput, Long) -> Unit, onDismiss: () -> Unit) {
-    val zone = remember { java.time.ZoneId.systemDefault() }
-    val initialMs = existing?.measuredAt ?: System.currentTimeMillis()
-    val initialZdt = remember { java.time.Instant.ofEpochMilli(initialMs).atZone(existing?.let { TimeUtils.zone(it.zoneId) } ?: zone) }
-    var date by remember { mutableStateOf(initialZdt.toLocalDate()) }
-    var hour by remember { mutableStateOf(initialZdt.hour) }
-    var minute by remember { mutableStateOf(initialZdt.minute) }
-    var weight by remember { mutableStateOf(existing?.weightKg) }
-    var waist by remember { mutableStateOf(existing?.waistCm) }
-    var chest by remember { mutableStateOf(existing?.chestCm) }
-    var arm by remember { mutableStateOf(existing?.armCm) }
-    var thigh by remember { mutableStateOf(existing?.thighCm) }
-    var hips by remember { mutableStateOf(existing?.hipsCm) }
-    var neck by remember { mutableStateOf(existing?.neckCm) }
-    var fat by remember { mutableStateOf(existing?.bodyFatPct) }
-    var notes by remember { mutableStateOf(existing?.notes.orEmpty()) }
-    var pickDate by remember { mutableStateOf(false) }
-    var pickTime by remember { mutableStateOf(false) }
-
-    val input = MeasurementInput(
-        weightKg = weight, waistCm = waist, chestCm = chest, armCm = arm, thighCm = thigh,
-        hipsCm = hips, neckCm = neck, bodyFatPct = fat, notes = notes.trim(),
-    )
-    val canSave = input.hasAnyValue || input.notes.isNotEmpty()
-
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        Column(
-            Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp).verticalScroll(androidx.compose.foundation.rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Text(if (existing == null) "מדידה חדשה" else "עריכת מדידה", style = MaterialTheme.typography.titleLarge)
-            Text("אפשר למלא רק את מה שמדדת הפעם.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(onClick = { pickDate = true }, modifier = Modifier.weight(1f)) { Text("תאריך: ${Formatters.date(date)}") }
-                TextButton(onClick = { pickTime = true }, modifier = Modifier.weight(1f)) { Text("שעה: ${ltr("%02d:%02d".format(hour, minute))}") }
-            }
-            DecimalTextField("משקל", weight, { weight = it }, Modifier.fillMaxWidth(), "ק״ג")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DecimalTextField("היקף מותניים", waist, { waist = it }, Modifier.weight(1f), "ס״מ")
-                DecimalTextField("היקף חזה", chest, { chest = it }, Modifier.weight(1f), "ס״מ")
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DecimalTextField("היקף זרוע", arm, { arm = it }, Modifier.weight(1f), "ס״מ")
-                DecimalTextField("היקף ירך", thigh, { thigh = it }, Modifier.weight(1f), "ס״מ")
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DecimalTextField("היקף אגן", hips, { hips = it }, Modifier.weight(1f), "ס״מ")
-                DecimalTextField("היקף צוואר", neck, { neck = it }, Modifier.weight(1f), "ס״מ")
-            }
-            DecimalTextField("אחוז שומן (אם נמדד)", fat, { fat = it }, Modifier.fillMaxWidth(), "%")
-            OutlinedTextField(notes, { notes = it }, label = { Text("הערות (למשל: התחלתי קריאטין)") }, minLines = 2, modifier = Modifier.fillMaxWidth())
-            BigButton("שמור מדידה", enabled = canSave, onClick = {
-                onSave(input, TimeUtils.toEpochMs(date, hour, minute, zone))
-            })
-        }
-    }
-    if (pickDate) DatePickerSheet(date, onDismiss = { pickDate = false }) { date = it }
-    if (pickTime) TimePickerSheet(hour, minute, onDismiss = { pickTime = false }) { h, m -> hour = h; minute = m }
+internal fun shortLabel(f: BodyField): String = when (f) {
+    BodyField.WEIGHT -> "משקל"
+    BodyField.WAIST -> "מותניים"
+    BodyField.CHEST -> "חזה"
+    BodyField.ARM -> "זרוע"
+    BodyField.THIGH -> "ירך"
+    BodyField.HIPS -> "אגן"
+    BodyField.NECK -> "צוואר"
+    BodyField.SHOULDERS -> "כתפיים"
+    BodyField.BODY_FAT -> "שומן"
 }
