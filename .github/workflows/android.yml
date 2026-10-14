@@ -77,8 +77,10 @@ jobs:
               sha256sum "$apk"
               if [ -n "$BT" ]; then
                 "$BT/aapt2" dump badging "$apk" 2>/dev/null | grep -E "^package:|^sdkVersion:|^targetSdkVersion:|^uses-permission:|^application-label:" || true
-                "$BT/apksigner" verify --print-certs "$apk" 2>&1 | grep -E "Signer #1 certificate (DN|SHA-256)|Verifies" || true
+                "$BT/apksigner" verify --verbose --print-certs "$apk" 2>&1 | head -n 12 || true
               fi
+              echo "--- signing certificate (keytool) ---"
+              keytool -printcert -jarfile "$apk" 2>&1 | grep -E "Owner:|Issuer:|SHA256:|Valid from" | head -n 4 || true
             done
           } 2>&1 | tee apk-info.txt
 
@@ -171,6 +173,15 @@ jobs:
               print(f"gate {module}: tests={tests} failures={fails} errors={errs}")
               if fails or errs or tests == 0:
                   bad = True
+          # Skipped tests are not evidence: list them by name so nobody reads them as passes.
+          import glob
+          skipped = []
+          for root in ("domain/build/test-results", "unit-results", "app/build/test-results"):
+              for f in glob.glob(f"{root}/**/*.xml", recursive=True):
+                  txt = open(f, encoding="utf-8").read()
+                  for m in re.finditer(r'<testcase name="([^"]*)" classname="([^"]*)"[^>]*>\s*<skipped', txt):
+                      skipped.append(f"{m.group(2)}.{m.group(1)}")
+          print(f"SKIPPED TESTS ({len(skipped)}): " + ("; ".join(skipped) if skipped else "none"))
           sys.exit(1 if bad else 0)
           PY
           ls app/build/outputs/apk/release/*.apk
