@@ -62,6 +62,10 @@ class AnalyticsRepository(db: AppDatabase) {
             analytics.getFactsForExercises(exerciseIds, excludeSessionId).map { it.toDomain() }
         }
 
+    /** Headers of the given workouts (used for energy / fatigue notes next to a suggestion). */
+    suspend fun sessionFacts(ids: Collection<String>): List<SessionFact> =
+        ids.distinct().mapNotNull { sessions.getSession(it)?.toFact() }
+
     /** Completed sets of one workout, including a workout that is still running. */
     fun observeFactsOfSession(sessionId: String): Flow<List<SetFact>> =
         analytics.observeFactsOfSession(sessionId).map { rows -> rows.map { it.toDomain() } }.flowOn(Dispatchers.Default)

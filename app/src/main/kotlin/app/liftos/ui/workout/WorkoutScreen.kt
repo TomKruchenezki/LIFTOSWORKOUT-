@@ -146,6 +146,26 @@ private fun WorkoutContent(
         }
     }
 
+    val hints by vm.hints.collectAsStateWithLifecycle()
+    val records by vm.records.collectAsStateWithLifecycle()
+    val recordKeys = remember(records) { records.map { it.exerciseKey }.toSet() }
+    var hintFor by remember { mutableStateOf<String?>(null) }
+
+    // A record is celebrated the moment it is set: a snackbar while the app is open, a notification otherwise.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    LaunchedEffect(vm) {
+        vm.newRecords.collect { e ->
+            if (!container.settingsSnapshot().reminders.newRecordEnabled) return@collect
+            val text = app.liftos.ui.util.RecordText.describe(e)
+            if (lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                if (container.settingsSnapshot().vibrateOnSetComplete) view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                snackbar.showSnackbar("שיא אישי חדש! $text")
+            } else {
+                Notifications.newRecord(context, text)
+            }
+        }
+    }
+
     val totals = VolumeCalculator.totals(detail)
     val completedSets = totals.workingSets + totals.warmupSets
     val incompleteSets = detail.exercises.sumOf { ex -> ex.sets.count { !it.isCompleted } }
@@ -246,8 +266,23 @@ private fun WorkoutContent(
             }
         },
     ) { padding ->
+        Column(Modifier.padding(padding)) {
+        val totalSets = detail.exercises.filter { !it.exercise.skipped }.sumOf { it.sets.size }
+        val doneSets = detail.exercises.filter { !it.exercise.skipped }.sumOf { ex -> ex.sets.count { it.isCompleted } }
+        if (isActive && totalSets > 0) {
+            androidx.compose.material3.LinearProgressIndicator(
+                progress = { doneSets.toFloat() / totalSets },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            )
+            Text(
+                "הושלמו ${ltr("$doneSets/$totalSets")} סטים",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+            )
+        }
         LazyColumn(
-            modifier = Modifier.padding(padding),
+            modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -266,6 +301,11 @@ private fun WorkoutContent(
                     previous = item.exercise.exerciseId?.let { previous[it] },
                     effortMode = settings.effortMode,
                     actions = actions,
+                    hint = if (isActive) hints[item.exercise.id] else null,
+                    hasRecord = item.exercise.let { e ->
+                        app.liftos.domain.analytics.ExerciseKey.of(e.exerciseId, e.nameEn, e.nameHe) in recordKeys
+                    },
+                    onHint = { hintFor = item.exercise.id },
                 )
             }
             item {
@@ -277,6 +317,7 @@ private fun WorkoutContent(
                         editableTimes = !isActive,
                         onNotes = vm::setNotes,
                         onRatings = vm::setRatings,
+                        onRecovery = vm::setRecovery,
                         onTitle = vm::setTitle,
                         onTimes = vm::setTimes,
                     )
@@ -288,9 +329,28 @@ private fun WorkoutContent(
                 }
             }
         }
+        }
     }
 
     // ---- dialogs and sheets -----------------------------------------------------------------------------------
+
+    hintFor?.let { seId ->
+        val item = detail.exercises.firstOrNull { it.exercise.id == seId }
+        val hint = hints[seId]
+        if (item == null || hint == null) {
+            hintFor = null
+        } else {
+            SuggestionSheet(
+                exerciseName = item.exercise.nameHe,
+                suggestion = hint.suggestion,
+                hasOpenSets = item.sets.any { !it.isCompleted && it.setType != SetType.WARMUP },
+                onApply = { w -> vm.applyWeight(seId, hint.suggestion, w, manual = false); hintFor = null },
+                onManual = { w -> vm.applyWeight(seId, hint.suggestion, w, manual = true); hintFor = null },
+                onIgnore = { vm.ignoreHint(hint.suggestion); hintFor = null },
+                onDismiss = { hintFor = null },
+            )
+        }
+    }
 
     picker?.let { mode ->
         ExercisePickerSheet(

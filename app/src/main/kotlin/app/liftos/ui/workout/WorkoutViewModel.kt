@@ -5,20 +5,36 @@ import androidx.lifecycle.viewModelScope
 import app.liftos.data.repo.FinishSummary
 import app.liftos.data.repo.ToggleResult
 import app.liftos.di.AppContainer
+import app.liftos.domain.analytics.ExerciseKey
+import app.liftos.domain.analytics.PersonalRecordEngine
+import app.liftos.domain.analytics.PrEvent
+import app.liftos.domain.analytics.SessionFact
+import app.liftos.domain.analytics.SetFact
 import app.liftos.domain.logic.PreviousPerformance
+import app.liftos.domain.progression.DecisionType
+import app.liftos.domain.progression.ProgressionEngine
+import app.liftos.domain.progression.ProgressionSuggestion
+import app.liftos.domain.progression.RepTarget
 import app.liftos.domain.model.Exercise
 import app.liftos.domain.model.SetType
 import app.liftos.domain.model.WorkoutDetail
 import app.liftos.service.RestFinisher
 import app.liftos.service.WorkoutService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 sealed interface WorkoutUi {
     data object Loading : WorkoutUi
@@ -30,6 +46,22 @@ sealed interface WorkoutUi {
 enum class FieldKind { WEIGHT, REPS, EFFORT, DURATION }
 
 data class FocusedField(val setId: String, val kind: FieldKind)
+
+/** A progression suggestion for one exercise of the workout, and whether the user already decided about it. */
+data class ExerciseHint(val suggestion: ProgressionSuggestion, val visibility: ProgressionEngine.Visibility)
+
+/** The parts of an exercise that decide its history (changes to notes or sets must not reload it). */
+private data class ExerciseRef(
+    val id: String,
+    val key: String,
+    val exerciseId: String?,
+    val name: String,
+    val repsMin: Int?,
+    val repsMax: Int?,
+    val plannedSets: Int,
+)
+
+private data class HistoryBundle(val refs: List<ExerciseRef>, val facts: List<SetFact>, val sessions: List<SessionFact>)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WorkoutViewModel(private val c: AppContainer, val sessionId: String) : ViewModel() {
@@ -46,6 +78,76 @@ class WorkoutViewModel(private val c: AppContainer, val sessionId: String) : Vie
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
     private fun detail(): WorkoutDetail? = (ui.value as? WorkoutUi.Ready)?.detail
+
+    // ---- history based hints: progression suggestions and live personal records -------------------------------
+
+    private val refs = c.workouts.observeDetail(sessionId)
+        .map { d ->
+            d?.exercises.orEmpty().map {
+                val e = it.exercise
+                ExerciseRef(e.id, ExerciseKey.of(e.exerciseId, e.nameEn, e.nameHe), e.exerciseId, e.nameHe, e.repsMin, e.repsMax, e.plannedSets)
+            }
+        }
+        .distinctUntilChanged()
+
+    /** Earlier workouts of the exercises in this one; loaded once per set of exercises, not on every keystroke. */
+    private val history: Flow<HistoryBundle> = refs.mapLatest { list ->
+        val keys = list.map { it.key }.toSet()
+        val facts = c.analytics.historyFor(list.mapNotNull { it.exerciseId }.distinct(), sessionId).filter { it.key in keys }
+        val lastIds = facts.groupBy { it.key }.values.mapNotNull { rows -> rows.maxByOrNull { it.startedAt }?.sessionId }
+        HistoryBundle(list, facts, c.analytics.sessionFacts(lastIds))
+    }.flowOn(Dispatchers.Default)
+
+    val hints: StateFlow<Map<String, ExerciseHint>> = combine(
+        history, c.progression.observeDecisions(), c.progression.observePrefs(),
+    ) { bundle, decisions, prefs ->
+        val today = LocalDate.now(c.zones.zone())
+        bundle.refs.associate { ref ->
+            val target = if (ref.repsMin != null && ref.repsMax != null && ref.repsMin in 1..ref.repsMax) {
+                RepTarget(ref.repsMin, ref.repsMax, ref.plannedSets.coerceAtLeast(1))
+            } else null
+            val s = ProgressionEngine.suggest(ref.key, ref.name, bundle.facts, bundle.sessions, today, target, prefs[ref.key]?.incrementKg)
+            ref.id to ExerciseHint(s, ProgressionEngine.visibility(s, decisions))
+        }
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    /** Records this workout has broken so far (completed sets count immediately). */
+    val records: StateFlow<List<PrEvent>> = combine(history, c.analytics.observeFactsOfSession(sessionId)) { bundle, own ->
+        PersonalRecordEngine.eventsForSession(bundle.facts, own, sessionId)
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _newRecords = MutableSharedFlow<PrEvent>(extraBufferCapacity = 8)
+
+    /** Emits a record at the moment it is first set during this screen's lifetime. */
+    val newRecords: SharedFlow<PrEvent> = _newRecords
+
+    init {
+        viewModelScope.launch {
+            var known: Set<String>? = null
+            records.collect { list ->
+                val current = list.map { it.exerciseKey + "|" + it.kind.name }.toSet()
+                val before = known
+                if (before != null) {
+                    list.filter { (it.exerciseKey + "|" + it.kind.name) !in before }
+                        .filter { it.kind != app.liftos.domain.analytics.RecordKind.REPS_AT_WEIGHT && it.kind != app.liftos.domain.analytics.RecordKind.BEST_VOLUME }
+                        .minByOrNull { it.kind.priority }?.let { _newRecords.tryEmit(it) }
+                }
+                known = current
+            }
+        }
+    }
+
+    /** The user accepted a suggestion (or typed a weight): put it on the sets that are not done yet. */
+    fun applyWeight(sessionExerciseId: String, suggestion: ProgressionSuggestion, weightKg: Double, manual: Boolean) {
+        viewModelScope.launch {
+            c.workouts.applyWeightToOpenSets(sessionExerciseId, weightKg)
+            c.progression.record(suggestion, if (manual) DecisionType.MANUAL else DecisionType.APPLIED, weightKg)
+        }
+    }
+
+    fun ignoreHint(suggestion: ProgressionSuggestion) {
+        viewModelScope.launch { c.progression.record(suggestion, DecisionType.IGNORED) }
+    }
 
     // ---- sets ---------------------------------------------------------------------------------------
 
@@ -95,6 +197,8 @@ class WorkoutViewModel(private val c: AppContainer, val sessionId: String) : Vie
 
     fun setNotes(v: String) = launch { c.workouts.setSessionNotes(sessionId, v) }
     fun setRatings(energy: Int?, mood: Int?) = launch { c.workouts.setRatings(sessionId, energy, mood) }
+    fun setRecovery(difficulty: Int?, quality: Int?, soreness: Int?, fatigue: Int?, sleepHours: Double?) =
+        launch { c.workouts.setRecovery(sessionId, difficulty, quality, soreness, fatigue, sleepHours) }
     fun setTitle(v: String) = launch { c.workouts.setTitle(sessionId, v) }
     fun setTimes(start: Long, end: Long?) = launch { c.workouts.setTimes(sessionId, start, end) }
 
@@ -103,6 +207,7 @@ class WorkoutViewModel(private val c: AppContainer, val sessionId: String) : Vie
             val summary = c.workouts.finishWorkout(sessionId)
             WorkoutService.stop(c.app)
             onDone(summary)
+            c.goalTracker.check()
         }
     }
 

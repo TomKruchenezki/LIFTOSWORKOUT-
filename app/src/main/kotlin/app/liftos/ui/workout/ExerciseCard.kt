@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.EmojiEvents
+import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,6 +51,8 @@ import app.liftos.domain.model.SessionExercise
 import app.liftos.domain.model.SetType
 import app.liftos.domain.model.Side
 import app.liftos.domain.model.TrackingType
+import app.liftos.domain.progression.ProgressionEngine
+import app.liftos.domain.progression.SuggestionKind
 import app.liftos.ui.components.DecimalField
 import app.liftos.ui.components.IntField
 import app.liftos.ui.components.LiftCard
@@ -84,8 +88,12 @@ fun ExerciseCard(
     effortMode: EffortMode,
     actions: ExerciseActions,
     modifier: Modifier = Modifier,
+    hint: ExerciseHint? = null,
+    hasRecord: Boolean = false,
+    onHint: () -> Unit = {},
 ) {
     val ex = item.exercise
+    val allDone = item.sets.isNotEmpty() && item.sets.all { it.isCompleted } && !ex.skipped
     var menu by remember { mutableStateOf(false) }
     var showNotes by remember(ex.id) { mutableStateOf(ex.notes.isNotBlank()) }
     var confirmRemove by remember { mutableStateOf(false) }
@@ -93,7 +101,25 @@ fun ExerciseCard(
     LiftCard(modifier = modifier.fillMaxWidth(), contentPadding = 14.dp) {
         Row(verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f)) {
-                Text(ex.nameHe, style = MaterialTheme.typography.titleMedium)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(ex.nameHe, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f, fill = false))
+                    if (hasRecord) {
+                        Icon(
+                            Icons.Rounded.EmojiEvents,
+                            contentDescription = "שיא אישי חדש בתרגיל",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                    if (allDone) {
+                        Icon(
+                            Icons.Rounded.Check,
+                            contentDescription = "כל הסטים הושלמו",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
                 if (ex.nameEn.isNotBlank()) {
                     Text(ex.nameEn, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -127,6 +153,9 @@ fun ExerciseCard(
 
         TargetLine(ex)
         previous?.let { PreviousLine(it, ex) }
+        if (hint != null && hint.visibility == ProgressionEngine.Visibility.SHOW && hint.suggestion.kind != SuggestionKind.INSUFFICIENT_DATA) {
+            HintChip(hint, onHint)
+        }
 
         if (ex.skipped) {
             Spacer(Modifier.height(8.dp))
@@ -165,6 +194,32 @@ fun ExerciseCard(
             onConfirm = { confirmRemove = false; actions.remove(ex.id) },
             onDismiss = { confirmRemove = false },
         )
+    }
+}
+
+@Composable
+private fun HintChip(hint: ExerciseHint, onClick: () -> Unit) {
+    val s = hint.suggestion
+    val w = s.suggestedWeightKg?.let { ltr(Formatters.number(it, 2)) + " ק״ג" }
+    val text = when (s.kind) {
+        SuggestionKind.INCREASE_WEIGHT -> "הצעה: ${w ?: "להעלות משקל"}"
+        SuggestionKind.REDUCE_WEIGHT -> "הצעה: ${w ?: "להפחית משקל"}"
+        SuggestionKind.ADD_REPS -> "הצעה: להוסיף חזרה" + (w?.let { " ב-$it" } ?: "")
+        SuggestionKind.HOLD -> "הצעה: להישאר" + (w?.let { " ב-$it" } ?: "")
+        SuggestionKind.REVIEW -> "הצעה: לבדוק התאוששות"
+        SuggestionKind.INSUFFICIENT_DATA -> ""
+    }
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier.padding(top = 6.dp),
+    ) {
+        Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(Icons.Rounded.Lightbulb, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+            Text(text, style = MaterialTheme.typography.labelLarge)
+            Text("למה?", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        }
     }
 }
 

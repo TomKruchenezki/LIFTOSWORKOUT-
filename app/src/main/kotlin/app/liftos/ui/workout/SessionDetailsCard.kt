@@ -36,6 +36,7 @@ fun SessionDetailsCard(
     editableTimes: Boolean,
     onNotes: (String) -> Unit,
     onRatings: (Int?, Int?) -> Unit,
+    onRecovery: (difficulty: Int?, quality: Int?, soreness: Int?, fatigue: Int?, sleepHours: Double?) -> Unit,
     onTitle: (String) -> Unit,
     onTimes: (Long, Long?) -> Unit,
     modifier: Modifier = Modifier,
@@ -58,6 +59,37 @@ fun SessionDetailsCard(
         Spacer(Modifier.height(8.dp))
         RatingRow("רמת אנרגיה", session.energyRating) { onRatings(it, session.moodRating) }
         RatingRow("הרגשה כללית", session.moodRating) { onRatings(session.energyRating, it) }
+        var recoveryOpen by remember(session.id) {
+            mutableStateOf(
+                session.difficultyRating != null || session.qualityRating != null || session.sorenessRating != null ||
+                    session.fatigueRating != null || session.sleepHours != null,
+            )
+        }
+        TextButton(onClick = { recoveryOpen = !recoveryOpen }) {
+            Text(if (recoveryOpen) "הסתר נתוני התאוששות" else "נתוני התאוששות (אופציונלי)")
+        }
+        if (recoveryOpen) {
+            RatingRow("קושי האימון", session.difficultyRating) {
+                onRecovery(it, session.qualityRating, session.sorenessRating, session.fatigueRating, session.sleepHours)
+            }
+            RatingRow("איכות האימון", session.qualityRating) {
+                onRecovery(session.difficultyRating, it, session.sorenessRating, session.fatigueRating, session.sleepHours)
+            }
+            RatingRow("כאבי שרירים", session.sorenessRating) {
+                onRecovery(session.difficultyRating, session.qualityRating, it, session.fatigueRating, session.sleepHours)
+            }
+            RatingRow("עייפות כללית", session.fatigueRating) {
+                onRecovery(session.difficultyRating, session.qualityRating, session.sorenessRating, it, session.sleepHours)
+            }
+            SleepField(session.sleepHours) {
+                onRecovery(session.difficultyRating, session.qualityRating, session.sorenessRating, session.fatigueRating, it)
+            }
+            Text(
+                "כל השדות אופציונליים. הם משמשים רק להצגת מגמות עומס והתאוששות בלשונית ההתקדמות.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Spacer(Modifier.height(8.dp))
         DebouncedText(value = session.notes, label = "הערות כלליות לאימון", onSave = onNotes)
     }
@@ -68,6 +100,19 @@ fun SessionDetailsCard(
             initial = session.title,
             onConfirm = { renaming = false; onTitle(it) },
             onDismiss = { renaming = false },
+        )
+    }
+}
+
+@Composable
+private fun SleepField(value: Double?, onChange: (Double?) -> Unit) {
+    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("שעות שינה בלילה האחרון", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        app.liftos.ui.components.DecimalField(
+            value = value,
+            onValueChange = { onChange(it?.takeIf { v -> v in 0.0..24.0 }) },
+            modifier = Modifier.size(width = 84.dp, height = 48.dp),
+            placeholder = "7.5",
         )
     }
 }
