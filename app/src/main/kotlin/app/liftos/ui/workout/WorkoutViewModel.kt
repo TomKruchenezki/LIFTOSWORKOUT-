@@ -12,6 +12,7 @@ import app.liftos.domain.analytics.SessionFact
 import app.liftos.domain.analytics.SetFact
 import app.liftos.domain.logic.PreviousPerformance
 import app.liftos.domain.progression.DecisionType
+import app.liftos.domain.progression.IncrementPolicy
 import app.liftos.domain.progression.ProgressionEngine
 import app.liftos.domain.progression.ProgressionSuggestion
 import app.liftos.domain.progression.RepTarget
@@ -78,6 +79,27 @@ class WorkoutViewModel(private val c: AppContainer, val sessionId: String) : Vie
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
     private fun detail(): WorkoutDetail? = (ui.value as? WorkoutUi.Ready)?.detail
+
+    // ---- size of the "+" / "-" weight buttons ------------------------------------------------------------------
+
+    private val equipmentById: StateFlow<Map<String, app.liftos.domain.model.Equipment>> = c.exercises.observeAll()
+        .map { list -> list.associate { it.id to it.equipment } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    private val incrementPrefs = c.progression.observePrefs().stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    /**
+     * The size of one tap on a weight "+": the step the user chose for this exercise (exercise page), otherwise the
+     * usual jump for its equipment (dumbbells 1-2.5 kg, barbells 2.5 kg, kettlebells 4 kg).
+     */
+    fun weightStepFor(field: FocusedField): Double {
+        val item = detail()?.exercises?.firstOrNull { e -> e.sets.any { it.id == field.setId } } ?: return DEFAULT_WEIGHT_STEP
+        val set = item.sets.first { it.id == field.setId }
+        val e = item.exercise
+        val override = incrementPrefs.value[ExerciseKey.of(e.exerciseId, e.nameEn, e.nameHe)]?.incrementKg
+        val equipment = e.exerciseId?.let { equipmentById.value[it] }
+        return IncrementPolicy.stepKg(equipment, set.weightKg, override) ?: 1.0
+    }
 
     // ---- history based hints: progression suggestions and live personal records -------------------------------
 
@@ -243,3 +265,5 @@ class WorkoutViewModel(private val c: AppContainer, val sessionId: String) : Vie
         viewModelScope.launch { block() }
     }
 }
+
+private const val DEFAULT_WEIGHT_STEP = 2.5

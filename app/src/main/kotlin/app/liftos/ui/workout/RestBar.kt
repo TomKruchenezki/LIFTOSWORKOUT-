@@ -121,9 +121,11 @@ fun FieldToolbar(
     onAdjust: (Double) -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
+    /** One tap on a weight button, per exercise (see WorkoutViewModel.weightStepFor); the outer buttons are double. */
+    weightStep: Double = 2.5,
 ) {
     val steps: List<Double> = when (field.kind) {
-        FieldKind.WEIGHT -> listOf(-5.0, -2.5, 2.5, 5.0)
+        FieldKind.WEIGHT -> listOf(-2 * weightStep, -weightStep, weightStep, 2 * weightStep)
         FieldKind.REPS -> listOf(-1.0, 1.0, 2.0)
         FieldKind.EFFORT -> listOf(-1.0, 1.0)
         FieldKind.DURATION -> listOf(-5.0, 5.0, 15.0)

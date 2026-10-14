@@ -261,7 +261,7 @@ private fun WorkoutContent(
                     )
                 }
                 focused?.let { f ->
-                    FieldToolbar(field = f, onAdjust = { vm.adjust(f, it) }, onDone = { focusManager.clearFocus() })
+                    FieldToolbar(field = f, weightStep = vm.weightStepFor(f), onAdjust = { vm.adjust(f, it) }, onDone = { focusManager.clearFocus() })
                 }
             }
         },
