@@ -245,7 +245,10 @@ private fun MeasurementSheet(existing: BodyMeasurement?, onSave: (MeasurementInp
     var pickDate by remember { mutableStateOf(false) }
     var pickTime by remember { mutableStateOf(false) }
 
-    val input = MeasurementInput(weight, waist, chest, arm, thigh, hips, neck, fat, notes.trim())
+    val input = MeasurementInput(
+        weightKg = weight, waistCm = waist, chestCm = chest, armCm = arm, thighCm = thigh,
+        hipsCm = hips, neckCm = neck, bodyFatPct = fat, notes = notes.trim(),
+    )
     val canSave = input.hasAnyValue || input.notes.isNotEmpty()
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
