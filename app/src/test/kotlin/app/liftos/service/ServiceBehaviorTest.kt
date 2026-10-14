@@ -7,10 +7,16 @@ import android.app.Notification
 import android.app.NotificationManager
 import androidx.test.core.app.ApplicationProvider
 import app.liftos.LiftOsApp
+import app.liftos.data.repo.MeasurementInput
+import app.liftos.di.GoalTracker
+import app.liftos.domain.model.Goal
+import app.liftos.domain.model.GoalStatus
+import app.liftos.domain.model.GoalType
 import app.liftos.domain.reminders.ReminderType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -19,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import java.time.LocalDate
 
 /**
  * The background parts of the app on the Robolectric Android framework: the rest-finished alert, the ongoing
@@ -182,5 +189,52 @@ class ServiceBehaviorTest {
         assertNotNull(n)
         assertEquals("הסיכום השבועי", title(n!!))
         assertEquals("השבוע לא תועדו אימונים.", n.extras.getCharSequence(Notification.EXTRA_TEXT).toString())
+    }
+
+    // ---- goal reached / new record ------------------------------------------------------------------------
+
+    private fun weightGoal() = Goal(
+        id = "", title = "ירידה ל-80", type = GoalType.BODY_WEIGHT, metricKey = "weight", unit = "ק״ג",
+        startValue = 85.0, targetValue = 80.0, startDate = LocalDate.now().minusDays(30).toString(),
+    )
+
+    @Test
+    fun reaching_a_goal_posts_one_notification_and_marks_it_achieved() {
+        runBlocking {
+            c.goals.create(weightGoal())
+            c.measurements.add(MeasurementInput(weightKg = 79.5))
+            val first = GoalTracker(c).check()
+            val second = GoalTracker(c).check()
+            assertEquals(1, first.size)
+            assertTrue("a goal is celebrated once", second.isEmpty())
+            assertEquals(GoalStatus.ACHIEVED, c.goals.getAll().single().status)
+        }
+        assertEquals(1, notifications().size())
+        assertEquals("יעד הושג!", title(notifications().allNotifications[0]))
+    }
+
+    @Test
+    fun the_goal_notification_has_its_own_switch_but_the_goal_is_still_marked() {
+        runBlocking {
+            c.settings.update { it.copy(reminders = it.reminders.copy(goalReachedEnabled = false)) }
+            // The container keeps a cached copy of the settings that follows the database asynchronously.
+            val deadline = System.currentTimeMillis() + 5_000
+            while (c.settingsSnapshot().reminders.goalReachedEnabled && System.currentTimeMillis() < deadline) Thread.sleep(20)
+            assertFalse(c.settingsSnapshot().reminders.goalReachedEnabled)
+            c.goals.create(weightGoal())
+            c.measurements.add(MeasurementInput(weightKg = 79.5))
+            assertEquals(1, GoalTracker(c).check().size)
+            assertEquals(GoalStatus.ACHIEVED, c.goals.getAll().single().status)
+        }
+        assertEquals(0, notifications().size())
+    }
+
+    @Test
+    fun a_new_record_notification_uses_the_achievements_text() {
+        Notifications.newRecord(app, "לחיצת חזה: 62.5 ק״ג")
+        assertEquals(1, notifications().size())
+        val n = notifications().getNotification(Notifications.ID_RECORD)
+        assertEquals("שיא אישי חדש!", title(n))
+        assertEquals("לחיצת חזה: 62.5 ק״ג", n.extras.getCharSequence(Notification.EXTRA_TEXT).toString())
     }
 }
