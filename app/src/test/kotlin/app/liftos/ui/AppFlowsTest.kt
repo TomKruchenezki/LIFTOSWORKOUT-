@@ -2,6 +2,7 @@ package app.liftos.ui
 
 import android.Manifest
 import android.app.Application
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -187,10 +188,17 @@ class AppFlowsTest {
         compose.onNodeWithContentDescription("הגדרות").performClick()
         waitForText("מחיקת נתונים")
         compose.tap("delete all button", scrollFirst = true) { compose.onNodeWithText("מחק את כל הנתונים שלי") }
-        waitForText("למחוק את כל הנתונים?")
+        // The confirmation field keeps animating its cursor, which would stop Compose from ever being idle in a test:
+        // freeze the animation clock and advance it by hand while the dialog is open.
+        compose.mainClock.autoAdvance = false
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.onNodeWithText("למחוק את כל הנתונים?").assertExists()
         compose.onNodeWithText("מחק הכול").assertIsNotEnabled()
         compose.onNode(hasSetTextAction()).performTextInput("מחק")
-        compose.tap("confirm delete") { compose.onNodeWithText("מחק הכול") }
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithText("מחק הכול").assertIsEnabled()
+        compose.onNodeWithText("מחק הכול").performClick()
+        compose.mainClock.autoAdvance = true
         compose.waitUntilOrDump("measurements deleted") { runBlocking { app.container.measurements.observeAllOnce() }.isEmpty() }
         waitForText("כל הנתונים נמחקו", substring = true)
         // Like a fresh install: the library and the starting program are back.

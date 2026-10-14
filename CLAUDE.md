@@ -27,6 +27,13 @@ Owner timezone Asia/Jerusalem. Product rules: every button must work, real data 
   at the end of the job log. Locally with Android Studio everything builds normally.
 - Maven Central rate-limits the sandbox IP (HTTP 429); just retry.
 - Pitfall seen twice: never write `/*` inside a KDoc comment (Kotlin nests comments) - e.g. paths like `assets/x/*.json`.
+- **CI workflow facts (Part 2):** a push cancels the run in progress (`cancel-in-progress`), so push in batches and wait for the result
+  (~6 min). Read results with `mcp__github__get_job_logs` (`return_content=true`, `tail_lines` 40-70); the artifacts (APK) cannot be downloaded
+  from the sandbox (blob host 403). The "Failure summary" step is last and now ends with `TEST TOTALS` lines.
+- Other pitfalls seen: inside `AppContainer` the property `app` shadows the package `app.liftos` (import classes instead of writing fully qualified
+  names); always use named arguments for `MeasurementInput`; the extended FAB label is only in the *unmerged* semantics tree
+  (`onNodeWithText(..., useUnmergedTree = true)`); Robolectric cannot run `PdfDocument` (keep paging logic in `:domain` `ReportBlocks`);
+  Room's schema JSON is a KSP side effect, so the KSP tasks declare `app/schemas` as an output (a build-cache hit otherwise leaves it missing).
 
 ## Key decisions (do not undo without a reason)
 - **No DI framework**: hand-written `AppContainer`. Small app, faster builds, easy to test.
@@ -48,11 +55,31 @@ Owner timezone Asia/Jerusalem. Product rules: every button must work, real data 
   confirmation and writes an automatic safety copy to app-private `files/backups/`. MERGE never overwrites.
 - Floot import adapter is best-effort (field names from the owner's description, never seen a real file).
 
+### Part 2 decisions (LiftOS 0.2.0)
+- **Analytics are derived, never stored.** Everything is computed from flat `SetFact`/`SessionFact` lists by pure `:domain` code
+  (`analytics`, `progression`, `calendar`, `body`, `goals`, `recovery`, `insights`, `export`, `reminders`). `AppContainer.analyticsData` is shared and
+  only active while a screen looks at it. A unilateral exercise (right+left rows) counts as ONE set. A record's first value is a baseline, not a PR;
+  ties are not PRs. 1RM is Epley and always labelled an estimate.
+- **Progression suggestions are never applied automatically.** The user can apply, change manually, or ignore (stored in `progression_decisions`).
+  Thin data = "not enough data", never a made-up number. Recovery/insights are rule based and say so; no medical diagnosis (only a Deload hint).
+- **Calendar:** planned workouts come from the active plan's weekdays; changing ONE occurrence (move/skip/missed) is a row in `planned_overrides` -
+  plan and history are never touched. Repeating events are one row with a rule + exceptions (`Recurrence.kt`). Auto "missed" only for the last 28 days.
+- **AI export = copy / share only.** `TextReport.AI_INSTRUCTION` (verbatim from the owner) + `PeriodReport`. Never write "sent"; write "copied". Body data is opt-in per export.
+  `domain/ai/AiProvider` is an unused extension point (no INTERNET permission; a future provider needs per-provider consent and a Keystore key).
+- **Photos** live only in `files/photos` (JPEG, EXIF stripped); camera via system `TakePicture` + FileProvider, gallery via `PickVisualMedia` (no permissions).
+- **Backups schema 2:** JSON or ZIP (`backup.json` + `photos/<file>`). `includesPhotos` decides whether REPLACE touches photos; old files go to a safety folder
+  only after the DB transaction succeeded. Preview shows new vs existing per category. File names with `/`, `\`, `..` are rejected.
+- **Reminders** use `AlarmManager.setAndAllowWhileIdle` (NOT WorkManager: not time-of-day accurate), one alarm per enabled type for the next occurrence only;
+  re-created at app start, on settings change and after boot. `ReminderPlanner` is pure and tested (DST).
+- **Honesty rule for reports:** say exactly what was verified. Nothing has been run on a real device; Floot import is unverified against a real file.
+
 ## Conventions
-- Hebrew UI strings are hardcoded in Compose for now (extraction to resources = Part 2). Enum labels live in
+- Hebrew UI strings are hardcoded in Compose for now (extraction to resources is still open). Enum labels live in
   `domain` (`labelHe`). Wrap numbers in `ltr()` (`ui/util/UiFormat.kt`) inside Hebrew sentences.
 - Repositories expose Flows + suspend functions; ViewModels created via `appViewModel { ... }`.
 - Tests: JVM tests in `domain/src/test`; Robolectric Room tests in `app/src/test` (`TestEnv` builds all repositories).
 
 ## Status
-See `DEVELOPMENT_PLAN.md` (what is done / what is next) and `CHANGELOG.md`.
+Part 1 (0.1.0) and Part 2 (0.2.0) are implemented and green in CI. Not done / not verified: real-device testing, Floot import against a real file,
+R8 release runtime, camera/gallery/PDF rendering/notification delivery on a device. See `FEATURES.md` (honest per-feature table), `TESTING.md`,
+`DEVELOPMENT_PLAN.md` (what is next) and `CHANGELOG.md`.

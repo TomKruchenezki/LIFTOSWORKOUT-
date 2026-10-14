@@ -192,9 +192,6 @@ object CalendarBuilder {
         return t.hour * 60 + t.minute
     }
 
-    /** Items of one day, in display order. */
-    fun forDay(items: List<CalendarItem>, date: LocalDate): List<CalendarItem> = items.filter { it.date == date }
-
     /** Number of items per date, for the month grid. */
     fun markers(items: List<CalendarItem>): Map<LocalDate, List<CalendarItemKind>> =
         items.groupBy { it.date }.mapValues { (_, l) -> l.map { it.kind }.distinct() }

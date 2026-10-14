@@ -231,16 +231,6 @@ class ActivityRepository(
         }
     }
 
-    suspend fun setStatus(id: String, status: EventStatus) {
-        val e = get(id) ?: return
-        save(e.copy(status = status))
-    }
-
-    suspend fun linkToSession(id: String, sessionId: String?) {
-        val e = get(id) ?: return
-        save(e.copy(linkedSessionId = sessionId, status = if (sessionId != null) EventStatus.DONE else e.status))
-    }
-
     // ---- planned workouts (overrides) -----------------------------------------------------------------
 
     /** Moves ONE occurrence of a plan day. The plan and past workouts are untouched. */
