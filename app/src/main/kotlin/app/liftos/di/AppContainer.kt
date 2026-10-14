@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import app.liftos.data.TimeSource
+import app.liftos.service.ReminderScheduler
 import app.liftos.domain.model.AppSettings
 import app.liftos.data.ZoneSource
 import app.liftos.data.db.AppDatabase
@@ -103,7 +104,7 @@ class AppContainer(
         // Reminder alarms follow the settings (and are re-created at every app start).
         appScope.launch {
             settings.observe().map { it.reminders }.distinctUntilChanged().collect {
-                runCatching { app.liftos.service.ReminderScheduler.rescheduleAll(app, this@AppContainer) }
+                runCatching { ReminderScheduler.rescheduleAll(app, this@AppContainer) }
             }
         }
     }
