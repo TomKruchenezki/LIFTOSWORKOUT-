@@ -7,6 +7,8 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
+import app.liftos.domain.export.BlockKind
+import app.liftos.domain.export.ReportBlocks
 import java.io.ByteArrayOutputStream
 
 /**
@@ -59,11 +61,11 @@ object PdfExport {
         }
 
         draw(title, titlePaint, 0f, 10f)
-        for (line in text.lines()) {
-            when {
-                line.startsWith("## ") -> draw(line.removePrefix("## "), heading, 10f, 4f)
-                line.isBlank() -> y += 6f
-                else -> draw(line, body, 0f, 1f)
+        for (block in ReportBlocks.parse(text)) {
+            when (block.kind) {
+                BlockKind.HEADING -> draw(block.text, heading, 10f, 4f)
+                BlockKind.SPACER -> y += 6f
+                BlockKind.LINE -> draw(block.text, body, 0f, 1f)
             }
         }
         finishPage()
