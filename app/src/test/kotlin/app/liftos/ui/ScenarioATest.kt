@@ -86,6 +86,15 @@ class ScenarioATest {
         compose.tap("Upper A in the plan") { compose.onAllNodesWithText("Upper A").onLast() }
     }
 
+    private fun goHome() {
+        repeat(5) {
+            if (compose.containsText("התחל אימון")) return
+            back()
+            compose.waitForIdle()
+        }
+        waitForText("התחל אימון")
+    }
+
     private fun back() = compose.onAllNodesWithContentDescription("חזרה").onLast().performClick()
 
     private fun active() = runBlocking { app.container.workouts.observeActive().first() }
@@ -176,9 +185,9 @@ class ScenarioATest {
         assertTrue("the previous workout is in the report", clip.contains("האימון הקודם"))
         assertTrue(clip.trimEnd().endsWith(TextReport.AI_INSTRUCTION.trimEnd()))
 
-        // A17 the workout is in the journal (history view)
-        back()
-        waitForText("התחל אימון")
+        // A17 the workout is in the journal (history view). The workout was started from the plan screen, so "back" first
+        // leads through the plan screens.
+        goHome()
         tapText("journal tab", "יומן")
         waitForText("יומן אימונים")
         tapText("history view", "היסטוריה")
