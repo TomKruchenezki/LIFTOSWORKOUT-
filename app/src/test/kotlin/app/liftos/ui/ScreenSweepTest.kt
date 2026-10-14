@@ -29,6 +29,7 @@ import app.liftos.domain.model.AppSettings
 import app.liftos.domain.model.Goal
 import app.liftos.domain.model.GoalType
 import app.liftos.domain.model.PhotoAngle
+import app.liftos.domain.model.ThemeMode
 import app.liftos.ui.analytics.ChartChoice
 import app.liftos.ui.nav.LiftOsRoot
 import app.liftos.ui.theme.LiftOsTheme
@@ -72,10 +73,10 @@ class ScreenSweepTest {
         seed()
     }
 
-    private fun show(fontScale: Float? = null) {
+    private fun show(fontScale: Float? = null, mode: ThemeMode = AppSettings().themeMode) {
         compose.setContent {
             val content = @androidx.compose.runtime.Composable {
-                LiftOsTheme(AppSettings().themeMode) {
+                LiftOsTheme(mode) {
                     // The theme sets the layout direction, so it can only be read from inside it.
                     layoutDirection = LocalLayoutDirection.current
                     LiftOsRoot(app.container, AppSettings())
@@ -139,6 +140,15 @@ class ScreenSweepTest {
         show()
         waitForText("התחל אימון")
         assertEquals(LayoutDirection.Rtl, layoutDirection)
+    }
+
+    @Test
+    fun the_light_theme_renders_the_home_screen_and_a_workout() {
+        show(mode = ThemeMode.LIGHT)
+        waitForText("התחל אימון")
+        compose.onNodeWithText("התחל אימון").performClick()
+        waitForText("סיים")
+        waitForText("הוסף סט")
     }
 
     @Test

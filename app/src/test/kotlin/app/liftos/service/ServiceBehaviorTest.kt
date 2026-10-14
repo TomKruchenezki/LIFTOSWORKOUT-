@@ -191,6 +191,14 @@ class ServiceBehaviorTest {
         assertEquals("השבוע לא תועדו אימונים.", n.extras.getCharSequence(Notification.EXTRA_TEXT).toString())
     }
 
+    @Test
+    fun the_notification_channels_respect_do_not_disturb() {
+        Notifications.ensureChannels(app)
+        val channels = app.getSystemService(NotificationManager::class.java).notificationChannels
+        assertTrue("workout, rest alert, reminders and achievements: ${channels.map { it.id }}", channels.size >= 4)
+        assertTrue("no channel overrides Do Not Disturb", channels.none { it.canBypassDnd() })
+    }
+
     // ---- goal reached / new record ------------------------------------------------------------------------
 
     private fun weightGoal() = Goal(

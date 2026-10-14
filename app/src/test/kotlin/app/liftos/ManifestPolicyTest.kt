@@ -84,4 +84,18 @@ class ManifestPolicyTest {
         }.toList()
         assertTrue("network code found: $hits", hits.isEmpty())
     }
+
+    @Test
+    fun `there is no nutrition module`() {
+        val roots = listOf(File("src/main/kotlin"), File("../domain/src/main/kotlin"))
+        assumeTrue("run from the module directory", roots.all { it.isDirectory })
+        val forbidden = listOf("nutrition", "calorie", "calories", "קלוריות", "תזונה", "macro", "recipe")
+        val hits = roots.flatMap { root ->
+            root.walkTopDown().filter { it.isFile && it.extension == "kt" }.flatMap { f ->
+                val text = f.readText().lowercase()
+                forbidden.filter { it in text || it in f.path.lowercase() }.map { "${f.name}: $it" }
+            }.toList()
+        }
+        assertTrue("nutrition code found: $hits", hits.isEmpty())
+    }
 }
