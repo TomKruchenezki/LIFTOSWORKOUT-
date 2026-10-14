@@ -2,6 +2,7 @@
 
 Read this first in every new session. It keeps decisions and context between conversations.
 Update it whenever a decision changes. The owner writes in Hebrew; UI strings and user-facing docs are Hebrew.
+**Also read `FEEDBACK.md`** (real-device trial notes from the owner: severity, status, what was fixed). Add new notes to it, keep ids `F-001`..., never delete a note (change its status), and treat anything not observed on the device as unverified.
 
 ## What this is
 LiftOS: a personal Android strength-training app (Kotlin, Jetpack Compose, Room). Offline-only, sideloaded
