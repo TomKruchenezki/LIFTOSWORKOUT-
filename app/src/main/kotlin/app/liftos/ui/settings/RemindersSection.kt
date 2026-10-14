@@ -92,7 +92,7 @@ internal fun RemindersSection(r: ReminderSettings, onChange: (ReminderSettings) 
         HorizontalDivider(Modifier.padding(vertical = 6.dp))
 
         Toggle("הודעה כשיעד הושג", "מוצגת ברגע שיעד שהגדרת מושג", r.goalReachedEnabled) { onChange(r.copy(goalReachedEnabled = it)) }
-        Toggle("הודעה על שיא אישי חדש", "מוצגת בסיום אימון שבו נשבר שיא", r.newRecordEnabled) { onChange(r.copy(newRecordEnabled = it)) }
+        Toggle("הודעה על שיא אישי חדש", "ברגע שסט שובר שיא: הודעה באפליקציה, או התראה אם היא ברקע", r.newRecordEnabled) { onChange(r.copy(newRecordEnabled = it)) }
 
         Spacer(Modifier.height(8.dp))
         Hint(

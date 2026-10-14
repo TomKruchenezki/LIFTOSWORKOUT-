@@ -76,6 +76,12 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Room writes its schema JSON as a side effect of KSP. Declaring the folder as an output makes the Gradle build cache
+// restore it as well; without this a cache hit leaves it missing and DurabilityTest (schema exported) fails at random.
+tasks.configureEach {
+    if (name.startsWith("ksp") && name.endsWith("Kotlin")) outputs.dir("$projectDir/schemas")
+}
+
 dependencies {
     implementation(project(":domain"))
 
