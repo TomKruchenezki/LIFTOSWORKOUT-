@@ -65,3 +65,24 @@ fun ComposeContentTestRule.tap(what: String, scrollFirst: Boolean = false, node:
         throw AssertionError("Could not tap $what: $reason | SCREEN: ${screenDump()}", e)
     }
 }
+
+/**
+ * Clicks a node and waits for [expected] to appear; if the screen did not change (a click that landed while the list
+ * was still settling), the node is looked up again and clicked once more, up to [attempts] times.
+ */
+fun ComposeContentTestRule.tapUntilShown(
+    what: String,
+    expected: String,
+    attempts: Int = 3,
+    node: () -> SemanticsNodeInteraction,
+) {
+    repeat(attempts) { attempt ->
+        tap(what, node = node)
+        try {
+            waitUntil(if (attempt == attempts - 1) 10_000 else 3_000) { containsText(expected) }
+            return
+        } catch (e: ComposeTimeoutException) {
+            if (attempt == attempts - 1) throw AssertionError("Tapped $what $attempts times but \"$expected\" never appeared | SCREEN: ${screenDump()}", e)
+        }
+    }
+}

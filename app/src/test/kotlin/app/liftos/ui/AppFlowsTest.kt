@@ -137,8 +137,7 @@ class AppFlowsTest {
         waitForText("104 תרגילים")
         compose.onNode(hasSetTextAction()).performTextInput("פלאנק")
         waitForText("(מסונן)", substring = true)
-        compose.tap("library row") { compose.onAllNodes(hasText("פלאנק") and hasClickAction() and hasSetTextAction().not())[0] }
-        waitForText("אופן ביצוע")
+        compose.tapUntilShown("library row", "אופן ביצוע") { compose.onAllNodes(hasText("פלאנק") and hasClickAction() and hasSetTextAction().not())[0] }
         waitForText("חפש הדגמה ביוטיוב")
         waitForText("זהו קישור לחיפוש ביוטיוב, לא סרטון מאומת", substring = true)
         waitForText("טעויות נפוצות")
