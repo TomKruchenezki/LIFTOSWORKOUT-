@@ -56,6 +56,9 @@ import java.time.LocalDate
 
 private const val DELETE_WORD = "מחק"
 
+/** "Delete all my data" needs the word typed exactly (surrounding spaces are ignored). */
+internal fun isDeleteConfirmed(typed: String): Boolean = typed.trim() == DELETE_WORD
+
 /** Backup, restore, CSV export and "delete all my data" (the last two parts of the settings screen). */
 @Composable
 internal fun BackupSection(container: AppContainer, say: (String) -> Unit) {
@@ -256,7 +259,7 @@ internal fun BackupSection(container: AppContainer, say: (String) -> Unit) {
 }
 
 @Composable
-internal fun DeleteAllDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+private fun DeleteAllDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
     var typed by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -269,8 +272,8 @@ internal fun DeleteAllDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm, enabled = typed.trim() == DELETE_WORD) {
-                Text("מחק הכול", color = if (typed.trim() == DELETE_WORD) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = onConfirm, enabled = isDeleteConfirmed(typed)) {
+                Text("מחק הכול", color = if (isDeleteConfirmed(typed)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("ביטול") } },
